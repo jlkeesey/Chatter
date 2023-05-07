@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33516.290
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chatter", "Chatter\Chatter.csproj", "{55C1DDD7-9B38-44B5-81C6-BB9DB2ACA00F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{55C1DDD7-9B38-44B5-81C6-BB9DB2ACA00F}.Debug|x64.ActiveCfg = Debug|x64
+		{55C1DDD7-9B38-44B5-81C6-BB9DB2ACA00F}.Debug|x64.Build.0 = Debug|x64
+		{55C1DDD7-9B38-44B5-81C6-BB9DB2ACA00F}.Release|x64.ActiveCfg = Release|x64
+		{55C1DDD7-9B38-44B5-81C6-BB9DB2ACA00F}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9FCE8018-EBFF-43FA-8F6A-FE922864CA0A}
+	EndGlobalSection
+EndGlobal
