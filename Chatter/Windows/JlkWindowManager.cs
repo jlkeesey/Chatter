@@ -1,5 +1,8 @@
 using System;
+using Chatter.Model;
 using Dalamud.Interface.Windowing;
+using Dalamud.Plugin;
+using ImGuiScene;
 
 namespace Chatter.Windows;
 
@@ -8,21 +11,27 @@ namespace Chatter.Windows;
 /// </summary>
 public sealed class JlkWindowManager : IDisposable
 {
-    private readonly Chatter _chatter;
-    private readonly global::Chatter.Windows.ConfigWindow _configWindow;
+    private readonly ConfigWindow _configWindow;
+    private readonly DalamudPluginInterface _pluginInterface;
+    private readonly WindowSystem _windowSystem;
 
     /// <summary>
     ///     Creates the manager, all top-level windows, and binds them where needed.
     /// </summary>
-    /// <param name="chatter">The plugin object.</param>
-    public JlkWindowManager(Chatter chatter)
+    /// <param name="pluginInterface"></param>
+    /// <param name="friendManager"></param>
+    /// <param name="nameSpace"></param>
+    /// <param name="chatterImage"></param>
+    /// <param name="config"></param>
+    /// <param name="dateManager"></param>
+    public JlkWindowManager(DalamudPluginInterface pluginInterface, Configuration config, DateManager dateManager,
+        FriendManager friendManager, string nameSpace, TextureWrap chatterImage)
     {
-        _chatter = chatter;
-
-        _configWindow = Add(new global::Chatter.Windows.ConfigWindow(_chatter.ChatterImage));
-
-        Dalamud.PluginInterface.UiBuilder.Draw += chatter.WindowSystem.Draw;
-        Dalamud.PluginInterface.UiBuilder.OpenConfigUi += ToggleConfig;
+        _pluginInterface = pluginInterface;
+        _windowSystem = new WindowSystem(nameSpace);
+        _configWindow = Add(new ConfigWindow(config, dateManager, friendManager, chatterImage));
+        _pluginInterface.UiBuilder.Draw += _windowSystem.Draw;
+        _pluginInterface.UiBuilder.OpenConfigUi += ToggleConfig;
     }
 
     /// <summary>
@@ -30,10 +39,10 @@ public sealed class JlkWindowManager : IDisposable
     /// </summary>
     public void Dispose()
     {
-        Dalamud.PluginInterface.UiBuilder.OpenConfigUi -= ToggleConfig;
-        Dalamud.PluginInterface.UiBuilder.Draw -= _chatter.WindowSystem.Draw;
+        _pluginInterface.UiBuilder.OpenConfigUi -= ToggleConfig;
+        _pluginInterface.UiBuilder.Draw -= _windowSystem.Draw;
 
-        _chatter.WindowSystem.RemoveAllWindows();
+        _windowSystem.RemoveAllWindows();
 
         _configWindow.Dispose();
     }
@@ -54,7 +63,7 @@ public sealed class JlkWindowManager : IDisposable
     /// <returns>The given window.</returns>
     private TType Add<TType>(TType window) where TType : Window
     {
-        _chatter.WindowSystem.AddWindow(window);
+        _windowSystem.AddWindow(window);
         return window;
     }
 }

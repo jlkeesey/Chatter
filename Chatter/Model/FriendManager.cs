@@ -10,17 +10,24 @@ namespace Chatter.Model;
 /// <summary>
 ///     Utilities for manipulating <see cref="Friend" /> objects.
 /// </summary>
-public static class FriendManager
+public class FriendManager
 {
+    private readonly WorldManager _worldManager
+        ;
     private const int InfoOffset = 0x28;
     private const int LengthOffset = 0x10;
     private const int ListOffset = 0x98;
+
+    public FriendManager(WorldManager worldManager)
+    {
+        _worldManager = worldManager;
+    }
 
     /// <summary>
     ///     Returns a list of all of the current player's friends.
     /// </summary>
     /// <returns>A list of <see cref="Friend" /> objects.</returns>
-    public static unsafe IReadOnlyList<Friend> GetFriends()
+    public unsafe IEnumerable<Friend> GetFriends()
     {
         List<Friend> friends = new();
 
@@ -42,8 +49,8 @@ public static class FriendManager
         for (var i = 0; i < length; i++)
         {
             var entry = (FriendEntry*) (list + i * FriendEntry.Size);
-            var homeWorld = WorldManager.GetWorld(entry->HomeWorld);
-            var currentWorld = WorldManager.GetWorld(entry->CurrentWorld);
+            var homeWorld = _worldManager.GetWorld(entry->HomeWorld);
+            var currentWorld = _worldManager.GetWorld(entry->CurrentWorld);
             friends.Add(new Friend(entry->ContentId, entry->Name, entry->FreeCompany, homeWorld, currentWorld,
                 entry->IsOnline));
         }

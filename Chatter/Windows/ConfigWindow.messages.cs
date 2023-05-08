@@ -51,7 +51,7 @@ public partial class ConfigWindow
     private static readonly string MsgLabelSaveDirectoryHelp = Loc.Message("Label.SaveDirectory.Help");
     private static readonly string MsgPlayerAlreadyInList = Loc.Message("Message.PlayerAlreadyInList");
     private static readonly string MsgPlayerFullName = Loc.Message("Label.PlayerFullName");
-    private static readonly string MsgPlayerFullNameHelp = Loc.Message("Label.PlayerFullName.Help", Myself.HomeWorld);
+    private static readonly string MsgPlayerFullNameHelp = Loc.Message("Label.PlayerFullName.Help");
     private static readonly string MsgPlayerReplacement = Loc.Message("Label.PlayerReplacement");
     private static readonly string MsgPlayerReplacementHelp = Loc.Message("Label.PlayerReplacement.Help");
     private static readonly string MsgTabGeneral = Loc.Message("Tab.General");

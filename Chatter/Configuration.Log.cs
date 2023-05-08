@@ -19,7 +19,8 @@ public partial class Configuration
         public readonly Dictionary<XivChatType, ChatTypeFlag> ChatTypeFilterFlags = new();
 
         /// <summary>
-        ///     The format string for formatting the timestamp of a chat message. If not specified, we use "G".
+        ///     The format string for formatting the timestamp of a chat message. If not specified, we use the
+        ///     <see cref="DateManager.CultureDateTimePattern" />.
         /// </summary>
         public string? DateTimeFormat;
 

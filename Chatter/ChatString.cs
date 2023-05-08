@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Chatter.Model;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
 using Dalamud.Utility;
@@ -65,7 +64,7 @@ public class ChatString
                         {
                             nameState = NameState.Nothing;
                             // EndsWith to account for special characters in front of name
-                            if (str == player!.Name || str.EndsWith(player!.Name))
+                            if (str == player!.Name || str.EndsWith(player.Name))
                             {
                                 nameState = NameState.LookingForWorld;
                                 continue;
@@ -111,13 +110,13 @@ public class ChatString
     ///     the given information.
     /// </summary>
     /// <param name="player">The player name to use if we cannot find a player item.</param>
-    /// <param name="world">The optional world, default to the executing player's home world.</param>
+    /// <param name="world">The  world name to use if we cannot find a player item.</param>
     /// <returns>A <see cref="CsPlayerItem" />.</returns>
-    public CsPlayerItem GetInitialPlayerItem(string player, string? world)
+    public CsPlayerItem GetInitialPlayerItem(string player, string world)
     {
         if (_items.Count > 0 && _items[0] is CsPlayerItem cpi) return cpi;
 
-        return new CsPlayerItem(player, world ?? Myself.HomeWorld);
+        return new CsPlayerItem(player, world);
     }
 
     /// <summary>

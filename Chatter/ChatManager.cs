@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Dalamud.Game.Gui;
 using Dalamud.Game.Text;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Logging;
@@ -52,20 +53,27 @@ public sealed class ChatManager : IDisposable
         XivChatType.Yell,
     };
 
-    private readonly Configuration _configuration;
+    private readonly ChatGui _chatGui;
+    private readonly ChatTypeHelper _chatTypeHelper = new();
 
+    private readonly Configuration _config;
+    private readonly DateManager _dateManager;
     private readonly ChatLogManager _logManager;
+    private readonly string _defaultHomeWorld;
 
-    public ChatManager(Configuration configuration, ChatLogManager logManager)
+    public ChatManager(Configuration configuration, ChatLogManager logManager, ChatGui chatGui, DateManager dateManager, string defaultHomeWorld)
     {
-        _configuration = configuration;
+        _config = configuration;
         _logManager = logManager;
-        Dalamud.Chat.ChatMessage += HandleChatMessage;
+        _chatGui = chatGui;
+        _dateManager = dateManager;
+        _defaultHomeWorld = defaultHomeWorld;
+        _chatGui.ChatMessage += HandleChatMessage;
     }
 
     public void Dispose()
     {
-        Dalamud.Chat.ChatMessage -= HandleChatMessage;
+        _chatGui.ChatMessage -= HandleChatMessage;
     }
 
     /// <summary>
@@ -90,13 +98,14 @@ public sealed class ChatManager : IDisposable
     {
         if (!AllSupportedChatTypes.Contains(xivType))
         {
-            if (_configuration.IsDebug) PluginLog.Debug($"Unsupported XivChatType: {xivType}");
+            if (_config.IsDebug) PluginLog.Debug($"Unsupported XivChatType: {xivType}");
             return;
         }
 
         var body = CleanUpBody(seBody);
         var sender = CleanUpSender(seSender, body);
-        var cm = new ChatMessage(xivType, senderId, sender, body);
+        var chatTypeLabel = _chatTypeHelper.TypeToName(xivType, _config.IsDebug);
+        var cm = new ChatMessage(xivType, chatTypeLabel, senderId, sender, body, _dateManager.ZonedNow);
         _logManager.LogInfo(cm);
     }
 
@@ -109,7 +118,6 @@ public sealed class ChatManager : IDisposable
     {
         return new ChatString(seBody);
     }
-
 
     /// <summary>
     ///     Cleans up the sender name. This removed any non-name characters and separated the world name from the user name by
@@ -124,11 +132,11 @@ public sealed class ChatManager : IDisposable
     /// <param name="seSender">The sender name.</param>
     /// <param name="message"></param>
     /// <returns>The cleaned sender name.</returns>
-    private static ChatString CleanUpSender(SeString seSender, ChatString message)
+    private  ChatString CleanUpSender(SeString seSender, ChatString message)
     {
         var chatString = new ChatString(seSender);
         if (!chatString.HasInitialPlayer() && message.HasInitialPlayer())
-            chatString = new ChatString(message.GetInitialPlayerItem(chatString.ToString(), null));
+            chatString = new ChatString(message.GetInitialPlayerItem(chatString.ToString(), _defaultHomeWorld));
 
         return chatString;
     }

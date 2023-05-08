@@ -109,14 +109,20 @@ public sealed partial class ConfigWindow : Window, IDisposable
     private string _removeUser = Empty;
     private string _selectedFriend = Empty;
     private string _selectedGroup = AllLogName;
+    private readonly FriendManager _friendManager;
 
     /// <summary>
     ///     Constructs the configuration editing window.
     /// </summary>
+    /// <param name="config"></param>
+    /// <param name="dateManager"></param>
     /// <param name="chatterImage">The Chatter plugin icon.</param>
-    public ConfigWindow(TextureWrap? chatterImage) : base(Title)
+    public ConfigWindow(Configuration config, DateManager dateManager, FriendManager friendManager, TextureWrap? chatterImage) : base(Title)
     {
+        _configuration = config;
+        _friendManager  = friendManager;
         _chatterImage = chatterImage;
+
         SizeConstraints = new WindowSizeConstraints
         {
             MinimumSize = new Vector2(450, 520),
@@ -126,12 +132,11 @@ public sealed partial class ConfigWindow : Window, IDisposable
         Size = new Vector2(800, 520);
         SizeCondition = ImGuiCond.FirstUseEver;
 
-        _configuration = Chatter.Configuration;
 
         _dateOptions = new List<ComboOption<string>>
         {
-            new(ConfigWindow.MsgComboTimestampCultural, "G", ConfigWindow.MsgComboTimestampCulturalHelp),
-            new(ConfigWindow.MsgComboTimestampSortable, "yyyy-MM-dd HH:mm:ss", ConfigWindow.MsgComboTimestampSortableHelp),
+            new(ConfigWindow.MsgComboTimestampCultural, dateManager.CultureDateTimePattern.PatternText, ConfigWindow.MsgComboTimestampCulturalHelp),
+            new(ConfigWindow.MsgComboTimestampSortable, dateManager.SortableDateTimePattern.PatternText, ConfigWindow.MsgComboTimestampSortableHelp),
         };
 
         _fileOrderOptions = new List<ComboOption<FileNameOrder>>
@@ -418,7 +423,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
                     if (DrawFindFriendButton())
                     {
                         _friendFilter = Empty;
-                        _friends = _filteredFriends = FriendManager.GetFriends();
+                        _friends = _filteredFriends = _friendManager.GetFriends();
                         _selectedFriend = Empty;
                         ImGui.OpenPopup("findFriend");
                     }

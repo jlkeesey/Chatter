@@ -1,5 +1,5 @@
-﻿using System;
-using Dalamud.Game.Text;
+﻿using Dalamud.Game.Text;
+using NodaTime;
 
 namespace Chatter;
 
@@ -8,28 +8,24 @@ namespace Chatter;
 /// </summary>
 public class ChatMessage
 {
-    private string? _typeLabel;
-
-    public ChatMessage(XivChatType xivType, uint senderId, ChatString sender, ChatString body, DateTime? when = null)
+    public ChatMessage(XivChatType xivType, string typeLabel, uint senderId, ChatString sender, ChatString body, ZonedDateTime when)
     {
         ChatType = xivType;
+        TypeLabel = typeLabel;
         SenderId = senderId;
         Sender = sender;
         Body = body;
-        When = when ?? DateTime.Now;
+        When = when;
     }
 
     public XivChatType ChatType { get; }
     public uint SenderId { get; }
     public ChatString Sender { get; }
     public ChatString Body { get; }
-    public DateTime When { get; }
+    public ZonedDateTime When { get; }
 
     /// <summary>
     ///     Returns the string label for the chat type.
     /// </summary>
-    public string TypeLabel
-    {
-        get { return _typeLabel ??= ChatTypeHelper.TypeToName(ChatType); }
-    }
+    public string TypeLabel { get; }
 }

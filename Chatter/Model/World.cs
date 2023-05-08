@@ -1,4 +1,4 @@
-﻿namespace Chatter.Data;
+﻿namespace Chatter.Model;
 
 /// <summary>
 ///     Represents an FFXIV world. FFXIV has it's own type but it's not easily consumable by C# so

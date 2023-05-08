@@ -94,6 +94,13 @@ public static class SeSpecialCharacters
         {'\uE0C6', "\u2165"}, // Roman numeral VI
     };
 
+    // ReSharper disable once MemberCanBePrivate.Global
+    /// <summary>
+    ///     Returns <c>true</c> if the given character is one of the FFXIV special characters. This basically means that
+    ///     the character is in the private area reserved for applications.
+    /// </summary>
+    /// <param name="ch">The <c>char</c> to process.</param>
+    /// <returns><c>true</c> if the character is special.</returns>
     public static bool IsSpecial(char ch)
     {
         return ch is >= '\uE000' and <= '\uF8FF';
@@ -115,16 +122,17 @@ public static class SeSpecialCharacters
     /// <summary>
     ///     Returns the given string with all special characters replaced.
     /// </summary>
-    /// <param name="s">The string to process.</param>
+    /// <param name="input">The string to process.</param>
     /// <returns>The processed string.</returns>
-    public static string Replace(string s)
+    public static string Replace(string input)
     {
         var sb = new StringBuilder();
-        foreach (var ch in s)
+        foreach (var ch in input)
             sb.Append(Replacement(ch));
         return sb.ToString();
     }
 
+    // ReSharper disable once MemberCanBePrivate.Global
     /// <summary>
     ///     Provides a reasonable replacement for one of the FFXIV special characters. All replacements will be
     ///     well-defined Unicode characters. If there is no defined replacement or if the character is not a
@@ -138,15 +146,12 @@ public static class SeSpecialCharacters
     /// <returns>The replacement string.</returns>
     public static string Replacement(char ch)
     {
-        if (IsSpecial(ch))
-        {
-            if (SpecialCharacterMap.TryGetValue(ch, out var value))
-                return value;
+        if (SpecialCharacterMap.TryGetValue(ch, out var value))
+            return value;
 #if DEBUG
+        if (IsSpecial(ch))
             PluginLog.Debug("Unhandled FFXIV character: (\\u{0:X4})", (int) ch);
 #endif
-        }
-
         return ch.ToString();
     }
 }

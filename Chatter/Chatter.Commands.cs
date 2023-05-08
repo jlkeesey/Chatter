@@ -20,16 +20,15 @@ public sealed partial class Chatter
 
     private readonly Dictionary<string, CommandInfo> _commands = new();
 
-    private readonly Dictionary<string, Func<bool>> _debugFlags = new()
-    {
-        {"debug", () => Chatter.Configuration.IsDebug},
-    };
+    private readonly Dictionary<string, Func<bool>> _debugFlags = new();
 
     /// <summary>
     ///     Registers all of the text commands with the Dalamud plugin environment.
     /// </summary>
     private void RegisterCommands()
     {
+        _debugFlags.Add("debug", () => _configuration.IsDebug);
+
         _commands[CommandChatter] = new CommandInfo(OnChatterConfig)
         {
             HelpMessage = "Opens the Chatter configuration window.",
@@ -42,7 +41,7 @@ public sealed partial class Chatter
             ShowInHelp = false,
         };
 
-        foreach (var (command, info) in _commands) Dalamud.Commands.AddHandler(command, info);
+        foreach (var (command, info) in _commands) _commandManager.AddHandler(command, info);
     }
 
     /// <summary>
@@ -50,7 +49,7 @@ public sealed partial class Chatter
     /// </summary>
     private void UnregisterCommands()
     {
-        foreach (var command in _commands.Keys) Dalamud.Commands.RemoveHandler(command);
+        foreach (var command in _commands.Keys) _commandManager.RemoveHandler(command);
     }
 
     /// <summary>
@@ -73,8 +72,8 @@ public sealed partial class Chatter
     {
         if (arguments.IsNullOrEmpty())
         {
-            Chatter.Configuration.IsDebug = !Chatter.Configuration.IsDebug;
-            PluginLog.Debug($"Debug mode is {(Chatter.Configuration.IsDebug ? "on" : "off")}");
+            _configuration.IsDebug = !_configuration.IsDebug;
+            PluginLog.Debug($"Debug mode is {(_configuration.IsDebug ? "on" : "off")}");
             PluginLog.Debug("");
             PluginLog.Debug($"Sub-commands are: {DebugChatDump}, {DebugList}");
         }
@@ -85,7 +84,7 @@ public sealed partial class Chatter
             switch (debugCommand)
             {
                 case DebugChatDump:
-                    ChatLogManager.DumpLogs();
+                    _chatLogManager.DumpLogs();
                     break;
                 case DebugList:
                     ListDebugFlags();

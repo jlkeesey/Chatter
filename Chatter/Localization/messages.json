@@ -442,7 +442,7 @@
     },
     {
       "key": "Label.PlayerFullName.Help",
-      "message": "The full name of the player including the player's home world separated by an at (@) sign e.g. Lord Farquod@Duloc. If a world is not present it will default to your home world of {0}. You can also use the Friend selector button to pick a player from your friend list.",
+      "message": "The full name of the player including the player's home world separated by an at (@) sign e.g. Lord Farquod@Duloc. If a world is not present it will default to your home world. You can also use the Friend selector button to pick a player from your friend list.",
       "description": ""
     },
     {

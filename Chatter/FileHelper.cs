@@ -7,7 +7,7 @@ namespace Chatter;
 /// <summary>
 ///     Basic file system helper functions.
 /// </summary>
-internal class FileHelper
+internal static class FileHelper
 {
     /// <summary>
     ///     The file extension for log files.
@@ -17,15 +17,13 @@ internal class FileHelper
     /// <summary>
     ///     The name of the default directory to write logs into.
     /// </summary>
-    public const string DefaultDirectory = "FFXIV Chatter";
-
-    private const string FileDateTimePattern = "-{0:yyyyMMdd-HHmmss}";
+    private const string DefaultDirectory = "FFXIV Chatter";
 
     /// <summary>
     ///     Returns the current user's <c>Document</c> directory path.
     /// </summary>
     /// <returns>The <c>Document</c> directory path.</returns>
-    public static string DocumentsDirectory()
+    private static string DocumentsDirectory()
     {
         return Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
     }
@@ -40,7 +38,7 @@ internal class FileHelper
     /// </remarks>
     /// <param name="directory">The directory oath to create.</param>
     /// <returns>The name of the directory ot <see cref="string.Empty" />.</returns>
-    public static string CreateDirectory(string directory)
+    private static string CreateDirectory(string directory)
     {
         try
         {
@@ -137,21 +135,10 @@ internal class FileHelper
     }
 
     /// <summary>
-    ///     Returns the given file name prefix with the given <see cref="DateTime" /> appended to form a complete name.
-    /// </summary>
-    /// <param name="prefix">The file name prefix.</param>
-    /// <param name="when">The timestamp for the file name or null for the current time.</param>
-    /// <returns>The complete file name.</returns>
-    private static string FileNameWithDateTime(string prefix, DateTime? when = null)
-    {
-        return prefix + string.Format(FileDateTimePattern, when ?? DateTime.Now);
-    }
-
-    /// <summary>
-    ///     Returns a non-existing, fully qualified file name with the current <see cref="DateTime" /> appended.
+    ///     Returns a non-existing, fully qualified file name with the current date and time appended.
     /// </summary>
     /// <remarks>
-    ///     This methods combines the parts and then appends the current <see cref="DateTime" />. This path is returned ff the
+    ///     This methods combines the parts and then appends the current date and time. This path is returned ff the
     ///     resulting path does not exist. If it does exist, then a counter value is appended until a non-existing name is
     ///     created.
     /// </remarks>

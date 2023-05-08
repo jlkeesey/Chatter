@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using Dalamud.Configuration;
 using Dalamud.Game.Text;
+using Dalamud.Plugin;
+using NodaTime;
 
 namespace Chatter;
 
@@ -27,35 +30,41 @@ public partial class Configuration : IPluginConfiguration
     public string LogFileNamePrefix = "chatter";
 
     /// <summary>
-    /// Specifies the order of the parts in a log file name.
+    ///     The string representation of a <see cref="LocalTime" /> when a log file will be closed so a new one
+    ///     can be opened. Empty or an invalid string will be treated as 06:00 local time.
+    /// </summary>
+    public string WhenToCloseLogs = "";
+
+    /// <summary>
+    ///     Specifies the order of the parts in a log file name.
     /// </summary>
     public enum FileNameOrder
     {
         /// <summary>
-        /// Placeholder for not set, will be interpreted the same as <see cref="FileNameOrder.PrefixGroupDate"/>.
+        ///     Placeholder for not set, will be interpreted the same as <see cref="FileNameOrder.PrefixGroupDate" />.
         /// </summary>
         None = 0,
 
         /// <summary>
-        /// Log file names are in the form 'chatter-all-20230204-123456.log'
+        ///     Log file names are in the form 'chatter-all-20230204-123456.log'
         /// </summary>
         PrefixGroupDate,
 
         /// <summary>
-        /// Log file names are in the form 'chatter-20230204-123456-all.log'
+        ///     Log file names are in the form 'chatter-20230204-123456-all.log'
         /// </summary>
         PrefixDateGroup,
     }
 
     /// <summary>
-    /// Controls the order of the parts in a log file name.
+    ///     Controls the order of the parts in a log file name.
     /// </summary>
     public FileNameOrder LogOrder { get; set; } = FileNameOrder.PrefixGroupDate;
 
     /// <summary>
     ///     The configurations for the individual chat logs.
     /// </summary>
-    public Dictionary<string, Configuration.ChatLogConfiguration> ChatLogs = new();
+    public Dictionary<string, ChatLogConfiguration> ChatLogs = new();
 
 #if DEBUG
     public bool IsDebug = true;
@@ -66,19 +75,19 @@ public partial class Configuration : IPluginConfiguration
     public int Version { get; set; } = 1;
 
     /// <summary>
-    /// Adds a log configuration.
+    ///     Adds a log configuration.
     /// </summary>
-    /// <param name="logConfiguration">The <see cref="Configuration.ChatLogConfiguration"/> to add.</param>
-    public void AddLog(Configuration.ChatLogConfiguration logConfiguration)
+    /// <param name="logConfiguration">The <see cref="Configuration.ChatLogConfiguration" /> to add.</param>
+    public void AddLog(ChatLogConfiguration logConfiguration)
     {
         ChatLogs[logConfiguration.Name] = logConfiguration;
     }
 
     /// <summary>
-    /// Removes a log configuration.
+    ///     Removes a log configuration.
     /// </summary>
-    /// <param name="logConfiguration">The <see cref="Configuration.ChatLogConfiguration"/> to remove.</param>
-    public void RemoveLog(Configuration.ChatLogConfiguration logConfiguration)
+    /// <param name="logConfiguration">The <see cref="Configuration.ChatLogConfiguration" /> to remove.</param>
+    public void RemoveLog(ChatLogConfiguration logConfiguration)
     {
         ChatLogs.Remove(logConfiguration.Name);
     }
@@ -88,21 +97,22 @@ public partial class Configuration : IPluginConfiguration
     /// </summary>
     public void Save()
     {
-        Dalamud.PluginInterface.SavePluginConfig(this);
+        _pluginInterface?.SavePluginConfig(this);
     }
 
     /// <summary>
     ///     Loads the most recently saved configuration or creates a new one.
     /// </summary>
     /// <returns>The configuration to use.</returns>
-    public static Configuration Load()
+    public static Configuration Load(DalamudPluginInterface pluginInterface)
     {
         // var config = new Configuration();
         // Dalamud.PluginInterface.SavePluginConfig(config);
-        if (Dalamud.PluginInterface.GetPluginConfig() is not Configuration config) config = new Configuration();
+        if (pluginInterface.GetPluginConfig() is not Configuration config) config = new Configuration();
+        config._pluginInterface = pluginInterface;
 
         if (!config.ChatLogs.ContainsKey(AllLogName))
-            config.AddLog(new Configuration.ChatLogConfiguration(AllLogName, true, includeAllUsers: true, format: "{2}:{0}:{5}"));
+            config.AddLog(new ChatLogConfiguration(AllLogName, true, includeAllUsers: true, format: "{2}:{0}:{5}"));
 
 #if DEBUG
         // ReSharper disable StringLiteralTypo
@@ -164,4 +174,7 @@ public partial class Configuration : IPluginConfiguration
         XivChatType.CrossLinkShell7,
         XivChatType.CrossLinkShell8,
     };
+
+    [JsonIgnore]
+    private DalamudPluginInterface? _pluginInterface;
 }
