@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Chatter.System;
 using Dalamud.Game.Gui;
 using Dalamud.Game.Text;
 using Dalamud.Game.Text.SeStringHandling;
@@ -10,7 +11,7 @@ namespace Chatter;
 /// <summary>
 ///     Handles capturing chat messages and passing them on the to chat log manager for processing.
 /// </summary>
-public sealed class ChatManager : IDisposable
+internal sealed class ChatManager : IDisposable
 {
     /// <summary>
     ///     Lists of all of the chat types that we support. Not all of these are currently exposed to the user.
@@ -56,18 +57,27 @@ public sealed class ChatManager : IDisposable
     private readonly ChatGui _chatGui;
     private readonly ChatTypeHelper _chatTypeHelper = new();
 
-    private readonly Configuration _config;
-    private readonly DateManager _dateManager;
+    private readonly Configuration _configuration;
+    private readonly IDateHelper _dateHelper;
     private readonly ChatLogManager _logManager;
     private readonly string _defaultHomeWorld;
 
-    public ChatManager(Configuration configuration, ChatLogManager logManager, ChatGui chatGui, DateManager dateManager, string defaultHomeWorld)
+    /// <summary>
+    /// Manages connecting to the chat stream and converting them into a form for easier processing.
+    /// </summary>
+    /// <param name="configuration">The plugin configuration.</param>
+    /// <param name="logManager">The manager that processes the formalized chat messages.</param>
+    /// <param name="chatGui">The interface into the chat stream.</param>
+    /// <param name="dateHelper">The manager of date/time objects.</param>
+    /// <param name="defaultHomeWorld">The user's home world.</param>
+    public ChatManager(Configuration configuration, ChatLogManager logManager, ChatGui chatGui, IDateHelper dateHelper, string defaultHomeWorld)
     {
-        _config = configuration;
+        _configuration = configuration;
         _logManager = logManager;
         _chatGui = chatGui;
-        _dateManager = dateManager;
+        _dateHelper = dateHelper;
         _defaultHomeWorld = defaultHomeWorld;
+
         _chatGui.ChatMessage += HandleChatMessage;
     }
 
@@ -98,14 +108,14 @@ public sealed class ChatManager : IDisposable
     {
         if (!AllSupportedChatTypes.Contains(xivType))
         {
-            if (_config.IsDebug) PluginLog.Debug($"Unsupported XivChatType: {xivType}");
+            if (_configuration.IsDebug) PluginLog.Debug($"Unsupported XivChatType: {xivType}");
             return;
         }
 
         var body = CleanUpBody(seBody);
         var sender = CleanUpSender(seSender, body);
-        var chatTypeLabel = _chatTypeHelper.TypeToName(xivType, _config.IsDebug);
-        var cm = new ChatMessage(xivType, chatTypeLabel, senderId, sender, body, _dateManager.ZonedNow);
+        var chatTypeLabel = _chatTypeHelper.TypeToName(xivType, _configuration.IsDebug);
+        var cm = new ChatMessage(xivType, chatTypeLabel, senderId, sender, body, _dateHelper.ZonedNow);
         _logManager.LogInfo(cm);
     }
 

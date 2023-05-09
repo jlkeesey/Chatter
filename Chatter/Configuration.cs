@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 using Dalamud.Configuration;
 using Dalamud.Game.Text;
 using Dalamud.Plugin;
+using Dalamud.Utility;
 using NodaTime;
 
 namespace Chatter;
@@ -22,7 +23,7 @@ public partial class Configuration : IPluginConfiguration
     /// <summary>
     ///     The directory to write all logs to. This directory may not exist.
     /// </summary>
-    public string LogDirectory = FileHelper.InitialLogDirectory();
+    public string LogDirectory = string.Empty;
 
     /// <summary>
     ///     The prefix for the logs. This will be the first part of all log file names.
@@ -33,7 +34,7 @@ public partial class Configuration : IPluginConfiguration
     ///     The string representation of a <see cref="LocalTime" /> when a log file will be closed so a new one
     ///     can be opened. Empty or an invalid string will be treated as 06:00 local time.
     /// </summary>
-    public string WhenToCloseLogs = "";
+    public string WhenToCloseLogs = string.Empty;
 
     /// <summary>
     ///     Specifies the order of the parts in a log file name.
@@ -104,12 +105,17 @@ public partial class Configuration : IPluginConfiguration
     ///     Loads the most recently saved configuration or creates a new one.
     /// </summary>
     /// <returns>The configuration to use.</returns>
-    public static Configuration Load(DalamudPluginInterface pluginInterface)
+    public static Configuration Load(DalamudPluginInterface pluginInterface, FileHelper fileHelper)
     {
         // var config = new Configuration();
         // Dalamud.PluginInterface.SavePluginConfig(config);
         if (pluginInterface.GetPluginConfig() is not Configuration config) config = new Configuration();
         config._pluginInterface = pluginInterface;
+
+        if (config.LogDirectory.IsNullOrWhitespace())
+        {
+            config.LogDirectory = fileHelper.InitialLogDirectory();
+        }
 
         if (!config.ChatLogs.ContainsKey(AllLogName))
             config.AddLog(new ChatLogConfiguration(AllLogName, true, includeAllUsers: true, format: "{2}:{0}:{5}"));

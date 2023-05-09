@@ -18,7 +18,7 @@ namespace Chatter;
 ///     parts with the behaviors that we need for handle chat messages and users (both of which use the same string
 ///     structure).
 /// </remarks>
-public class ChatString
+internal sealed class ChatString
 {
     private readonly List<CsItem> _items = new();
 

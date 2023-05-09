@@ -1,5 +1,6 @@
 using System;
 using Chatter.Model;
+using Chatter.System;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
 using ImGuiScene;
@@ -23,13 +24,13 @@ public sealed class JlkWindowManager : IDisposable
     /// <param name="nameSpace"></param>
     /// <param name="chatterImage"></param>
     /// <param name="config"></param>
-    /// <param name="dateManager"></param>
-    public JlkWindowManager(DalamudPluginInterface pluginInterface, Configuration config, DateManager dateManager,
+    /// <param name="dateHelper"></param>
+    public JlkWindowManager(DalamudPluginInterface pluginInterface, Configuration config, IDateHelper dateHelper,
         FriendManager friendManager, string nameSpace, TextureWrap chatterImage)
     {
         _pluginInterface = pluginInterface;
         _windowSystem = new WindowSystem(nameSpace);
-        _configWindow = Add(new ConfigWindow(config, dateManager, friendManager, chatterImage));
+        _configWindow = Add(new ConfigWindow(config, dateHelper, friendManager, chatterImage));
         _pluginInterface.UiBuilder.Draw += _windowSystem.Draw;
         _pluginInterface.UiBuilder.OpenConfigUi += ToggleConfig;
     }

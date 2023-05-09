@@ -7,7 +7,7 @@ namespace Chatter;
 /// <summary>
 ///     Utilities for working with the <see cref="XivChatType" /> enum.
 /// </summary>
-internal class ChatTypeHelper
+internal sealed class ChatTypeHelper
 {
     private readonly Dictionary<XivChatType, string> _chatCodeToShortName = new()
     {

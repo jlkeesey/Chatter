@@ -19,7 +19,6 @@ public sealed partial class Chatter
     private const string DebugList = "list";
 
     private readonly Dictionary<string, CommandInfo> _commands = new();
-
     private readonly Dictionary<string, Func<bool>> _debugFlags = new();
 
     /// <summary>
@@ -27,7 +26,7 @@ public sealed partial class Chatter
     /// </summary>
     private void RegisterCommands()
     {
-        _debugFlags.Add("debug", () => _configuration.IsDebug);
+        _debugFlags.TryAdd("debug", () => _configuration.IsDebug);
 
         _commands[CommandChatter] = new CommandInfo(OnChatterConfig)
         {

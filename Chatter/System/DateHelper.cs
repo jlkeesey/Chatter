@@ -1,21 +1,21 @@
-﻿using NodaTime;
+﻿using System.Globalization;
+using NodaTime;
 using NodaTime.Extensions;
 using NodaTime.Text;
-using System.Globalization;
 
-namespace Chatter;
+namespace Chatter.System;
 
 /// <summary>
 ///     Helper methods for manipulating dates and times. This uses NodaTime for the support.
 /// </summary>
-public class DateManager
+public sealed class DateHelper : IDateHelper
 {
     private ZonedDateTimePattern? _cultureDateTimePattern;
     private ZonedDateTimePattern? _sortableDateTimePattern;
 
-    private  ZonedClock Clock { get; } = SystemClock.Instance.InTzdbSystemDefaultZone();
+    private ZonedClock Clock { get; } = SystemClock.Instance.InTzdbSystemDefaultZone();
 
-    public  ZonedDateTime ZonedNow => Clock.GetCurrentZonedDateTime();
+    public ZonedDateTime ZonedNow => Clock.GetCurrentZonedDateTime();
 
     public LocalDate CurrentDate => Clock.GetCurrentDate();
 

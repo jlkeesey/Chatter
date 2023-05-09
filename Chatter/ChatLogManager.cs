@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Chatter.Model;
+using Chatter.System;
 using Dalamud.Logging;
 using Dalamud.Utility;
 using NodaTime;
@@ -20,32 +21,33 @@ namespace Chatter;
 ///         and one log for each group set up in the configuration.
 ///     </para>
 /// </remarks>
-public sealed class ChatLogManager : IDisposable
+internal sealed class ChatLogManager : IDisposable
 {
     private static readonly LocalTimePattern TimePattern = CreateWithInvariantCulture("H:mm");
-    private readonly Configuration _config;
-    private readonly DateManager _dateManager;
-    private readonly ZonedDateTimePattern _fileNamePattern;
 
+    private readonly Configuration _configuration;
+    private readonly IDateHelper _dateHelper;
     private readonly Dictionary<string, ChatLog> _logs = new();
+    private readonly FileHelper _fileHelper;
     private readonly LocalTime _whenToCloseLogs;
+    private readonly Myself _myself;
+    private readonly ZonedDateTimePattern _fileNamePattern;
 
     private string _logDirectory = string.Empty;
     private string _logFileNamePrefix = string.Empty;
     private Configuration.FileNameOrder _logOrder = Configuration.FileNameOrder.None;
-
     private ZonedDateTime? _logStartTime;
-    private readonly Myself _myself;
 
-    public ChatLogManager(Configuration config, DateManager dateManager, Myself myself)
+    public ChatLogManager(Configuration configuration, IDateHelper dateHelper, FileHelper fileHelper, Myself myself)
     {
-        _config = config;
-        _dateManager = dateManager;
+        _configuration = configuration;
+        _dateHelper = dateHelper;
+        _fileHelper = fileHelper;
         _myself = myself;
         _fileNamePattern = ZonedDateTimePattern.CreateWithCurrentCulture("yyyyMMdd-HHmmss", null);
-        _logStartTime = dateManager.ZonedNow;
+        _logStartTime = dateHelper.ZonedNow;
 
-        var result = TimePattern.Parse(config.WhenToCloseLogs);
+        var result = TimePattern.Parse(configuration.WhenToCloseLogs);
         //_whenToCloseLogs = result.Success ? result.Value : new LocalTime(6, 0);
         _whenToCloseLogs = result.Success ? result.Value : new LocalTime(6, 45);
     }
@@ -54,7 +56,7 @@ public sealed class ChatLogManager : IDisposable
     {
         get
         {
-            _logStartTime ??= _dateManager.ZonedNow;
+            _logStartTime ??= _dateHelper.ZonedNow;
             return _fileNamePattern.Format((ZonedDateTime) _logStartTime);
         }
     }
@@ -69,7 +71,7 @@ public sealed class ChatLogManager : IDisposable
     /// </summary>
     /// <param name="cfg">The configuration to use for this log.</param>
     /// <returns>The <see cref="ChatLog" /></returns>
-    private ChatLog GetLog( Configuration.ChatLogConfiguration cfg)
+    private ChatLog GetLog(Configuration.ChatLogConfiguration cfg)
     {
         UpdateConfigValues();
         if (!_logs.ContainsKey(cfg.Name))
@@ -86,13 +88,13 @@ public sealed class ChatLogManager : IDisposable
     /// </summary>
     private void UpdateConfigValues()
     {
-        if (_config.LogDirectory == _logDirectory &&
-            _config.LogFileNamePrefix == _logFileNamePrefix &&
-            _config.LogOrder == _logOrder) return;
+        if (_configuration.LogDirectory == _logDirectory &&
+            _configuration.LogFileNamePrefix == _logFileNamePrefix &&
+            _configuration.LogOrder == _logOrder) return;
         CloseLogs();
-        _logDirectory = _config.LogDirectory;
-        _logFileNamePrefix = _config.LogFileNamePrefix;
-        _logOrder = _config.LogOrder;
+        _logDirectory = _configuration.LogDirectory;
+        _logFileNamePrefix = _configuration.LogFileNamePrefix;
+        _logOrder = _configuration.LogOrder;
     }
 
     /// <summary>
@@ -122,11 +124,11 @@ public sealed class ChatLogManager : IDisposable
     /// <param name="chatMessage">The chat message information.</param>
     public void LogInfo(ChatMessage chatMessage)
     {
-        var now = _dateManager.ZonedNow.TimeOfDay;
+        var now = _dateHelper.ZonedNow.TimeOfDay;
 
         if (_whenToCloseLogs < now) CloseLogs();
 
-        foreach (var (_, configurationChatLog) in _config.ChatLogs)
+        foreach (var (_, configurationChatLog) in _configuration.ChatLogs)
             GetLog(configurationChatLog).LogInfo(chatMessage);
     }
 
@@ -214,7 +216,7 @@ public sealed class ChatLogManager : IDisposable
             var bodyParts = WrapBody(cleanedBody);
             var whenString =
                 chatMessage.When.ToString(
-                    Config.DateTimeFormat ?? _manager._dateManager.CultureDateTimePattern.PatternText, null);
+                    Config.DateTimeFormat ?? _manager._dateHelper.CultureDateTimePattern.PatternText, null);
             var format = Config.Format ?? DefaultFormat;
             var logText = FormatMessage(chatMessage, cleanedSender, format, bodyParts[0], whenString);
             WriteLine(logText);
@@ -230,7 +232,7 @@ public sealed class ChatLogManager : IDisposable
         /// </summary>
         private void WriteDateSeparator()
         {
-            var today = _manager._dateManager.CurrentDate;
+            var today = _manager._dateHelper.CurrentDate;
             var difference = today - _lastWrite;
             if (difference.Days <= 0) return;
             _lastWrite = today;
@@ -323,18 +325,18 @@ public sealed class ChatLogManager : IDisposable
         }
 
         /// <summary>
-        ///     Opens this log if it is not already open. A new filename may be created if config values have changed.
+        ///     Opens this log if it is not already open. A new filename may be created if configuration values have changed.
         /// </summary>
         private void Open()
         {
             if (IsOpen) return;
             var dateString = _manager.FileNameLogStartTime;
-            var pattern = _manager._config.LogOrder == Configuration.FileNameOrder.PrefixGroupDate
+            var pattern = _manager._configuration.LogOrder == Configuration.FileNameOrder.PrefixGroupDate
                 ? "{0}-{1}-{2}"
                 : "{0}-{2}-{1}";
             var name = string.Format(pattern, _manager._logFileNamePrefix, Config.Name, dateString);
-            FileName = FileHelper.FullFileName(_manager._logDirectory, name, FileHelper.LogFileExtension);
-            FileHelper.EnsureDirectoryExists(_manager._logDirectory);
+            FileName = _manager._fileHelper.FullFileName(_manager._logDirectory, name, FileHelper.LogFileExtension);
+            _manager._fileHelper.EnsureDirectoryExists(_manager._logDirectory);
             Log = new StreamWriter(FileName, true);
         }
 
@@ -367,7 +369,8 @@ public sealed class ChatLogManager : IDisposable
     {
         private readonly Myself _myself;
 
-        public GroupChatLog(ChatLogManager chatLogManager, Configuration.ChatLogConfiguration configuration, Myself myself) : base(
+        public GroupChatLog(ChatLogManager chatLogManager, Configuration.ChatLogConfiguration configuration,
+            Myself myself) : base(
             chatLogManager, configuration)
         {
             _myself = myself;

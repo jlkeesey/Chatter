@@ -5,6 +5,7 @@ using System.Linq;
 using System.Numerics;
 using Chatter.Localization;
 using Chatter.Model;
+using Chatter.System;
 using Dalamud.Game.Text;
 using Dalamud.Interface;
 using Dalamud.Interface.Windowing;
@@ -115,9 +116,10 @@ public sealed partial class ConfigWindow : Window, IDisposable
     ///     Constructs the configuration editing window.
     /// </summary>
     /// <param name="config"></param>
-    /// <param name="dateManager"></param>
+    /// <param name="dateHelper"></param>
+    /// <param name="friendManager"></param>
     /// <param name="chatterImage">The Chatter plugin icon.</param>
-    public ConfigWindow(Configuration config, DateManager dateManager, FriendManager friendManager, TextureWrap? chatterImage) : base(Title)
+    public ConfigWindow(Configuration config, IDateHelper dateHelper, FriendManager friendManager, TextureWrap? chatterImage) : base(Title)
     {
         _configuration = config;
         _friendManager  = friendManager;
@@ -135,8 +137,8 @@ public sealed partial class ConfigWindow : Window, IDisposable
 
         _dateOptions = new List<ComboOption<string>>
         {
-            new(ConfigWindow.MsgComboTimestampCultural, dateManager.CultureDateTimePattern.PatternText, ConfigWindow.MsgComboTimestampCulturalHelp),
-            new(ConfigWindow.MsgComboTimestampSortable, dateManager.SortableDateTimePattern.PatternText, ConfigWindow.MsgComboTimestampSortableHelp),
+            new(ConfigWindow.MsgComboTimestampCultural, dateHelper.CultureDateTimePattern.PatternText, ConfigWindow.MsgComboTimestampCulturalHelp),
+            new(ConfigWindow.MsgComboTimestampSortable, dateHelper.SortableDateTimePattern.PatternText, ConfigWindow.MsgComboTimestampSortableHelp),
         };
 
         _fileOrderOptions = new List<ComboOption<FileNameOrder>>

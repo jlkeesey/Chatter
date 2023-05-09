@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Chatter.System;
 using Dalamud.Game.Text;
 
 namespace Chatter;
@@ -20,7 +21,7 @@ public partial class Configuration
 
         /// <summary>
         ///     The format string for formatting the timestamp of a chat message. If not specified, we use the
-        ///     <see cref="DateManager.CultureDateTimePattern" />.
+        ///     <see cref="DateHelper.CultureDateTimePattern" />.
         /// </summary>
         public string? DateTimeFormat;
 
