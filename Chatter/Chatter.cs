@@ -30,6 +30,7 @@ public sealed partial class Chatter : IDalamudPlugin
     private readonly Configuration _configuration;
     private readonly JlkWindowManager _windowManager;
     private readonly TextureWrap _chatterImage;
+    private readonly ILogger _logger;
 
     public Chatter([RequiredVersion("1.0")] DalamudPluginInterface pluginInterface,
         [RequiredVersion("1.0")] ChatGui chatGui,
@@ -42,8 +43,13 @@ public sealed partial class Chatter : IDalamudPlugin
         try
         {
             Version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "";
-            Loc.Load();
+            _logger = new Logger() as ILogger;
 
+#if DEBUG
+            SeSpecialCharacters.Initialize(_logger);
+#endif
+            Loc.Load(_logger);
+            
             var fileHelper = new FileHelper(new WindowsFileSystem());
 
             _configuration = Configuration.Load(pluginInterface, fileHelper);
@@ -54,7 +60,7 @@ public sealed partial class Chatter : IDalamudPlugin
             var friendManager = new FriendManager(worldManager);
 
             _chatLogManager = new ChatLogManager(_configuration, dateManager, fileHelper, myself);
-            _chatManager = new ChatManager(_configuration, _chatLogManager, chatGui, dateManager, myself.HomeWorld);
+            _chatManager = new ChatManager(_configuration, _logger, _chatLogManager, chatGui, dateManager, myself.HomeWorld);
             _chatterImage = pluginInterface.UiBuilder.LoadImage(Resources.chatter);
             _windowManager = new JlkWindowManager(pluginInterface, _configuration, dateManager, friendManager, Name,
                 _chatterImage);

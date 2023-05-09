@@ -72,9 +72,9 @@ public sealed partial class Chatter
         if (arguments.IsNullOrEmpty())
         {
             _configuration.IsDebug = !_configuration.IsDebug;
-            PluginLog.Debug($"Debug mode is {(_configuration.IsDebug ? "on" : "off")}");
-            PluginLog.Debug("");
-            PluginLog.Debug($"Sub-commands are: {DebugChatDump}, {DebugList}");
+            _logger.Log($"Debug mode is {(_configuration.IsDebug ? "on" : "off")}");
+            _logger.Log("");
+            _logger.Log($"Sub-commands are: {DebugChatDump}, {DebugList}");
         }
         else
         {
@@ -83,13 +83,13 @@ public sealed partial class Chatter
             switch (debugCommand)
             {
                 case DebugChatDump:
-                    _chatLogManager.DumpLogs();
+                    _chatLogManager.DumpLogs(_logger);
                     break;
                 case DebugList:
                     ListDebugFlags();
                     break;
                 default:
-                    PluginLog.Debug($"Debug command not recognized: '{debugCommand}'");
+                    _logger.Log($"Debug command not recognized: '{debugCommand}'");
                     break;
             }
         }
@@ -102,8 +102,8 @@ public sealed partial class Chatter
             var length = _debugFlags.Keys.Select(x => x.Length).Max();
             var flagString = "Flag".PadRight(length);
             var flagUnderscores = new string('-', length);
-            PluginLog.Debug($"{flagString}  on/off");
-            PluginLog.Debug($"{flagUnderscores}  ------");
+            _logger.Log($"{flagString}  on/off");
+            _logger.Log($"{flagUnderscores}  ------");
             foreach (var (name, func) in _debugFlags) ListDebugFlag(name, func(), length);
         }
 
@@ -113,7 +113,7 @@ public sealed partial class Chatter
         void ListDebugFlag(string name, bool value, int length)
         {
             var onOff = value ? "on" : "off";
-            PluginLog.Debug($"{name.PadRight(length)}  {onOff}");
+            _logger.Log($"{name.PadRight(length)}  {onOff}");
         }
     }
 }

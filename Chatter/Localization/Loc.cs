@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text.Json;
 using Chatter.Properties;
-using Dalamud.Logging;
+using Chatter.System;
 using Dalamud.Utility;
 
 namespace Chatter.Localization;
@@ -11,7 +12,7 @@ namespace Chatter.Localization;
 /// <summary>
 ///     Handles basic message localization.
 /// </summary>
-public class Loc
+public static class Loc
 {
     private static LocalizedMessageList _messages = new();
 
@@ -35,16 +36,25 @@ public class Loc
     ///         for United States.
     ///     </para>
     /// </remarks>
-    public static void Load()
+    public static void Load(ILogger logger)
     {
-        _messages = LoadMessageList(string.Empty) ?? new LocalizedMessageList();
+        _messages = LoadMessageList(logger, string.Empty) ?? new LocalizedMessageList();
         var shortLanguage = GetLanguageTagShort();
-        var languageMessages = LoadMessageList(shortLanguage);
+        var languageMessages = LoadMessageList(logger, shortLanguage);
         if (languageMessages != null) _messages.Merge(languageMessages);
 
         var regionalLanguage = GetLanguageTagLong();
-        var regionalLanguageMessages = LoadMessageList(regionalLanguage);
+        var regionalLanguageMessages = LoadMessageList(logger, regionalLanguage);
         if (regionalLanguageMessages != null) _messages.Merge(regionalLanguageMessages);
+    }
+
+    /// <summary>
+    ///     Replaces all of the localized messages with the given messages. Only used in testing.
+    /// </summary>
+    /// <param name="messages">The new set of messages.</param>
+    public static void SetMessages(ICollection<LocalizedMessage> messages)
+    {
+        _messages = new LocalizedMessageList(messages);
     }
 
     /// <summary>
@@ -70,28 +80,30 @@ public class Loc
     /// <summary>
     ///     Loads and parses a message list JSON resource into a <see cref="LocalizedMessageList" />.
     /// </summary>
+    /// <param name="logger">Where to log errors.</param>
     /// <param name="suffix">The suffix for the resource, maybe empty.</param>
     /// <returns>The loaded <see cref="LocalizedMessageList" /> or null if the resource was not found.</returns>
-    private static LocalizedMessageList? LoadMessageList(string suffix)
+    private static LocalizedMessageList? LoadMessageList(ILogger logger, string suffix)
     {
         var resourceName = suffix.IsNullOrWhitespace() ? "messages" : $"messages-{suffix}";
         if (Resources.ResourceManager.GetObject(resourceName) is not byte[] content) return null;
         using var stream = new MemoryStream(content);
         using var reader = new StreamReader(stream);
         var result = reader.ReadToEnd();
-        return ParseList(resourceName, result);
+        return ParseList(logger, resourceName, result);
     }
 
     /// <summary>
     ///     Parses a JSON string into a <see cref="LocalizedMessageList" />.
     /// </summary>
+    /// <param name="logger">Where to log errors.</param>
     /// <param name="resourceName">The resource name that the JSON string was read from.</param>
     /// <param name="json">The JSON string to parse.</param>
     /// <returns>
     ///     The parsed <see cref="LocalizedMessageList" /> or an empty LocalizedMessageList if the string could not be
     ///     parsed.
     /// </returns>
-    private static LocalizedMessageList ParseList(string resourceName, string json)
+    private static LocalizedMessageList ParseList(ILogger logger, string resourceName, string json)
     {
         LocalizedMessageList? lml = null;
         try
@@ -100,7 +112,7 @@ public class Loc
         }
         catch (Exception ex)
         {
-            PluginLog.Error(ex, $"Cannot parse JSON message resource: '{resourceName}'");
+            logger.Error(ex, $"Cannot parse JSON message resource: '{resourceName}'");
         }
 
         return lml ?? new LocalizedMessageList();

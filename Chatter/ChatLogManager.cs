@@ -100,12 +100,13 @@ internal sealed class ChatLogManager : IDisposable
     /// <summary>
     ///     Dumps the currently open configuration files to the dev log.
     /// </summary>
-    public void DumpLogs()
+    /// <param name="logger">Where to send the information.</param>
+    public void DumpLogs(ILogger logger)
     {
-        PluginLog.Log("Prefix        Open   Path");
-        PluginLog.Log("------------  -----  ----");
+        logger.Log("Prefix        Open   Path");
+        logger.Log("------------  -----  ----");
         foreach (var (_, entry) in _logs)
-            entry.DumpLog();
+            entry.DumpLog(logger);
     }
 
     /// <summary>
@@ -356,9 +357,10 @@ internal sealed class ChatLogManager : IDisposable
         /// <summary>
         ///     Dumps the information about this logger to the dev log.
         /// </summary>
-        public void DumpLog()
+        /// <param name="logger">Where to send the information.</param>
+        public void DumpLog(ILogger logger)
         {
-            PluginLog.Log($"{Config.Name,-12}  {IsOpen,-5}  '{FileName}'");
+            logger.Log($"{Config.Name,-12}  {IsOpen,-5}  '{FileName}'");
         }
     }
 

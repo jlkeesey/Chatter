@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Dalamud.Logging;
+using Chatter.System;
 
 namespace Chatter;
 
@@ -94,6 +94,13 @@ public static class SeSpecialCharacters
         {'\uE0C6', "\u2165"}, // Roman numeral VI
     };
 
+    private static ILogger? _logger;
+
+    public static void Initialize(ILogger logger)
+    {
+        _logger = logger;
+    }
+
     // ReSharper disable once MemberCanBePrivate.Global
     /// <summary>
     ///     Returns <c>true</c> if the given character is one of the FFXIV special characters. This basically means that
@@ -150,7 +157,7 @@ public static class SeSpecialCharacters
             return value;
 #if DEBUG
         if (IsSpecial(ch))
-            PluginLog.Debug("Unhandled FFXIV character: (\\u{0:X4})", (int) ch);
+            _logger?.Debug("Unhandled FFXIV character: (\\u{0:X4})", (int) ch);
 #endif
         return ch.ToString();
     }
