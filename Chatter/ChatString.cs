@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Chatter.Model;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
 using Dalamud.Utility;
-using static Chatter.Configuration;
 
 namespace Chatter;
 
@@ -18,7 +18,7 @@ namespace Chatter;
 ///     parts with the behaviors that we need for handle chat messages and users (both of which use the same string
 ///     structure).
 /// </remarks>
-internal sealed class ChatString
+public sealed class ChatString
 {
     private readonly List<CsItem> _items = new();
 
@@ -89,6 +89,26 @@ internal sealed class ChatString
         }
     }
 
+    /// <summary>
+    ///     Returns a <see cref="ChatString" /> that contains the given player.
+    /// </summary>
+    /// <param name="player">The <see cref="IPlayer" /> to enclose.</param>
+    /// <returns>The <see cref="ChatString" />.</returns>
+    public static ChatString FromPlayer(IPlayer player)
+    {
+        return new ChatString(new CsPlayerItem(player.Name, player.HomeWorld.Name));
+    }
+
+    /// <summary>
+    ///     Returns a <see cref="ChatString" /> that contains the given string.
+    /// </summary>
+    /// <param name="text">The text to enclose.</param>
+    /// <returns>The <see cref="ChatString" />.</returns>
+    public static ChatString FromText(string text)
+    {
+        return new ChatString(new CsTextItem(text));
+    }
+
     public override string ToString()
     {
         var sb = new StringBuilder();
@@ -122,13 +142,12 @@ internal sealed class ChatString
     /// <summary>
     ///     Returns the text representation of all of the items concatenated under control of the given configuration.
     /// </summary>
-    /// <param name="logConfig">The <see cref="ChatLogConfiguration" /> that controls the required output.</param>
+    /// <param name="includeServer"><c>true</c> if the server/world should be in the output.</param>
     /// <returns>The <c>string</c> value of this string.</returns>
-    public string AsText(ChatLogConfiguration logConfig)
+    public string AsText(bool includeServer)
     {
         var sb = new StringBuilder();
-        foreach (var text in _items.Select(item => item.AsText(logConfig))) sb.Append(text);
-
+        foreach (var text in _items.Select(item => item.AsText(includeServer))) sb.Append(text);
         return sb.ToString();
     }
 
@@ -162,9 +181,9 @@ internal sealed class ChatString
         /// <summary>
         ///     Returns the text value of this item based on the given configuration.
         /// </summary>
-        /// <param name="logConfig">The <see cref="ChatLogConfiguration" /> that controls the required output.</param>
+        /// <param name="includeServer"><c>true</c> if the server/world should be in the output.</param>
         /// <returns>The <c>string</c> value of this item.</returns>
-        public abstract string AsText(ChatLogConfiguration logConfig);
+        public abstract string AsText(bool includeServer);
     }
 
     /// <summary>
@@ -189,18 +208,18 @@ internal sealed class ChatString
         /// <summary>
         ///     Returns the player's name with their home world optional appended. This is controlled by the configuration.
         /// </summary>
-        /// <param name="logConfig">The <see cref="ChatLogConfiguration" /> that controls the required output.</param>
+        /// <param name="includeServer"><c>true</c> if the server/world should be in the output.</param>
         /// <returns>The <c>string</c> value of this item.</returns>
-        public override string AsText(ChatLogConfiguration logConfig)
+        public override string AsText(bool includeServer)
         {
-            return logConfig.IncludeServer ? $"{Name}@{World}" : Name;
+            return includeServer ? $"{Name}@{World}" : Name;
         }
     }
 
     /// <summary>
     ///     Represents a text sequence in the stream. FFXIV special characters will be handled.
     /// </summary>
-    private class CsTextItem : CsItem
+    public class CsTextItem : CsItem
     {
         public CsTextItem(string text)
         {
@@ -217,9 +236,9 @@ internal sealed class ChatString
         /// <summary>
         ///     Returns the value of this item as text for appending into a single string.
         /// </summary>
-        /// <param name="logConfig">The <see cref="ChatLogConfiguration" /> that controls the required output.</param>
+        /// <param name="includeServer"><c>true</c> if the server/world should be in the output.</param>
         /// <returns>The <c>string</c> value of this item.</returns>
-        public override string AsText(ChatLogConfiguration logConfig)
+        public override string AsText(bool includeServer)
         {
             return Text;
         }

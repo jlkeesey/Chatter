@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using Chatter.System;
 
 namespace Chatter;
@@ -16,13 +17,18 @@ public sealed class FileHelper
     /// <summary>
     ///     The name of the default directory to write logs into.
     /// </summary>
-    private const string DefaultDirectory = "FFXIV Chatter";
+    public const string DefaultDirectory = "FFXIV Chatter";
 
     private readonly IFileSystem _fileSystem;
 
     public FileHelper(IFileSystem fileSystem)
     {
         _fileSystem = fileSystem;
+    }
+
+    public TextWriter OpenFile(string path, bool append)
+    {
+        return _fileSystem.OpenFile(path, append);
     }
 
     /// <summary>
@@ -34,21 +40,18 @@ public sealed class FileHelper
     /// </remarks>
     /// <param name="directory">The directory to ensure exists.</param>
     /// <returns>The name of the directory if it exists, <see cref="string.Empty" /> otherwise.</returns>
-    public void EnsureDirectoryExists(string directory)
+    public bool EnsureDirectoryExists(string directory)
     {
         if (_fileSystem.DirectoryExists(directory))
-            return;
+            return true;
         if (_fileSystem.FileExists(directory))
             // TODO Add handling for this case. Preferably not allow getting here.
-            return;
+            return false;
 
         var parent = _fileSystem.GetDirectoryName(directory);
-        if (_fileSystem.DirectoryExists(parent))
-        {
-            _fileSystem.CreateDirectory(directory);
-        }
-
-        // TODO Add handling for this case. Preferably not allow getting here.
+        if (!_fileSystem.DirectoryExists(parent)) return false;
+        _fileSystem.CreateDirectory(directory);
+        return _fileSystem.DirectoryExists(directory);
     }
 
     /// <summary>
@@ -62,7 +65,7 @@ public sealed class FileHelper
     /// <returns></returns>
     public string InitialLogDirectory()
     {
-        return _fileSystem.Join(_fileSystem.DocumentsPath(), DefaultDirectory);
+        return _fileSystem.Join(_fileSystem.DocumentsPath, DefaultDirectory);
     }
 
     /// <summary>
@@ -84,7 +87,7 @@ public sealed class FileHelper
     {
         var fullName = _fileSystem.Combine(path, filename, extension);
         if (!_fileSystem.Exists(fullName)) return fullName;
-        for (var i = 0; i < int.MaxValue; i++)
+        for (var i = 1; i < int.MaxValue; i++)
         {
             var nameCounter = filename + "-" + i;
             fullName = _fileSystem.Combine(path, nameCounter, extension);

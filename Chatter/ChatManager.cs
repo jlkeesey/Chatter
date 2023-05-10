@@ -4,7 +4,6 @@ using Chatter.System;
 using Dalamud.Game.Gui;
 using Dalamud.Game.Text;
 using Dalamud.Game.Text.SeStringHandling;
-using Dalamud.Logging;
 
 namespace Chatter;
 
@@ -59,19 +58,20 @@ internal sealed class ChatManager : IDisposable
 
     private readonly Configuration _configuration;
     private readonly IDateHelper _dateHelper;
-    private readonly ChatLogManager _logManager;
     private readonly string _defaultHomeWorld;
     private readonly ILogger _logger;
+    private readonly ChatLogManager _logManager;
 
     /// <summary>
-    /// Manages connecting to the chat stream and converting them into a form for easier processing.
+    ///     Manages connecting to the chat stream and converting them into a form for easier processing.
     /// </summary>
     /// <param name="configuration">The plugin configuration.</param>
     /// <param name="logManager">The manager that processes the formalized chat messages.</param>
     /// <param name="chatGui">The interface into the chat stream.</param>
     /// <param name="dateHelper">The manager of date/time objects.</param>
     /// <param name="defaultHomeWorld">The user's home world.</param>
-    public ChatManager(Configuration configuration, ILogger logger, ChatLogManager logManager, ChatGui chatGui, IDateHelper dateHelper, string defaultHomeWorld)
+    public ChatManager(Configuration configuration, ILogger logger, ChatLogManager logManager, ChatGui chatGui,
+        IDateHelper dateHelper, string defaultHomeWorld)
     {
         _configuration = configuration;
         _logger = logger;
@@ -144,7 +144,7 @@ internal sealed class ChatManager : IDisposable
     /// <param name="seSender">The sender name.</param>
     /// <param name="message"></param>
     /// <returns>The cleaned sender name.</returns>
-    private  ChatString CleanUpSender(SeString seSender, ChatString message)
+    private ChatString CleanUpSender(SeString seSender, ChatString message)
     {
         var chatString = new ChatString(seSender);
         if (!chatString.HasInitialPlayer() && message.HasInitialPlayer())

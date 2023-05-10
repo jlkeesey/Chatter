@@ -6,7 +6,7 @@ namespace Chatter;
 /// <summary>
 ///     Represents a single chat message received.
 /// </summary>
-internal sealed class ChatMessage
+public sealed class ChatMessage
 {
     public ChatMessage(XivChatType xivType, string typeLabel, uint senderId, ChatString sender, ChatString body, ZonedDateTime when)
     {

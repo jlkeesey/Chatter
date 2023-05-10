@@ -55,12 +55,12 @@ public sealed partial class Chatter : IDalamudPlugin
             _configuration = Configuration.Load(pluginInterface, fileHelper);
 
             var dateManager = new DateHelper() as IDateHelper;
-            var myself = new Myself(clientState);
             var worldManager = new WorldManager(gameData);
+            var myself = new Myself(clientState, worldManager);
             var friendManager = new FriendManager(worldManager);
 
             _chatLogManager = new ChatLogManager(_configuration, dateManager, fileHelper, myself);
-            _chatManager = new ChatManager(_configuration, _logger, _chatLogManager, chatGui, dateManager, myself.HomeWorld);
+            _chatManager = new ChatManager(_configuration, _logger, _chatLogManager, chatGui, dateManager, myself.HomeWorld.Name);
             _chatterImage = pluginInterface.UiBuilder.LoadImage(Resources.chatter);
             _windowManager = new JlkWindowManager(pluginInterface, _configuration, dateManager, friendManager, Name,
                 _chatterImage);

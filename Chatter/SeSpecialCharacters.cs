@@ -139,7 +139,6 @@ public static class SeSpecialCharacters
         return sb.ToString();
     }
 
-    // ReSharper disable once MemberCanBePrivate.Global
     /// <summary>
     ///     Provides a reasonable replacement for one of the FFXIV special characters. All replacements will be
     ///     well-defined Unicode characters. If there is no defined replacement or if the character is not a
@@ -151,7 +150,7 @@ public static class SeSpecialCharacters
     /// </remarks>
     /// <param name="ch">The character to replace.</param>
     /// <returns>The replacement string.</returns>
-    public static string Replacement(char ch)
+    private static string Replacement(char ch)
     {
         if (SpecialCharacterMap.TryGetValue(ch, out var value))
             return value;

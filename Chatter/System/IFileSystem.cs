@@ -1,4 +1,6 @@
-﻿namespace Chatter.System;
+﻿using System.IO;
+
+namespace Chatter.System;
 
 /// <summary>
 ///     Defines the basic file system operations needed for this plugin.
@@ -9,7 +11,7 @@ public interface IFileSystem
     ///     Returns the path to the default location for user documents.
     /// </summary>
     /// <returns>The documents path.</returns>
-    string DocumentsPath();
+    string DocumentsPath { get; }
 
     /// <summary>
     ///     Returns <c>true</c> if the given path exists and is a directory.
@@ -38,6 +40,14 @@ public interface IFileSystem
     /// <param name="path">The directory path to create.</param>
     /// <returns><c>true</c> if the directory was created, <c>false</c> if anything went wrong.</returns>
     bool CreateDirectory(string path);
+
+    /// <summary>
+    /// Opens the give file name as a <see cref="TextWriter"/>.
+    /// </summary>
+    /// <param name="path">The file name to open.</param>
+    /// <param name="append"><c>true</c> if the stream should be opened for append if the file exists.</param>
+    /// <returns>The <see cref="TextWriter"/> for the given path.</returns>
+    TextWriter OpenFile(string path, bool append);
 
     /// <summary>
     ///     Returns the path with the final component removed.

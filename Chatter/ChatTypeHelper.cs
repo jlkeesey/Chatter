@@ -7,7 +7,7 @@ namespace Chatter;
 /// <summary>
 ///     Utilities for working with the <see cref="XivChatType" /> enum.
 /// </summary>
-internal sealed class ChatTypeHelper
+public sealed class ChatTypeHelper
 {
     private readonly Dictionary<XivChatType, string> _chatCodeToShortName = new()
     {
@@ -26,7 +26,7 @@ internal sealed class ChatTypeHelper
     public string TypeToName(XivChatType chatType, bool showUnknown = false)
     {
         if (_chatCodeToShortName.TryGetValue(chatType, out var name)) return name;
-        var slug = chatType.GetDetails().Slug ?? string.Empty;
+        var slug = chatType.GetDetails()?.Slug ?? string.Empty;
         var defaultValue = showUnknown ? $"?{(int) chatType}?" : string.Empty;
         return !slug.IsNullOrWhitespace() ? slug : defaultValue;
     }

@@ -7,7 +7,7 @@ namespace Chatter.Model;
 ///     Represents a single FFXIV friend. FFXIV has it's own type but it's not easily consumable by C# so
 ///     when a friend is loaded from FFXIV it is converted to this object type.
 /// </summary>
-public class Friend : IComparable<Friend>, IComparable
+public class Friend : IPlayer, IComparable<Friend>, IComparable
 {
     /// <summary>
     ///     This friend's content id.
@@ -27,7 +27,7 @@ public class Friend : IComparable<Friend>, IComparable
     /// <summary>
     ///     This friend's home <see cref="World" />.
     /// </summary>
-    public readonly World HomeWorld;
+    public World HomeWorld { get; }
 
     /// <summary>
     ///     True if this friend is online.
@@ -37,7 +37,7 @@ public class Friend : IComparable<Friend>, IComparable
     /// <summary>
     ///     This friend's name.
     /// </summary>
-    public readonly string Name;
+    public string Name { get; }
 
     public Friend(ulong contentId, string name, string freeCompany, World homeWorld, World currentWorld,
         bool isOnline)

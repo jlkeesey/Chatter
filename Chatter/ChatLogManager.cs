@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using Chatter.Model;
 using Chatter.System;
-using Dalamud.Logging;
 using Dalamud.Utility;
 using NodaTime;
 using NodaTime.Text;
@@ -21,24 +20,24 @@ namespace Chatter;
 ///         and one log for each group set up in the configuration.
 ///     </para>
 /// </remarks>
-internal sealed class ChatLogManager : IDisposable
+public sealed class ChatLogManager : IDisposable
 {
     private static readonly LocalTimePattern TimePattern = CreateWithInvariantCulture("H:mm");
 
     private readonly Configuration _configuration;
     private readonly IDateHelper _dateHelper;
-    private readonly Dictionary<string, ChatLog> _logs = new();
     private readonly FileHelper _fileHelper;
-    private readonly LocalTime _whenToCloseLogs;
-    private readonly Myself _myself;
     private readonly ZonedDateTimePattern _fileNamePattern;
+    private readonly Dictionary<string, ChatLog> _logs = new();
+    private readonly IPlayer _myself;
+    private readonly LocalTime _whenToCloseLogs;
 
     private string _logDirectory = string.Empty;
     private string _logFileNamePrefix = string.Empty;
     private Configuration.FileNameOrder _logOrder = Configuration.FileNameOrder.None;
     private ZonedDateTime? _logStartTime;
 
-    public ChatLogManager(Configuration configuration, IDateHelper dateHelper, FileHelper fileHelper, Myself myself)
+    public ChatLogManager(Configuration configuration, IDateHelper dateHelper, FileHelper fileHelper, IPlayer myself)
     {
         _configuration = configuration;
         _dateHelper = dateHelper;
@@ -48,8 +47,7 @@ internal sealed class ChatLogManager : IDisposable
         _logStartTime = dateHelper.ZonedNow;
 
         var result = TimePattern.Parse(configuration.WhenToCloseLogs);
-        //_whenToCloseLogs = result.Success ? result.Value : new LocalTime(6, 0);
-        _whenToCloseLogs = result.Success ? result.Value : new LocalTime(6, 45);
+        _whenToCloseLogs = result.Success ? result.Value : new LocalTime(6, 0);
     }
 
     private string FileNameLogStartTime
@@ -155,9 +153,9 @@ internal sealed class ChatLogManager : IDisposable
         private string FileName { get; set; } = string.Empty;
 
         /// <summary>
-        ///     The <see cref="StreamWriter" /> that we are writing to.
+        ///     The <see cref="TextWriter" /> that we are writing to.
         /// </summary>
-        private StreamWriter Log { get; set; } = StreamWriter.Null;
+        private TextWriter Log { get; set; } = TextWriter.Null;
 
         /// <summary>
         ///     The default format string for this log.
@@ -167,7 +165,7 @@ internal sealed class ChatLogManager : IDisposable
         /// <summary>
         ///     Returns true if this log is open.
         /// </summary>
-        private bool IsOpen => Log != StreamWriter.Null;
+        private bool IsOpen => Log != TextWriter.Null;
 
         public void Dispose()
         {
@@ -200,7 +198,7 @@ internal sealed class ChatLogManager : IDisposable
         public void LogInfo(ChatMessage chatMessage)
         {
             var cleanedSender = ReplaceSender(chatMessage);
-            var cleanedBody = chatMessage.Body.AsText(Config);
+            var cleanedBody = chatMessage.Body.AsText(Config.IncludeServer);
             if (ShouldLog(chatMessage, cleanedSender))
                 WriteLog(chatMessage, cleanedSender, cleanedBody);
         }
@@ -270,7 +268,7 @@ internal sealed class ChatLogManager : IDisposable
         /// <returns>The sender to use in the log.</returns>
         private string ReplaceSender(ChatMessage chatMessage)
         {
-            var cleanedSender = chatMessage.Sender.AsText(Config);
+            var cleanedSender = chatMessage.Sender.AsText(Config.IncludeServer);
             var result = Config.Users.GetValueOrDefault(chatMessage.Sender.ToString(), cleanedSender);
             if (result.IsNullOrWhitespace()) result = cleanedSender;
             return result;
@@ -338,7 +336,7 @@ internal sealed class ChatLogManager : IDisposable
             var name = string.Format(pattern, _manager._logFileNamePrefix, Config.Name, dateString);
             FileName = _manager._fileHelper.FullFileName(_manager._logDirectory, name, FileHelper.LogFileExtension);
             _manager._fileHelper.EnsureDirectoryExists(_manager._logDirectory);
-            Log = new StreamWriter(FileName, true);
+            Log = _manager._fileHelper.OpenFile(FileName, true);
         }
 
         /// <summary>
@@ -349,7 +347,7 @@ internal sealed class ChatLogManager : IDisposable
             if (!IsOpen)
             {
                 Log.Close();
-                Log = StreamWriter.Null;
+                Log = TextWriter.Null;
                 FileName = string.Empty;
             }
         }
@@ -369,10 +367,10 @@ internal sealed class ChatLogManager : IDisposable
     /// </summary>
     private class GroupChatLog : ChatLog
     {
-        private readonly Myself _myself;
+        private readonly IPlayer _myself;
 
         public GroupChatLog(ChatLogManager chatLogManager, Configuration.ChatLogConfiguration configuration,
-            Myself myself) : base(
+            IPlayer myself) : base(
             chatLogManager, configuration)
         {
             _myself = myself;

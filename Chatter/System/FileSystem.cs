@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Security;
 
 namespace Chatter.System;
 
@@ -8,10 +9,7 @@ namespace Chatter.System;
 /// </summary>
 public sealed class WindowsFileSystem : IFileSystem
 {
-    public string DocumentsPath()
-    {
-        return Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-    }
+    public string DocumentsPath => Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
     public bool DirectoryExists(string path)
     {
@@ -52,6 +50,31 @@ public sealed class WindowsFileSystem : IFileSystem
         }
 
         return true;
+    }
+
+    public TextWriter OpenFile(string path, bool append)
+    {
+        try
+        {
+            return new StreamWriter(path, append);
+        }
+        catch (IOException)
+        {
+        }
+        catch (UnauthorizedAccessException)
+        {
+        }
+        catch (ArgumentException)
+        {
+        }
+        catch (NotSupportedException)
+        {
+        }
+        catch (SecurityException)
+        {
+        }
+
+        return TextWriter.Null;
     }
 
     public string GetDirectoryName(string path)

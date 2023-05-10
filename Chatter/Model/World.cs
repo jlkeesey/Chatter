@@ -6,6 +6,8 @@
 /// </summary>
 public class World
 {
+    public static readonly World Null = new(uint.MaxValue, "?world?", "?dc?");
+
     /// <summary>
     ///     This world's data center.
     /// </summary>
