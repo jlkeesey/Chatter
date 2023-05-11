@@ -1,4 +1,5 @@
 using System.Reflection;
+using Chatter.Chat;
 using Chatter.Localization;
 using Chatter.Model;
 using Chatter.Properties;

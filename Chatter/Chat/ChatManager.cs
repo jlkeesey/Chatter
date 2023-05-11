@@ -5,7 +5,7 @@ using Dalamud.Game.Gui;
 using Dalamud.Game.Text;
 using Dalamud.Game.Text.SeStringHandling;
 
-namespace Chatter;
+namespace Chatter.Chat;
 
 /// <summary>
 ///     Handles capturing chat messages and passing them on the to chat log manager for processing.

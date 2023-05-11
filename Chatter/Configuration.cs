@@ -94,6 +94,14 @@ public partial class Configuration : IPluginConfiguration
     }
 
     /// <summary>
+    ///     Removes all of the logs from the configuration.
+    /// </summary>
+    public void RemoveAllLogs()
+    {
+        ChatLogs.Clear();
+    }
+
+    /// <summary>
     ///     Saves the current state of the configuration.
     /// </summary>
     public void Save()
@@ -112,36 +120,38 @@ public partial class Configuration : IPluginConfiguration
         if (pluginInterface.GetPluginConfig() is not Configuration config) config = new Configuration();
         config._pluginInterface = pluginInterface;
 
-        if (config.LogDirectory.IsNullOrWhitespace())
-        {
-            config.LogDirectory = fileHelper.InitialLogDirectory();
-        }
+        config.Initialize(fileHelper);
 
-        if (!config.ChatLogs.ContainsKey(AllLogName))
-            config.AddLog(new ChatLogConfiguration(AllLogName, true, includeAllUsers: true, format: "{2}:{0}:{5}"));
+        config.Save();
+        return config;
+    }
+
+    public void Initialize(FileHelper fileHelper)
+    {
+        if (LogDirectory.IsNullOrWhitespace()) LogDirectory = fileHelper.InitialLogDirectory();
+
+        if (!ChatLogs.ContainsKey(AllLogName))
+            AddLog(new ChatLogConfiguration(AllLogName, true, includeAllUsers: true, format: "{2}:{0}:{5}"));
 
 #if DEBUG
         // ReSharper disable StringLiteralTypo
         // TODO remove before shipping
-        var logConfiguration = new ChatLogConfiguration("Tifaa", true)
+        var logConfiguration = new ChatLogConfiguration("Frollo", true)
         {
             Users =
             {
-                ["Tifaa Sidrasylan@Zalera"] = string.Empty,
-                ["Aelym Sidrasylan@Zalera"] = "Stud Muffin",
-                ["Fiora Greyback@Zalera"] = "The Oppressed",
+                ["Pierre Gringoire@Zalera"] = string.Empty,
+                ["Phoebus Chateaupers@Zalera"] = "Stud Muffin",
+                ["Quasimodo Curveback@Zalera"] = "The Oppressed",
             },
         };
-        config.AddLog(logConfiguration);
-        config.AddLog(new ChatLogConfiguration("Pups", true, wrapColumn: 60, wrapIndent: 54));
-        config.AddLog(new ChatLogConfiguration("Goobtube"));
+        AddLog(logConfiguration);
+        AddLog(new ChatLogConfiguration("Pimpernel", true, wrapColumn: 60, wrapIndent: 54,
+            includeAllUsers: true));
         // ReSharper restore StringLiteralTypo
 #endif
 
-        foreach (var (_, chatLogConfiguration) in config.ChatLogs) chatLogConfiguration.InitializeTypeFlags();
-
-        config.Save();
-        return config;
+        foreach (var (_, chatLogConfiguration) in ChatLogs) chatLogConfiguration.InitializeTypeFlags();
     }
 
 
@@ -181,6 +191,5 @@ public partial class Configuration : IPluginConfiguration
         XivChatType.CrossLinkShell8,
     };
 
-    [JsonIgnore]
-    private DalamudPluginInterface? _pluginInterface;
+    [JsonIgnore] private DalamudPluginInterface? _pluginInterface;
 }

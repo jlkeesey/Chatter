@@ -6,7 +6,7 @@ using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
 using Dalamud.Utility;
 
-namespace Chatter;
+namespace Chatter.Chat;
 
 /// <summary>
 ///     A string from the chat system.
@@ -61,24 +61,24 @@ public sealed class ChatString
                     switch (nameState)
                     {
                         case NameState.LookingForName:
-                        {
-                            nameState = NameState.Nothing;
-                            // EndsWith to account for special characters in front of name
-                            if (str == player!.Name || str.EndsWith(player.Name))
                             {
-                                nameState = NameState.LookingForWorld;
-                                continue;
-                            }
+                                nameState = NameState.Nothing;
+                                // EndsWith to account for special characters in front of name
+                                if (str == player!.Name || str.EndsWith(player.Name))
+                                {
+                                    nameState = NameState.LookingForWorld;
+                                    continue;
+                                }
 
-                            break;
-                        }
+                                break;
+                            }
                         case NameState.LookingForWorld:
-                        {
-                            nameState = NameState.Nothing;
-                            if (str.StartsWith(player!.World)) str = str[player.World.Length..];
-                            player = null;
-                            break;
-                        }
+                            {
+                                nameState = NameState.Nothing;
+                                if (str.StartsWith(player!.World)) str = str[player.World.Length..];
+                                player = null;
+                                break;
+                            }
                         case NameState.Nothing:
                             break;
                     }

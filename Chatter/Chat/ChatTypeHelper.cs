@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Dalamud.Game.Text;
 using Dalamud.Utility;
 
-namespace Chatter;
+namespace Chatter.Chat;
 
 /// <summary>
 ///     Utilities for working with the <see cref="XivChatType" /> enum.
@@ -27,7 +27,7 @@ public sealed class ChatTypeHelper
     {
         if (_chatCodeToShortName.TryGetValue(chatType, out var name)) return name;
         var slug = chatType.GetDetails()?.Slug ?? string.Empty;
-        var defaultValue = showUnknown ? $"?{(int) chatType}?" : string.Empty;
+        var defaultValue = showUnknown ? $"?{(int)chatType}?" : string.Empty;
         return !slug.IsNullOrWhitespace() ? slug : defaultValue;
     }
 }

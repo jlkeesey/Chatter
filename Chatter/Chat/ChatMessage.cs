@@ -1,7 +1,7 @@
 ﻿using Dalamud.Game.Text;
 using NodaTime;
 
-namespace Chatter;
+namespace Chatter.Chat;
 
 /// <summary>
 ///     Represents a single chat message received.

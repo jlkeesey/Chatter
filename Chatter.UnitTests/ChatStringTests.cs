@@ -1,4 +1,5 @@
-﻿using Dalamud.Game.Text.SeStringHandling;
+﻿using Chatter.Chat;
+using Dalamud.Game.Text.SeStringHandling;
 using NUnit.Framework;
 
 namespace Chatter.UnitTests;

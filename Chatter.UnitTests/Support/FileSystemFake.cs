@@ -9,7 +9,12 @@ internal class FileSystemFake : IFileSystem
 {
     public List<string> Directories { get; } = new();
     public List<string> Files { get; } = new();
-    public string DocumentsPath { get; set; } = "\"C:\\\\Users\\\\Bob\\\\Documents\"";
+    public string DocumentsPath { get; init; } = "C:\\\\Users\\\\Bob\\\\Documents";
+
+    public FileSystemFake()
+    {
+        Directories.Add(DocumentsPath);
+    }
 
     public bool DirectoryExists(string path)
     {
