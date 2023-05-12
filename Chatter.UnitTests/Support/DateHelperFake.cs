@@ -32,6 +32,8 @@ internal class DateHelperFake : IDateHelper
     public ZonedDateTimePattern SortableDateTimePattern =>
         ZonedDateTimePattern.CreateWithInvariantCulture("yyyy-MM-dd HH:mm:ss", DateTimeZoneProviders.Tzdb);
 
+    public Duration AutoAdvance => _clock.AutoAdvance;
+
     public void NextDay()
     {
         _clock.AdvanceDays(1);

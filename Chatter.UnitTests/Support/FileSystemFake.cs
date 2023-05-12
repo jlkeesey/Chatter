@@ -40,6 +40,16 @@ internal class FileSystemFake : IFileSystem
 
     public TextWriter OpenFile(string path, bool append)
     {
+        if (Writers.TryGetValue(path, out var file))
+        {
+            if (append)
+            {
+                return file;
+            }
+            file.Close();
+            Writers.Remove(path);
+        }
+
         var writer = new ChatLogWriter();
         Writers.Add(path, writer);
         return writer;

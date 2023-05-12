@@ -19,8 +19,8 @@ public abstract class ChatLog : IChatLog, IDisposable
     protected readonly IDateHelper DateHelper;
     protected readonly ChatLogConfiguration LogConfiguration;
     protected readonly LogFileInfo LogFileInfo;
+    protected readonly FileHelper FileHelper;
 
-    protected readonly FileHelper _fileHelper;
     private LocalDate _lastWrite = LocalDate.MinIsoValue;
 
     protected ChatLog(ChatLogConfiguration configuration, LogFileInfo logFileInfo, IDateHelper dateHelper,
@@ -29,7 +29,7 @@ public abstract class ChatLog : IChatLog, IDisposable
         LogConfiguration = configuration;
         LogFileInfo = logFileInfo;
         DateHelper = dateHelper;
-        _fileHelper = fileHelper;
+        FileHelper = fileHelper;
     }
 
     /// <summary>
@@ -88,7 +88,6 @@ public abstract class ChatLog : IChatLog, IDisposable
     /// <param name="chatMessage">The chat message information.</param>
     /// <param name="sender">The sender after processing based on the configuration.</param>
     /// <param name="body">The body after processing based on the configuration.</param>
-    [UsedImplicitly]
     public void WriteLog(ChatMessage chatMessage, string sender, string body)
     {
         WriteDateSeparator();
@@ -111,7 +110,7 @@ public abstract class ChatLog : IChatLog, IDisposable
     /// </summary>
     public void Close()
     {
-        if (!IsOpen)
+        if (IsOpen)
         {
             Log.Close();
             Log = TextWriter.Null;
@@ -140,8 +139,8 @@ public abstract class ChatLog : IChatLog, IDisposable
     private void WriteDateSeparator()
     {
         var today = DateHelper.CurrentDate;
-        var difference = today - _lastWrite;
-        if (difference.Days <= 0) return;
+        var difference = Period.DaysBetween(_lastWrite, today);
+        if (difference <= 0) return;
         _lastWrite = today;
         WriteLine($"============================== {today} ==============================");
     }
@@ -175,19 +174,6 @@ public abstract class ChatLog : IChatLog, IDisposable
     }
 
     /// <summary>
-    ///     Replaces the sender if there is a replacement defined.
-    /// </summary>
-    /// <param name="chatMessage">The chat message information.</param>
-    /// <returns>The sender to use in the log.</returns>
-    private string ReplaceSender(ChatMessage chatMessage)
-    {
-        var cleanedSender = chatMessage.Sender.AsText(LogConfiguration.IncludeServer);
-        var result = LogConfiguration.Users.GetValueOrDefault(chatMessage.Sender.ToString(), cleanedSender);
-        if (string.IsNullOrWhiteSpace(result)) result = cleanedSender;
-        return result;
-    }
-
-    /// <summary>
     ///     Writes a single line to the log output. The output is flushed after every line.
     /// </summary>
     /// <param name="line">The text to output.</param>
@@ -211,8 +197,8 @@ public abstract class ChatLog : IChatLog, IDisposable
             ? "{0}-{1}-{2}"
             : "{0}-{2}-{1}";
         var name = string.Format(pattern, LogFileInfo.FileNamePrefix, LogConfiguration.Name, dateString);
-        FileName = _fileHelper.FullFileName(LogFileInfo.Directory, name, FileHelper.LogFileExtension);
-        _fileHelper.EnsureDirectoryExists(LogFileInfo.FileNamePrefix);
-        Log = _fileHelper.OpenFile(FileName, true);
+        FileName = FileHelper.FullFileName(LogFileInfo.Directory, name, FileHelper.LogFileExtension);
+        FileHelper.EnsureDirectoryExists(LogFileInfo.FileNamePrefix);
+        Log = FileHelper.OpenFile(FileName, true);
     }
 }

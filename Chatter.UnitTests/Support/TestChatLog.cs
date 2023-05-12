@@ -13,7 +13,7 @@ internal class TestChatLog : ChatLog
     }
 
     public TestChatLog(ChatLogConfiguration configuration) :
-        this(configuration, new LogFileInfo(), new DateHelper(), new FileSystemFake())
+        this(configuration, new LogFileInfo(), new DateHelperFake(), new FileSystemFake())
     {
     }
 
@@ -22,7 +22,7 @@ internal class TestChatLog : ChatLog
     {
         FileSystem = fileSystem;
         Configuration = new Configuration();
-        Configuration.Initialize(_fileHelper);
+        Configuration.Initialize(FileHelper);
         logFileInfo.UpdateConfigValues(Configuration);
     }
 
@@ -30,11 +30,11 @@ internal class TestChatLog : ChatLog
 
     public FileSystemFake FileSystem { get; }
 
-    public new IDateHelper DateHelper => base.DateHelper;
+    public new DateHelperFake DateHelper => (base.DateHelper as DateHelperFake)!;
 
     public new ChatLogConfiguration LogConfiguration => base.LogConfiguration;
 
     public new LogFileInfo LogFileInfo => base.LogFileInfo;
 
-    protected override string DefaultFormat => "{2}:  {5}";
+    protected override string DefaultFormat => "{6} {4}: {5}";
 }
