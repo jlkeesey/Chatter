@@ -5,7 +5,6 @@ using System.IO;
 using System.Text.Json;
 using Chatter.Properties;
 using Chatter.System;
-using Dalamud.Utility;
 
 namespace Chatter.Localization;
 
@@ -85,7 +84,7 @@ public static class Loc
     /// <returns>The loaded <see cref="LocalizedMessageList" /> or null if the resource was not found.</returns>
     private static LocalizedMessageList? LoadMessageList(ILogger logger, string suffix)
     {
-        var resourceName = suffix.IsNullOrWhitespace() ? "messages" : $"messages-{suffix}";
+        var resourceName = string.IsNullOrWhiteSpace(suffix) ? "messages" : $"messages-{suffix}";
         if (Resources.ResourceManager.GetObject(resourceName) is not byte[] content) return null;
         using var stream = new MemoryStream(content);
         using var reader = new StreamReader(stream);

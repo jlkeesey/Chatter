@@ -2,9 +2,6 @@ using System;
 using System.Collections.Generic;
 using Chatter.Model;
 using Chatter.System;
-using NodaTime;
-using NodaTime.Text;
-using static NodaTime.Text.LocalTimePattern;
 using static Chatter.Configuration;
 
 namespace Chatter.Chat;
@@ -18,30 +15,28 @@ namespace Chatter.Chat;
 ///         chat logs and open new ones that reflect the new settings. There is one main or <c>all</c> log that contains
 ///         all messages and one log for each group set up in the configuration.
 ///     </para>
-/// </remarks>s
+/// </remarks>
+/// s
 public sealed class ChatLogManager : IDisposable
 {
-    private static readonly LocalTimePattern TimePattern = CreateWithInvariantCulture("H:mm");
-
+    private readonly IChatLogGenerator _chatLogGenerator;
     private readonly Configuration _configuration;
     private readonly IDateHelper _dateHelper;
     private readonly FileHelper _fileHelper;
-    private readonly Dictionary<string, ChatLog> _logs = new();
+    private readonly Dictionary<string, IChatLog> _logs = new();
     private readonly IPlayer _myself;
-    private readonly LocalTime _whenToCloseLogs;
-    private LogFileInfo _logFileInfo = new();
+    private readonly LogFileInfo _logFileInfo = new();
 
-    public ChatLogManager(Configuration configuration, IDateHelper dateHelper, FileHelper fileHelper, IPlayer myself)
+    public ChatLogManager(Configuration configuration, IDateHelper dateHelper, FileHelper fileHelper, IPlayer myself,
+        IChatLogGenerator? chatLogGenerator = null)
     {
         _configuration = configuration;
+        _chatLogGenerator = chatLogGenerator ?? new ChatLogGenerator();
         _dateHelper = dateHelper;
         _fileHelper = fileHelper;
         _myself = myself;
 
         _logFileInfo.StartTime = dateHelper.ZonedNow;
-
-        var result = TimePattern.Parse(configuration.WhenToCloseLogs);
-        _whenToCloseLogs = result.Success ? result.Value : new LocalTime(6, 0);
     }
 
     public void Dispose()
@@ -54,25 +49,13 @@ public sealed class ChatLogManager : IDisposable
     /// </summary>
     /// <param name="logConfiguration">The configuration to use for this log.</param>
     /// <returns>The <see cref="ChatLog" /></returns>
-    private ChatLog GetLog(ChatLogConfiguration logConfiguration)
+    private IChatLog GetLog(ChatLogConfiguration logConfiguration)
     {
-        UpdateConfigValues();
         if (!_logs.ContainsKey(logConfiguration.Name))
-            _logs[logConfiguration.Name] = logConfiguration.Name == AllLogName
-                ? new AllChatLog(logConfiguration, _logFileInfo, _dateHelper, _fileHelper)
-                : new GroupChatLog(logConfiguration, _logFileInfo, _dateHelper, _fileHelper, _myself);
+            _logs[logConfiguration.Name] = _chatLogGenerator.Create(logConfiguration, _logFileInfo, _dateHelper,
+                _fileHelper, _myself);
 
         return _logs[logConfiguration.Name];
-    }
-
-    /// <summary>
-    ///     Returns the chat log with the given name.
-    /// </summary>
-    /// <param name="name">The name of the log.</param>
-    /// <returns>The <see cref="IChatLog" /> or <c>null</c>.</returns>
-    public IChatLog? GetLog(string name)
-    {
-        return _logs.TryGetValue(name, out var chatLog) ? chatLog : null;
     }
 
     /// <summary>
@@ -81,6 +64,16 @@ public sealed class ChatLogManager : IDisposable
     /// </summary>
     private void UpdateConfigValues()
     {
+        if (_configuration.WhenToCloseLogs != _logFileInfo.WhenToClose)
+        {
+            _logFileInfo.WhenToClose = _configuration.WhenToCloseLogs;
+            // ReSharper disable once RedundantCheckBeforeAssignment
+            if (_configuration.WhenToCloseLogs != _logFileInfo.WhenToClose)
+            {
+                _configuration.WhenToCloseLogs = _logFileInfo.WhenToClose;
+            }
+        }
+
         if (_configuration.LogDirectory == _logFileInfo.Directory &&
             _configuration.LogFileNamePrefix == _logFileInfo.FileNamePrefix &&
             _configuration.LogOrder == _logFileInfo.Order) return;
@@ -118,9 +111,12 @@ public sealed class ChatLogManager : IDisposable
     /// <param name="chatMessage">The chat message information.</param>
     public void LogInfo(ChatMessage chatMessage)
     {
+        if (_logFileInfo.UpdateConfigValues(_configuration))
+            CloseLogs();
+
         var now = _dateHelper.ZonedNow.TimeOfDay;
 
-        if (_whenToCloseLogs < now) CloseLogs();
+        if (_logFileInfo.TimeToClose < now) CloseLogs();
 
         foreach (var (_, configurationChatLog) in _configuration.ChatLogs)
             GetLog(configurationChatLog).LogInfo(chatMessage);

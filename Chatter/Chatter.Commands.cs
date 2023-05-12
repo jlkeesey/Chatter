@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Dalamud.Game.Command;
-using Dalamud.Logging;
-using Dalamud.Utility;
 
 namespace Chatter;
 
@@ -69,7 +67,7 @@ public sealed partial class Chatter
     /// <param name="arguments">Any arguments to the command.</param>
     private void OnChatterDebug(string command, string arguments)
     {
-        if (arguments.IsNullOrEmpty())
+        if (string.IsNullOrWhiteSpace(arguments))
         {
             _configuration.IsDebug = !_configuration.IsDebug;
             _logger.Log($"Debug mode is {(_configuration.IsDebug ? "on" : "off")}");

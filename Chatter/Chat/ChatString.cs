@@ -4,7 +4,6 @@ using System.Text;
 using Chatter.Model;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
-using Dalamud.Utility;
 
 namespace Chatter.Chat;
 
@@ -52,7 +51,7 @@ public sealed class ChatString
                     break;
                 case AutoTranslatePayload atp:
                     var atpText = atp.Text;
-                    if (!atpText.IsNullOrWhitespace()) _items.Add(new CsTextItem(atpText));
+                    if (!string.IsNullOrWhiteSpace(atpText)) _items.Add(new CsTextItem(atpText));
                     nameState = NameState.Nothing;
                     player = null;
                     break;
@@ -61,29 +60,29 @@ public sealed class ChatString
                     switch (nameState)
                     {
                         case NameState.LookingForName:
+                        {
+                            nameState = NameState.Nothing;
+                            // EndsWith to account for special characters in front of name
+                            if (str == player!.Name || str.EndsWith(player.Name))
                             {
-                                nameState = NameState.Nothing;
-                                // EndsWith to account for special characters in front of name
-                                if (str == player!.Name || str.EndsWith(player.Name))
-                                {
-                                    nameState = NameState.LookingForWorld;
-                                    continue;
-                                }
+                                nameState = NameState.LookingForWorld;
+                                continue;
+                            }
 
-                                break;
-                            }
+                            break;
+                        }
                         case NameState.LookingForWorld:
-                            {
-                                nameState = NameState.Nothing;
-                                if (str.StartsWith(player!.World)) str = str[player.World.Length..];
-                                player = null;
-                                break;
-                            }
+                        {
+                            nameState = NameState.Nothing;
+                            if (str.StartsWith(player!.World)) str = str[player.World.Length..];
+                            player = null;
+                            break;
+                        }
                         case NameState.Nothing:
                             break;
                     }
 
-                    if (!str.IsNullOrWhitespace()) _items.Add(new CsTextItem(str));
+                    if (!string.IsNullOrWhiteSpace(str)) _items.Add(new CsTextItem(str));
                     break;
             }
         }

@@ -19,11 +19,12 @@ public class GroupChatLog : ChatLog
 
     protected override string DefaultFormat => "{6,22} {4,-30} {5}";
 
-    public override bool ShouldLog(ChatMessage chatMessage, string cleanedSender)
+    public override bool ShouldLog(ChatMessage chatMessage)
     {
-        if (!base.ShouldLog(chatMessage, cleanedSender)) return false;
+        if (!base.ShouldLog(chatMessage)) return false;
         if (LogConfiguration.IncludeAllUsers) return true;
-        if (LogConfiguration.Users.ContainsKey(cleanedSender)) return true;
-        return LogConfiguration.IncludeMe && cleanedSender == _myself.FullName;
+        var fullSender = chatMessage.Sender.AsText(true);
+        if (LogConfiguration.Users.ContainsKey(fullSender)) return true;
+        return LogConfiguration.IncludeMe && fullSender == _myself.FullName;
     }
 }

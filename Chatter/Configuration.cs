@@ -4,7 +4,6 @@ using System.Text.Json.Serialization;
 using Dalamud.Configuration;
 using Dalamud.Game.Text;
 using Dalamud.Plugin;
-using Dalamud.Utility;
 using NodaTime;
 
 namespace Chatter;
@@ -128,7 +127,7 @@ public partial class Configuration : IPluginConfiguration
 
     public void Initialize(FileHelper fileHelper)
     {
-        if (LogDirectory.IsNullOrWhitespace()) LogDirectory = fileHelper.InitialLogDirectory();
+        if (string.IsNullOrWhiteSpace(LogDirectory)) LogDirectory = fileHelper.InitialLogDirectory();
 
         if (!ChatLogs.ContainsKey(AllLogName))
             AddLog(new ChatLogConfiguration(AllLogName, true, includeAllUsers: true, format: "{2}:{0}:{5}"));

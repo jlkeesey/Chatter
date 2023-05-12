@@ -1,3 +1,5 @@
+using Chatter.System;
+
 namespace Chatter.Chat;
 
 /// <summary>
@@ -15,4 +17,14 @@ public interface IChatLog
     ///     If <see cref="IsOpen" /> is false this may return a previous name of no name at all.
     /// </summary>
     string FileName { get; }
+
+    void DumpLog(ILogger logger);
+
+    void Close();
+
+    void LogInfo(ChatMessage chatMessage);
+
+    public bool ShouldLog(ChatMessage chatMessage);
+
+    public void WriteLog(ChatMessage chatMessage, string sender, string body);
 }

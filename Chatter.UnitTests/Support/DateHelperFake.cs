@@ -25,6 +25,7 @@ internal class DateHelperFake : IDateHelper
 
     public ZonedDateTime ZonedNow => _zonedClock.GetCurrentZonedDateTime();
     public LocalDate CurrentDate => _zonedClock.GetCurrentDate();
+    public LocalTime CurrentTime => _zonedClock.GetCurrentTimeOfDay();
     public ZonedDateTimePattern CultureDateTimePattern =>
         ZonedDateTimePattern.CreateWithInvariantCulture("M-d-yyyy H:mm:ss", DateTimeZoneProviders.Tzdb);
 

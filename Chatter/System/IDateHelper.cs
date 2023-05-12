@@ -19,6 +19,11 @@ public interface IDateHelper
     LocalDate CurrentDate { get; }
 
     /// <summary>
+    ///     Returns the now as a <see cref="LocalTime" />.
+    /// </summary>
+    LocalTime CurrentTime { get; }
+
+    /// <summary>
     ///     Returns the <see cref="ZonedDateTimePattern"/> representing a cultural based format.
     /// </summary>
     ZonedDateTimePattern CultureDateTimePattern { get; }

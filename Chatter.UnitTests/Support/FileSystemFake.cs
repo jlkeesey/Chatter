@@ -9,7 +9,7 @@ internal class FileSystemFake : IFileSystem
 {
     public List<string> Directories { get; } = new();
     public List<string> Files { get; } = new();
-    public string DocumentsPath { get; init; } = "C:\\\\Users\\\\Bob\\\\Documents";
+    public string DocumentsPath { get; init; } = "C:\\Users\\Bob\\Documents";
 
     public FileSystemFake()
     {
@@ -40,12 +40,12 @@ internal class FileSystemFake : IFileSystem
 
     public TextWriter OpenFile(string path, bool append)
     {
-        var writer = new StringWriter();
+        var writer = new ChatLogWriter();
         Writers.Add(path, writer);
         return writer;
     }
 
-    public Dictionary<string, StringWriter> Writers { get; } = new();
+    public Dictionary<string, ChatLogWriter> Writers { get; } = new();
 
     public string GetDirectoryName(string path)
     {

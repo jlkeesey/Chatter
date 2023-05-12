@@ -18,6 +18,7 @@ public sealed class DateHelper : IDateHelper
     public ZonedDateTime ZonedNow => Clock.GetCurrentZonedDateTime();
 
     public LocalDate CurrentDate => Clock.GetCurrentDate();
+    public LocalTime CurrentTime => Clock.GetCurrentTimeOfDay();
 
     public ZonedDateTimePattern CultureDateTimePattern => _cultureDateTimePattern ??= CreateCultureDateTimePattern();
     public ZonedDateTimePattern SortableDateTimePattern => _sortableDateTimePattern ??= CreateSortableDateTimePattern();

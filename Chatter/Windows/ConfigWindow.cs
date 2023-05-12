@@ -9,7 +9,6 @@ using Chatter.System;
 using Dalamud.Game.Text;
 using Dalamud.Interface;
 using Dalamud.Interface.Windowing;
-using Dalamud.Utility;
 using ImGuiNET;
 using ImGuiScene;
 using static System.String;
@@ -98,6 +97,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
 
     private readonly List<ComboOption<string>> _dateOptions;
     private readonly List<ComboOption<FileNameOrder>> _fileOrderOptions;
+    private readonly FriendManager _friendManager;
     private bool _addUserAlreadyExists;
     private string _addUserFullName = Empty;
     private string _addUserReplacementName = Empty;
@@ -110,7 +110,6 @@ public sealed partial class ConfigWindow : Window, IDisposable
     private string _removeUser = Empty;
     private string _selectedFriend = Empty;
     private string _selectedGroup = AllLogName;
-    private readonly FriendManager _friendManager;
 
     /// <summary>
     ///     Constructs the configuration editing window.
@@ -119,10 +118,11 @@ public sealed partial class ConfigWindow : Window, IDisposable
     /// <param name="dateHelper"></param>
     /// <param name="friendManager"></param>
     /// <param name="chatterImage">The Chatter plugin icon.</param>
-    public ConfigWindow(Configuration config, IDateHelper dateHelper, FriendManager friendManager, TextureWrap? chatterImage) : base(Title)
+    public ConfigWindow(Configuration config, IDateHelper dateHelper, FriendManager friendManager,
+        TextureWrap? chatterImage) : base(Title)
     {
         _configuration = config;
-        _friendManager  = friendManager;
+        _friendManager = friendManager;
         _chatterImage = chatterImage;
 
         SizeConstraints = new WindowSizeConstraints
@@ -137,14 +137,16 @@ public sealed partial class ConfigWindow : Window, IDisposable
 
         _dateOptions = new List<ComboOption<string>>
         {
-            new(ConfigWindow.MsgComboTimestampCultural, dateHelper.CultureDateTimePattern.PatternText, ConfigWindow.MsgComboTimestampCulturalHelp),
-            new(ConfigWindow.MsgComboTimestampSortable, dateHelper.SortableDateTimePattern.PatternText, ConfigWindow.MsgComboTimestampSortableHelp),
+            new(MsgComboTimestampCultural, dateHelper.CultureDateTimePattern.PatternText,
+                MsgComboTimestampCulturalHelp),
+            new(MsgComboTimestampSortable, dateHelper.SortableDateTimePattern.PatternText,
+                MsgComboTimestampSortableHelp),
         };
 
         _fileOrderOptions = new List<ComboOption<FileNameOrder>>
         {
-            new(ConfigWindow.MsgComboOrderGroupDate, PrefixGroupDate, ConfigWindow.MsgComboOrderGroupDateHelp),
-            new(ConfigWindow.MsgComboOrderDateGroup, PrefixGroupDate, ConfigWindow.MsgComboOrderDateGroupHelp),
+            new(MsgComboOrderGroupDate, PrefixGroupDate, MsgComboOrderGroupDateHelp),
+            new(MsgComboOrderDateGroup, PrefixGroupDate, MsgComboOrderDateGroupHelp),
         };
     }
 
@@ -165,13 +167,13 @@ public sealed partial class ConfigWindow : Window, IDisposable
 
         if (ImGui.BeginTabBar("tabBar", ImGuiTabBarFlags.None))
         {
-            if (ImGui.BeginTabItem(ConfigWindow.MsgTabGeneral))
+            if (ImGui.BeginTabItem(MsgTabGeneral))
             {
                 DrawGeneralTab();
                 ImGui.EndTabItem();
             }
 
-            if (ImGui.BeginTabItem(ConfigWindow.MsgTabGroups))
+            if (ImGui.BeginTabItem(MsgTabGroups))
             {
                 DrawGroupsTab();
                 ImGui.EndTabItem();
@@ -186,14 +188,14 @@ public sealed partial class ConfigWindow : Window, IDisposable
     /// </summary>
     private void DrawGeneralTab()
     {
-        LongInputField(ConfigWindow.MsgLabelFileNamePrefix, ref _configuration.LogFileNamePrefix, 50,
+        LongInputField(MsgLabelFileNamePrefix, ref _configuration.LogFileNamePrefix, 50,
             "##fileNamePrefix",
-            ConfigWindow.MsgLabelFileNamePrefixHelp);
+            MsgLabelFileNamePrefixHelp);
 
         VerticalSpace();
 
-        LongInputField(ConfigWindow.MsgLabelSaveDirectory, ref _configuration.LogDirectory, 1024, "##saveDirectory",
-            ConfigWindow.MsgLabelSaveDirectoryHelp);
+        LongInputField(MsgLabelSaveDirectory, ref _configuration.LogDirectory, 1024, "##saveDirectory",
+            MsgLabelSaveDirectoryHelp);
 
         VerticalSpace();
 
@@ -209,7 +211,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
         }
 
         ImGui.SetNextItemWidth(200.0f);
-        if (ImGui.BeginCombo(ConfigWindow.MsgComboOrderLabel, _fileOrderOptions[_logOrderSelected].Label))
+        if (ImGui.BeginCombo(MsgComboOrderLabel, _fileOrderOptions[_logOrderSelected].Label))
         {
             for (var i = 0; i < _fileOrderOptions.Count; i++)
             {
@@ -229,7 +231,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
             ImGui.EndCombo();
         }
 
-        HelpMarker(ConfigWindow.MsgComboOrderHelp);
+        HelpMarker(MsgComboOrderHelp);
     }
 
     /// <summary>
@@ -260,15 +262,15 @@ public sealed partial class ConfigWindow : Window, IDisposable
         if (ImGui.BeginTable("general", 2))
         {
             ImGui.TableNextColumn();
-            DrawCheckbox(ConfigWindow.MsgLabelIsActive, ref chatLog.IsActive, ConfigWindow.MsgLabelIsActiveHelp,
+            DrawCheckbox(MsgLabelIsActive, ref chatLog.IsActive, MsgLabelIsActiveHelp,
                 chatLog.Name == AllLogName);
             ImGui.TableNextColumn();
-            DrawCheckbox(ConfigWindow.MsgLabelIncludeAllUsers, ref chatLog.IncludeAllUsers, ConfigWindow.MsgLabelIncludeAllUsersHelp,
+            DrawCheckbox(MsgLabelIncludeAllUsers, ref chatLog.IncludeAllUsers, MsgLabelIncludeAllUsersHelp,
                 chatLog.Name == AllLogName);
             ImGui.TableNextColumn();
-            DrawCheckbox(ConfigWindow.MsgLabelIncludeServerName, ref chatLog.IncludeServer, ConfigWindow.MsgLabelIncludeServerNameHelp);
+            DrawCheckbox(MsgLabelIncludeServerName, ref chatLog.IncludeServer, MsgLabelIncludeServerNameHelp);
             ImGui.TableNextColumn();
-            DrawCheckbox(ConfigWindow.MsgLabelIncludeSelf, ref chatLog.IncludeMe, ConfigWindow.MsgLabelIncludeSelfHelp);
+            DrawCheckbox(MsgLabelIncludeSelf, ref chatLog.IncludeMe, MsgLabelIncludeSelfHelp);
 
 #if DEBUG
             ImGui.TableNextColumn();
@@ -280,11 +282,11 @@ public sealed partial class ConfigWindow : Window, IDisposable
         VerticalSpace();
 
         ImGui.PushItemWidth(150.0f);
-        ImGui.InputInt(ConfigWindow.MsgInputWrapWidthLabel, ref chatLog.MessageWrapWidth);
-        HelpMarker(ConfigWindow.MsgInputWrapWidthHelp);
+        ImGui.InputInt(MsgInputWrapWidthLabel, ref chatLog.MessageWrapWidth);
+        HelpMarker(MsgInputWrapWidthHelp);
 
-        ImGui.InputInt(ConfigWindow.MsgInputWrapIndentLabel, ref chatLog.MessageWrapIndentation);
-        HelpMarker(ConfigWindow.MsgInputWrapIndentHelp);
+        ImGui.InputInt(MsgInputWrapIndentLabel, ref chatLog.MessageWrapIndentation);
+        HelpMarker(MsgInputWrapIndentHelp);
 
         if (_timeStampSelected < 0)
         {
@@ -297,7 +299,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
                 }
         }
 
-        if (ImGui.BeginCombo(ConfigWindow.MsgComboTimestampLabel, _dateOptions[_timeStampSelected].Label))
+        if (ImGui.BeginCombo(MsgComboTimestampLabel, _dateOptions[_timeStampSelected].Label))
         {
             for (var i = 0; i < _dateOptions.Count; i++)
             {
@@ -317,18 +319,18 @@ public sealed partial class ConfigWindow : Window, IDisposable
             ImGui.EndCombo();
         }
 
-        HelpMarker(ConfigWindow.MsgComboTimestampHelp);
+        HelpMarker(MsgComboTimestampHelp);
 
         ImGui.PopItemWidth();
 
         VerticalSpace();
 
-        if (ImGui.CollapsingHeader(ConfigWindow.MsgHeaderIncludedUsers))
+        if (ImGui.CollapsingHeader(MsgHeaderIncludedUsers))
         {
             VerticalSpace(5.0f);
-            ImGui.TextWrapped(ConfigWindow.MsgDescriptionIncludedUsers);
+            ImGui.TextWrapped(MsgDescriptionIncludedUsers);
             VerticalSpace();
-            if (ImGui.Button(ConfigWindow.MsgButtonAddUser)) ImGui.OpenPopup("addUser");
+            if (ImGui.Button(MsgButtonAddUser)) ImGui.OpenPopup("addUser");
 
             DrawAddUserPopup(chatLog);
 
@@ -341,8 +343,8 @@ public sealed partial class ConfigWindow : Window, IDisposable
             if (ImGui.BeginTable("userTable", 3, tableFlags, outerSize))
             {
                 ImGui.TableSetupScrollFreeze(0, 1); // Make top row always visible
-                ImGui.TableSetupColumn(ConfigWindow.MsgColumnFullName, ImGuiTableColumnFlags.WidthStretch);
-                ImGui.TableSetupColumn(ConfigWindow.MsgColumnReplacement, ImGuiTableColumnFlags.WidthStretch);
+                ImGui.TableSetupColumn(MsgColumnFullName, ImGuiTableColumnFlags.WidthStretch);
+                ImGui.TableSetupColumn(MsgColumnReplacement, ImGuiTableColumnFlags.WidthStretch);
                 ImGui.TableSetupColumn(Empty, ImGuiTableColumnFlags.WidthFixed, 22.0f);
                 ImGui.TableHeadersRow();
 
@@ -356,7 +358,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
 
                     ImGui.TableSetColumnIndex(1);
                     ImGui.TextColored(new Vector4(0.7f, 0.9f, 0.6f, 1.0f),
-                        userTo.IsNullOrWhitespace() ? "-" : userTo);
+                        IsNullOrWhiteSpace(userTo) ? "-" : userTo);
 
                     ImGui.TableSetColumnIndex(2);
                     if (DrawUserRemoveButton(userFrom))
@@ -382,7 +384,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
             _removeUser = Empty;
         }
 
-        if (ImGui.CollapsingHeader(ConfigWindow.MsgHeaderIncludedChatTypes))
+        if (ImGui.CollapsingHeader(MsgHeaderIncludedChatTypes))
         {
             DrawChatTypeFlags("flagGeneral", chatLog, GeneralChatTypeFlags);
             DrawChatTypeFlags("flagLs", chatLog, LinkShellChatTypeFlags);
@@ -415,11 +417,11 @@ public sealed partial class ConfigWindow : Window, IDisposable
             if (_addUserAlreadyExists)
             {
                 VerticalSpace();
-                ImGui.TextColored(new Vector4(1.0f, 0.0f, 0.0f, 1.0f), ConfigWindow.MsgPlayerAlreadyInList);
+                ImGui.TextColored(new Vector4(1.0f, 0.0f, 0.0f, 1.0f), MsgPlayerAlreadyInList);
                 VerticalSpace();
             }
 
-            LongInputField(ConfigWindow.MsgPlayerFullName, ref _addUserFullName, 128, "##playerFullName", ConfigWindow.MsgPlayerFullNameHelp,
+            LongInputField(MsgPlayerFullName, ref _addUserFullName, 128, "##playerFullName", MsgPlayerFullNameHelp,
                 extraWidth: 30, extra: () =>
                 {
                     if (DrawFindFriendButton())
@@ -432,18 +434,18 @@ public sealed partial class ConfigWindow : Window, IDisposable
                 });
 
             VerticalSpace();
-            LongInputField(ConfigWindow.MsgPlayerReplacement, ref _addUserReplacementName, 128, "##playerReplaceName",
-                ConfigWindow.MsgPlayerReplacementHelp, extraWidth: 30);
+            LongInputField(MsgPlayerReplacement, ref _addUserReplacementName, 128, "##playerReplaceName",
+                MsgPlayerReplacementHelp, extraWidth: 30);
 
             VerticalSpace();
             ImGui.Separator();
             VerticalSpace();
 
-            if (ImGui.Button(ConfigWindow.MsgButtonAdd, new Vector2(120, 0)))
+            if (ImGui.Button(MsgButtonAdd, new Vector2(120, 0)))
             {
                 _addUserAlreadyExists = false;
                 var fullName = _addUserFullName.Trim();
-                if (!fullName.IsNullOrWhitespace())
+                if (!IsNullOrWhiteSpace(fullName))
                 {
                     var replacement = _addUserReplacementName.Trim();
                     if (chatLog.Users.TryAdd(fullName, replacement))
@@ -454,7 +456,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
             }
 
             ImGui.SameLine();
-            if (ImGui.Button(ConfigWindow.MsgButtonCancel, new Vector2(120, 0)))
+            if (ImGui.Button(MsgButtonCancel, new Vector2(120, 0)))
             {
                 _addUserAlreadyExists = false;
                 ImGui.CloseCurrentPopup();
@@ -493,15 +495,15 @@ public sealed partial class ConfigWindow : Window, IDisposable
             }
 
             ImGui.Separator();
-            if (ImGui.Button(ConfigWindow.MsgButtonAdd, new Vector2(120, 0)))
+            if (ImGui.Button(MsgButtonAdd, new Vector2(120, 0)))
             {
-                if (!_selectedFriend.IsNullOrWhitespace())
+                if (!IsNullOrWhiteSpace(_selectedFriend))
                     targetUserFullName = _selectedFriend;
                 ImGui.CloseCurrentPopup();
             }
 
             ImGui.SameLine();
-            if (ImGui.Button(ConfigWindow.MsgButtonCancel, new Vector2(120, 0))) ImGui.CloseCurrentPopup();
+            if (ImGui.Button(MsgButtonCancel, new Vector2(120, 0))) ImGui.CloseCurrentPopup();
 
             ImGui.EndPopup();
         }
@@ -517,7 +519,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
         var buttonPressed = ImGui.Button($"{(char) FontAwesomeIcon.SquareXmark}##findFriend");
         ImGui.PopFont();
         if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
-            DrawTooltip(ConfigWindow.MsgButtonClearFilterHelp);
+            DrawTooltip(MsgButtonClearFilterHelp);
         return buttonPressed;
     }
 
@@ -531,7 +533,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
         var buttonPressed = ImGui.Button($"{(char) FontAwesomeIcon.PersonCirclePlus}##findFriend");
         ImGui.PopFont();
         if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
-            DrawTooltip(ConfigWindow.MsgButtonFriendSelectorHelp);
+            DrawTooltip(MsgButtonFriendSelectorHelp);
         return buttonPressed;
     }
 
@@ -558,14 +560,14 @@ public sealed partial class ConfigWindow : Window, IDisposable
             ImGui.TextWrapped(Loc.Message("Text.RemoveUser", _removeDialogUser));
             ImGui.Separator();
 
-            if (ImGui.Button(ConfigWindow.MsgButtonRemove, new Vector2(120, 0)))
+            if (ImGui.Button(MsgButtonRemove, new Vector2(120, 0)))
             {
                 _removeUser = _removeDialogUser;
                 ImGui.CloseCurrentPopup();
             }
 
             ImGui.SameLine();
-            if (ImGui.Button(ConfigWindow.MsgButtonCancel, new Vector2(120, 0))) ImGui.CloseCurrentPopup();
+            if (ImGui.Button(MsgButtonCancel, new Vector2(120, 0))) ImGui.CloseCurrentPopup();
 
 
             ImGui.EndPopup();
@@ -687,7 +689,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
     private static void HelpMarker(string? description, bool sameLine = true)
     {
         var text = description?.Trim() ?? Empty;
-        if (text.IsNullOrEmpty()) return;
+        if (IsNullOrWhiteSpace(text)) return;
         if (sameLine) ImGui.SameLine();
         ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0.4f, 0.4f, 0.55f, 1.0f));
         ImGui.PushFont(UiBuilder.IconFont);
@@ -704,7 +706,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
     private static void DrawTooltip(string? description)
     {
         var text = description?.Trim() ?? Empty;
-        if (text.IsNullOrEmpty()) return;
+        if (IsNullOrWhiteSpace(text)) return;
         ImGui.BeginTooltip();
         ImGui.PushTextWrapPos(ImGui.GetFontSize() * 20.0f);
         ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0.9f, 0.9f, 0.3f, 1.0f));
