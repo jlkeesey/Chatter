@@ -5,10 +5,11 @@ using static Chatter.Configuration;
 namespace Chatter.Chat;
 
 /// <summary>
-/// Standard chat log generator for runtime.
+///     Standard chat log generator for runtime.
 /// </summary>
 public class ChatLogGenerator : IChatLogGenerator
 {
+    /// <inheritdoc />
     public IChatLog Create(ChatLogConfiguration logConfiguration, LogFileInfo logFileInfo, IDateHelper dateHelper,
         FileHelper fileHelper, IPlayer myself)
     {

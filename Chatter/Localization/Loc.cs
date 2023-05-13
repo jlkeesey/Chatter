@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Text.Json;
-using Chatter.Properties;
 using Chatter.System;
 
 namespace Chatter.Localization;
@@ -21,8 +18,47 @@ public static class Loc
         WriteIndented = true,
     };
 
+    private static string? _languageTag;
+    private static string? _countryTag;
+
     /// <summary>
-    ///     Loads the localized messages for the current Culture and Region.
+    ///     Returns the number of messages in the message list.
+    /// </summary>
+    public static int Count => _messages.Messages.Count;
+
+    /// <summary>
+    ///     Returns the short language tag e.g. en for English.
+    /// </summary>
+    private static string LanguageTag
+    {
+        get { return _languageTag ??= CultureInfo.CurrentCulture.TwoLetterISOLanguageName; }
+    }
+
+    /// <summary>
+    ///     Returns the short country tag e.g. US for United States.
+    /// </summary>
+    private static string CountryTag
+    {
+        get { return _countryTag ??= RegionInfo.CurrentRegion.TwoLetterISORegionName; }
+    }
+
+    /// <summary>
+    ///     Gets the current full IETF language tag, e.g. en_US for U.S. English.
+    /// </summary>
+    public static string CultureTag
+    {
+        get => $"{LanguageTag}-{CountryTag}";
+        set
+        {
+            var parts = value.Split('-');
+            if (parts.Length <= 0) return;
+            _languageTag = parts[0];
+            if (parts.Length > 1) _countryTag = parts[1];
+        }
+    }
+
+    /// <summary>
+    ///     Loads the localized messages for the current Culture and Region. Clears any previously loaded messages.
     /// </summary>
     /// <remarks>
     ///     <para>
@@ -35,60 +71,42 @@ public static class Loc
     ///         for United States.
     ///     </para>
     /// </remarks>
+    /// <param name="logger">Where to write debug and error messages.</param>
     public static void Load(ILogger logger)
     {
-        _messages = LoadMessageList(logger, string.Empty) ?? new LocalizedMessageList();
-        var shortLanguage = GetLanguageTagShort();
-        var languageMessages = LoadMessageList(logger, shortLanguage);
-        if (languageMessages != null) _messages.Merge(languageMessages);
-
-        var regionalLanguage = GetLanguageTagLong();
-        var regionalLanguageMessages = LoadMessageList(logger, regionalLanguage);
-        if (regionalLanguageMessages != null) _messages.Merge(regionalLanguageMessages);
+        Load(logger, new LocMessageResourceReader());
     }
 
     /// <summary>
-    ///     Replaces all of the localized messages with the given messages. Only used in testing.
+    ///     Loads the localized messages for the current Culture and Region using the given <see cref="ILocMessageReader" />.
+    ///     Clears any previously loaded messages.
     /// </summary>
-    /// <param name="messages">The new set of messages.</param>
-    public static void SetMessages(ICollection<LocalizedMessage> messages)
+    /// <inheritdoc cref="Load(ILogger)" />
+    /// <param name="logger">Where to write debug and error messages.</param>
+    /// <param name="msgReader">Where to read the messages from.</param>
+    public static void Load(ILogger logger, ILocMessageReader msgReader)
     {
-        _messages = new LocalizedMessageList(messages);
-    }
+        _messages = LoadMessageList(logger, msgReader, string.Empty);
+        var shortLanguage = LanguageTag;
+        var languageMessages = LoadMessageList(logger, msgReader, shortLanguage);
+        _messages.Merge(languageMessages);
 
-    /// <summary>
-    ///     Returns the short language tag e.g. en for English.
-    /// </summary>
-    /// <returns>The short language code.</returns>
-    private static string GetLanguageTagShort()
-    {
-        return CultureInfo.CurrentCulture.TwoLetterISOLanguageName;
-    }
-
-    /// <summary>
-    ///     Gets the current full IETF language tag, e.g. en_US for U.S. English.
-    /// </summary>
-    /// <returns>The full language tag.</returns>
-    private static string GetLanguageTagLong()
-    {
-        var language = GetLanguageTagShort();
-        var country = RegionInfo.CurrentRegion.TwoLetterISORegionName;
-        return $"{language}-{country}";
+        var regionalLanguage = CultureTag;
+        var regionalLanguageMessages = LoadMessageList(logger, msgReader, regionalLanguage);
+        _messages.Merge(regionalLanguageMessages);
     }
 
     /// <summary>
     ///     Loads and parses a message list JSON resource into a <see cref="LocalizedMessageList" />.
     /// </summary>
     /// <param name="logger">Where to log errors.</param>
+    /// <param name="msgReader">Where to read the messages from.</param>
     /// <param name="suffix">The suffix for the resource, maybe empty.</param>
-    /// <returns>The loaded <see cref="LocalizedMessageList" /> or null if the resource was not found.</returns>
-    private static LocalizedMessageList? LoadMessageList(ILogger logger, string suffix)
+    /// <returns>The loaded <see cref="LocalizedMessageList" />.</returns>
+    private static LocalizedMessageList LoadMessageList(ILogger logger, ILocMessageReader msgReader, string suffix)
     {
         var resourceName = string.IsNullOrWhiteSpace(suffix) ? "messages" : $"messages-{suffix}";
-        if (Resources.ResourceManager.GetObject(resourceName) is not byte[] content) return null;
-        using var stream = new MemoryStream(content);
-        using var reader = new StreamReader(stream);
-        var result = reader.ReadToEnd();
+        var result = msgReader.Read(resourceName);
         return ParseList(logger, resourceName, result);
     }
 

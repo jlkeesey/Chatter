@@ -19,6 +19,7 @@ public class GroupChatLog : ChatLog
 
     protected override string DefaultFormat => "{6,22} {4,-30} {5}";
 
+    /// <inheritdoc/>
     public override bool ShouldLog(ChatMessage chatMessage)
     {
         if (!base.ShouldLog(chatMessage)) return false;

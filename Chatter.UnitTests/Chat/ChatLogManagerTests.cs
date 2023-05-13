@@ -7,7 +7,7 @@ using Moq;
 using NUnit.Framework;
 using static Chatter.Configuration;
 
-namespace Chatter.UnitTests;
+namespace Chatter.UnitTests.Chat;
 
 [TestFixture]
 public class ChatLogManagerTests

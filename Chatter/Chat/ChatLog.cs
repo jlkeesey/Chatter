@@ -42,21 +42,13 @@ public abstract class ChatLog : IChatLog, IDisposable
     /// </summary>
     protected abstract string DefaultFormat { get; }
 
-    /// <summary>
-    ///     The name of the log file if this log is open.
-    /// </summary>
+    /// <inheritdoc/>
     public string FileName { get; private set; } = string.Empty;
 
-    /// <summary>
-    ///     Returns true if this log is open.
-    /// </summary>
+    /// <inheritdoc/>
     public bool IsOpen => Log != TextWriter.Null;
 
-    /// <summary>
-    ///     Determines if the give log information should be sent to the log output by examining the configuration.
-    /// </summary>
-    /// <param name="chatMessage">The chat message information.</param>
-    /// <returns><c>true</c> if this message should be logged.</returns>
+    /// <inheritdoc/>
     [UsedImplicitly]
     public virtual bool ShouldLog(ChatMessage chatMessage)
     {
@@ -66,14 +58,7 @@ public abstract class ChatLog : IChatLog, IDisposable
                LogConfiguration.ChatTypeFilterFlags.GetValueOrDefault(chatMessage.ChatType, DefaultChatTypeFlag).Value;
     }
 
-    /// <summary>
-    ///     Logs the chat information to the target log.
-    /// </summary>
-    /// <remarks>
-    ///     The configuration defines whether the given message should be logged as well as what massaging of the data
-    ///     is required.
-    /// </remarks>
-    /// <param name="chatMessage">The chat message information.</param>
+    /// <inheritdoc/>
     public void LogInfo(ChatMessage chatMessage)
     {
         var loggableSender = chatMessage.GetLoggableSender(LogConfiguration.IncludeServer, LogConfiguration.Users);
@@ -82,12 +67,7 @@ public abstract class ChatLog : IChatLog, IDisposable
             WriteLog(chatMessage, loggableSender, loggableBody);
     }
 
-    /// <summary>
-    ///     Formats the chat message using this logs format string and sends it to the log output.
-    /// </summary>
-    /// <param name="chatMessage">The chat message information.</param>
-    /// <param name="sender">The sender after processing based on the configuration.</param>
-    /// <param name="body">The body after processing based on the configuration.</param>
+    /// <inheritdoc/>
     public void WriteLog(ChatMessage chatMessage, string sender, string body)
     {
         WriteDateSeparator();
@@ -105,9 +85,7 @@ public abstract class ChatLog : IChatLog, IDisposable
         for (var i = 1; i < bodyParts.Count; i++) WriteLine($"{padding}{bodyParts[i]}");
     }
 
-    /// <summary>
-    ///     Closes this log if open.
-    /// </summary>
+    /// <inheritdoc/>
     public void Close()
     {
         if (IsOpen)
@@ -118,10 +96,7 @@ public abstract class ChatLog : IChatLog, IDisposable
         }
     }
 
-    /// <summary>
-    ///     Dumps the information about this logger to the dev log.
-    /// </summary>
-    /// <param name="logger">Where to send the information.</param>
+    /// <inheritdoc/>
     public void DumpLog(ILogger logger)
     {
         logger.Log($"{LogConfiguration.Name,-12}  {IsOpen,-5}  '{FileName}'");

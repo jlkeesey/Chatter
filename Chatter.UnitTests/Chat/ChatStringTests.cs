@@ -2,7 +2,7 @@
 using Dalamud.Game.Text.SeStringHandling;
 using NUnit.Framework;
 
-namespace Chatter.UnitTests;
+namespace Chatter.UnitTests.Chat;
 
 [TestFixture]
 public class ChatStringTests

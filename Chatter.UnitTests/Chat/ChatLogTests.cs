@@ -1,28 +1,12 @@
-﻿using Chatter.Chat;
-using Chatter.Model;
+﻿using System.Collections.Generic;
 using Chatter.UnitTests.Support;
-using Dalamud.Game.Text;
-using NodaTime;
 using NUnit.Framework;
-using System.Collections.Generic;
 
 namespace Chatter.UnitTests.Chat;
 
 [TestFixture]
 public class ChatLogTests
 {
-    private static readonly ChatTypeHelper ChatTypeHelper = new();
-    private static readonly IPlayer DefaultPlayer = new PlayerFake("Robert Jones");
-
-    private static ChatMessage CreateMessage(ZonedDateTime when, XivChatType chatType = XivChatType.Say,
-        string? typeLabel = null, uint senderId = 123, IPlayer? sender = null, string body = "This is a test")
-    {
-        var chatSender = ChatString.FromPlayer(sender ?? DefaultPlayer);
-        var chatBody = ChatString.FromText(body);
-        return new ChatMessage(chatType, typeLabel ?? ChatTypeHelper.TypeToName(chatType), senderId, chatSender,
-            chatBody, when);
-    }
-
     [TestFixture]
     public class ShouldLogTests
     {
@@ -31,7 +15,7 @@ public class ChatLogTests
         {
             var logConfig = new Configuration.ChatLogConfiguration("test");
             var chatLog = new TestChatLog(logConfig);
-            var message = CreateMessage(chatLog.DateHelper.ZonedNow);
+            var message = ChatMessageUtils.CreateMessage(chatLog.DateHelper.ZonedNow);
 
             var result = chatLog.ShouldLog(message);
 
@@ -44,7 +28,7 @@ public class ChatLogTests
         {
             var chatLog = new TestChatLog("test");
             chatLog.LogConfiguration.DebugIncludeAllMessages = true;
-            var message = CreateMessage(chatLog.DateHelper.ZonedNow);
+            var message = ChatMessageUtils.CreateMessage(chatLog.DateHelper.ZonedNow);
 
             var result = chatLog.ShouldLog(message);
 
@@ -56,7 +40,7 @@ public class ChatLogTests
         public void ShouldLog_ChatTypeMatches()
         {
             var chatLog = new TestChatLog("test");
-            var message = CreateMessage(chatLog.DateHelper.ZonedNow);
+            var message = ChatMessageUtils.CreateMessage(chatLog.DateHelper.ZonedNow);
 
             var result = chatLog.ShouldLog(message);
 
@@ -68,7 +52,7 @@ public class ChatLogTests
         public void ShouldLog_ChatTypeMatchesOff()
         {
             var chatLog = new TestChatLog("test");
-            var message = CreateMessage(chatLog.DateHelper.ZonedNow);
+            var message = ChatMessageUtils.CreateMessage(chatLog.DateHelper.ZonedNow);
             chatLog.LogConfiguration.ChatTypeFilterFlags[message.ChatType].Value = false;
 
             var result = chatLog.ShouldLog(message);
@@ -81,7 +65,7 @@ public class ChatLogTests
         public void ShouldLog_ChatTypeNoLabel()
         {
             var chatLog = new TestChatLog("test");
-            var message = CreateMessage(chatLog.DateHelper.ZonedNow, typeLabel: string.Empty);
+            var message = ChatMessageUtils.CreateMessage(chatLog.DateHelper.ZonedNow, typeLabel: string.Empty);
 
             var result = chatLog.ShouldLog(message);
 
@@ -96,15 +80,15 @@ public class ChatLogTests
         [Test]
         public void WriteLog_Basic()
         {
-            var expected = new List<string>()
+            var expected = new List<string>
             {
                 "============================== Tuesday, May 9, 2023 ==============================",
                 "5-9-2023 17:00:00 Robert Jones [say]: This is a test",
                 "5-9-2023 17:00:01 Robert Jones [say]: This is a test",
             };
             var chatLog = new TestChatLog("test");
-            var message = CreateMessage(chatLog.DateHelper.ZonedNow);
-            var message2 = CreateMessage(chatLog.DateHelper.ZonedNow);
+            var message = ChatMessageUtils.CreateMessage(chatLog.DateHelper.ZonedNow);
+            var message2 = ChatMessageUtils.CreateMessage(chatLog.DateHelper.ZonedNow);
             var loggableSender =
                 message.GetLoggableSender(chatLog.LogConfiguration.IncludeServer, chatLog.LogConfiguration.Users);
             var loggableBody = message.GetLoggableBody(chatLog.LogConfiguration.IncludeServer);
@@ -120,14 +104,14 @@ public class ChatLogTests
         [Test]
         public void WriteLog_ChangeDateFormat()
         {
-            var expected = new List<string>()
+            var expected = new List<string>
             {
                 "============================== Tuesday, May 9, 2023 ==============================",
                 "2023-05-09 at 5:00 Robert Jones [say]: This is a test",
             };
             var chatLog = new TestChatLog("test");
             chatLog.LogConfiguration.DateTimeFormat = "yyyy-MM-dd 'at' h:mm";
-            var message = CreateMessage(chatLog.DateHelper.ZonedNow);
+            var message = ChatMessageUtils.CreateMessage(chatLog.DateHelper.ZonedNow);
             var loggableSender =
                 message.GetLoggableSender(chatLog.LogConfiguration.IncludeServer, chatLog.LogConfiguration.Users);
             var loggableBody = message.GetLoggableBody(chatLog.LogConfiguration.IncludeServer);
@@ -142,14 +126,14 @@ public class ChatLogTests
         [Test]
         public void WriteLog_ChangeMessageFormat()
         {
-            var expected = new List<string>()
+            var expected = new List<string>
             {
                 "============================== Tuesday, May 9, 2023 ==============================",
                 "say Robert Jones@Zalera This is a test",
             };
             var chatLog = new TestChatLog("test");
             chatLog.LogConfiguration.Format = "{0} {2} {5}";
-            var message = CreateMessage(chatLog.DateHelper.ZonedNow);
+            var message = ChatMessageUtils.CreateMessage(chatLog.DateHelper.ZonedNow);
             var loggableSender =
                 message.GetLoggableSender(chatLog.LogConfiguration.IncludeServer, chatLog.LogConfiguration.Users);
             var loggableBody = message.GetLoggableBody(chatLog.LogConfiguration.IncludeServer);
@@ -164,13 +148,13 @@ public class ChatLogTests
         [Test]
         public void WriteLog_ReopenUsesDifferentFile()
         {
-            var expected = new List<string>()
+            var expected = new List<string>
             {
                 "5-9-2023 17:00:01 Robert Jones [say]: This is a test",
             };
             var chatLog = new TestChatLog("test");
-            var message = CreateMessage(chatLog.DateHelper.ZonedNow);
-            var message2 = CreateMessage(chatLog.DateHelper.ZonedNow);
+            var message = ChatMessageUtils.CreateMessage(chatLog.DateHelper.ZonedNow);
+            var message2 = ChatMessageUtils.CreateMessage(chatLog.DateHelper.ZonedNow);
             var loggableSender =
                 message.GetLoggableSender(chatLog.LogConfiguration.IncludeServer, chatLog.LogConfiguration.Users);
             var loggableBody = message.GetLoggableBody(chatLog.LogConfiguration.IncludeServer);
@@ -190,15 +174,15 @@ public class ChatLogTests
         [Test]
         public void WriteLog_ReopenUsesSameFile()
         {
-            var expected = new List<string>()
+            var expected = new List<string>
             {
                 "============================== Tuesday, May 9, 2023 ==============================",
                 "5-9-2023 17:00:00 Robert Jones [say]: This is a test",
                 "5-9-2023 17:00:01 Robert Jones [say]: This is a test",
             };
             var chatLog = new TestChatLog("test");
-            var message = CreateMessage(chatLog.DateHelper.ZonedNow);
-            var message2 = CreateMessage(chatLog.DateHelper.ZonedNow);
+            var message = ChatMessageUtils.CreateMessage(chatLog.DateHelper.ZonedNow);
+            var message2 = ChatMessageUtils.CreateMessage(chatLog.DateHelper.ZonedNow);
             var loggableSender =
                 message.GetLoggableSender(chatLog.LogConfiguration.IncludeServer, chatLog.LogConfiguration.Users);
             var loggableBody = message.GetLoggableBody(chatLog.LogConfiguration.IncludeServer);
@@ -217,17 +201,17 @@ public class ChatLogTests
         [Test]
         public void WriteLog_LongLineNoWrap()
         {
-            var expected = new List<string>()
+            var expected = new List<string>
             {
                 "============================== Tuesday, May 9, 2023 ==============================",
                 "5-9-2023 17:00:00 Robert Jones [say]: This is a long message so that we can test if the line wrapping code work, and works the way we expect it to.",
                 "5-9-2023 17:00:01 Robert Jones [say]: This is a test",
             };
             var chatLog = new TestChatLog("test");
-            var message = CreateMessage(chatLog.DateHelper.ZonedNow,
+            var message = ChatMessageUtils.CreateMessage(chatLog.DateHelper.ZonedNow,
                 body:
                 "This is a long message so that we can test if the line wrapping code work, and works the way we expect it to.");
-            var message2 = CreateMessage(chatLog.DateHelper.ZonedNow);
+            var message2 = ChatMessageUtils.CreateMessage(chatLog.DateHelper.ZonedNow);
             var loggableSender =
                 message.GetLoggableSender(chatLog.LogConfiguration.IncludeServer, chatLog.LogConfiguration.Users);
             var loggableBody = message.GetLoggableBody(chatLog.LogConfiguration.IncludeServer);
@@ -244,7 +228,7 @@ public class ChatLogTests
         [Test]
         public void WriteLog_WrapLines()
         {
-            var expected = new List<string>()
+            var expected = new List<string>
             {
                 "============================== Tuesday, May 9, 2023 ==============================",
                 "5-9-2023 17:00:00 Robert Jones [say]: This is a long message so that we can",
@@ -255,10 +239,10 @@ public class ChatLogTests
             var chatLog = new TestChatLog("test");
             chatLog.LogConfiguration.MessageWrapWidth = 40;
             chatLog.LogConfiguration.MessageWrapIndentation = 38;
-            var message = CreateMessage(chatLog.DateHelper.ZonedNow,
+            var message = ChatMessageUtils.CreateMessage(chatLog.DateHelper.ZonedNow,
                 body:
                 "This is a long message so that we can test if the line wrapping code work, and works the way we expect it to.");
-            var message2 = CreateMessage(chatLog.DateHelper.ZonedNow);
+            var message2 = ChatMessageUtils.CreateMessage(chatLog.DateHelper.ZonedNow);
             var loggableSender =
                 message.GetLoggableSender(chatLog.LogConfiguration.IncludeServer, chatLog.LogConfiguration.Users);
             var loggableBody = message.GetLoggableBody(chatLog.LogConfiguration.IncludeServer);
@@ -299,7 +283,7 @@ public class ChatLogTests
             };
             var logger = new LoggerFake();
             var chatLog = new TestChatLog("test");
-            var message = CreateMessage(chatLog.DateHelper.ZonedNow);
+            var message = ChatMessageUtils.CreateMessage(chatLog.DateHelper.ZonedNow);
             var loggableSender =
                 message.GetLoggableSender(chatLog.LogConfiguration.IncludeServer, chatLog.LogConfiguration.Users);
             var loggableBody = message.GetLoggableBody(chatLog.LogConfiguration.IncludeServer);
@@ -329,7 +313,7 @@ public class ChatLogTests
         public void Close_Open()
         {
             var chatLog = new TestChatLog("test");
-            var message = CreateMessage(chatLog.DateHelper.ZonedNow);
+            var message = ChatMessageUtils.CreateMessage(chatLog.DateHelper.ZonedNow);
             var loggableSender =
                 message.GetLoggableSender(chatLog.LogConfiguration.IncludeServer, chatLog.LogConfiguration.Users);
             var loggableBody = message.GetLoggableBody(chatLog.LogConfiguration.IncludeServer);

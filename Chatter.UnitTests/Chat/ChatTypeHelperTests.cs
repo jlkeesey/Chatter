@@ -2,7 +2,7 @@
 using Dalamud.Game.Text;
 using NUnit.Framework;
 
-namespace Chatter.UnitTests;
+namespace Chatter.UnitTests.Chat;
 
 [TestFixture]
 public class ChatTypeHelperTests
@@ -53,7 +53,7 @@ public class ChatTypeHelperTests
         public void TypeToNameTest_ShowUnknown()
         {
             var chatTypeHelper = new ChatTypeHelper();
-            var expected = $"?{(int) XivChatType.GatheringSystemMessage}?";
+            var expected = $"?{(int)XivChatType.GatheringSystemMessage}?";
 
             var actual = chatTypeHelper.TypeToName(XivChatType.GatheringSystemMessage, true);
 
