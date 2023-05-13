@@ -4,7 +4,7 @@
   "Punchline": "Saves and filters chats.",
   "Description": "Allows for saving char conversations, separated by groups of people and chat types.",
   "InternalName": "Chatter",
-  "RepoUrl": "https://github.com/jlkeesey/ChatterPlugin",
+  "RepoUrl": "https://github.com/jlkeesey/Chatter",
   "ApplicableVersion": "any",
   "Tags": [
     "chat",

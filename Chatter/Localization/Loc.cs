@@ -133,7 +133,10 @@ public class Loc
         LocalizedMessageList? lml = null;
         try
         {
-            lml = JsonSerializer.Deserialize<LocalizedMessageList>(json, SerializeOptions);
+            if (!IsNullOrWhiteSpace(json))
+            {
+                lml = JsonSerializer.Deserialize<LocalizedMessageList>(json, SerializeOptions);
+            }
         }
         catch (Exception ex)
         {

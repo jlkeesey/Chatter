@@ -115,10 +115,13 @@ public partial class Configuration : IPluginConfiguration
     public static Configuration Load(DalamudPluginInterface pluginInterface, FileHelper fileHelper)
     {
         // var config = new Configuration();
-        // Dalamud.PluginInterface.SavePluginConfig(config);
+        // pluginInterface.SavePluginConfig(config);
         if (pluginInterface.GetPluginConfig() is not Configuration config) config = new Configuration();
         config._pluginInterface = pluginInterface;
 
+#if DEBUG
+        config.InitializeForDebug();
+#endif
         config.Initialize(fileHelper);
 
         config.Save();
@@ -130,9 +133,14 @@ public partial class Configuration : IPluginConfiguration
         if (string.IsNullOrWhiteSpace(LogDirectory)) LogDirectory = fileHelper.InitialLogDirectory();
 
         if (!ChatLogs.ContainsKey(AllLogName))
-            AddLog(new ChatLogConfiguration(AllLogName, true, includeAllUsers: true, format: "{2}:{0}:{5}"));
+            AddLog(new ChatLogConfiguration(AllLogName, true, includeAllUsers: true));
+
+        foreach (var (_, chatLogConfiguration) in ChatLogs) chatLogConfiguration.InitializeTypeFlags();
+    }
 
 #if DEBUG
+    public void InitializeForDebug()
+    {
         // ReSharper disable StringLiteralTypo
         // TODO remove before shipping
         var logConfiguration = new ChatLogConfiguration("Frollo", true)
@@ -148,11 +156,8 @@ public partial class Configuration : IPluginConfiguration
         AddLog(new ChatLogConfiguration("Pimpernel", true, wrapColumn: 60, wrapIndent: 54,
             includeAllUsers: true));
         // ReSharper restore StringLiteralTypo
-#endif
-
-        foreach (var (_, chatLogConfiguration) in ChatLogs) chatLogConfiguration.InitializeTypeFlags();
     }
-
+#endif
 
     /// <summary>
     ///     These chat type should all be enabled by default on new configurations.

@@ -1,4 +1,6 @@
 using Chatter.System;
+using NodaTime;
+using NodaTime.Text;
 using static Chatter.Configuration;
 
 namespace Chatter.Chat;
@@ -13,5 +15,12 @@ public class AllChatLog : ChatLog
     {
     }
 
-    protected override string DefaultFormat => "{2}:{0}:{5}";
+    protected override string FormatWhen(ZonedDateTime when)
+    {
+        var instant = when.ToInstant();
+        var pattern = InstantPattern.ExtendedIso;
+        return pattern.Format(instant);
+    }
+
+    protected override string DefaultFormat => "{6}:{2}:{0}:{5}";
 }

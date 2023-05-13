@@ -17,9 +17,9 @@ public abstract class ChatLog : IChatLog, IDisposable
     private static readonly ChatLogConfiguration.ChatTypeFlag DefaultChatTypeFlag = new();
 
     protected readonly IDateHelper DateHelper;
+    protected readonly FileHelper FileHelper;
     protected readonly ChatLogConfiguration LogConfiguration;
     protected readonly LogFileInfo LogFileInfo;
-    protected readonly FileHelper FileHelper;
 
     private LocalDate _lastWrite = LocalDate.MinIsoValue;
 
@@ -42,13 +42,13 @@ public abstract class ChatLog : IChatLog, IDisposable
     /// </summary>
     protected abstract string DefaultFormat { get; }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public string FileName { get; private set; } = string.Empty;
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public bool IsOpen => Log != TextWriter.Null;
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     [UsedImplicitly]
     public virtual bool ShouldLog(ChatMessage chatMessage)
     {
@@ -58,7 +58,7 @@ public abstract class ChatLog : IChatLog, IDisposable
                LogConfiguration.ChatTypeFilterFlags.GetValueOrDefault(chatMessage.ChatType, DefaultChatTypeFlag).Value;
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public void LogInfo(ChatMessage chatMessage)
     {
         var loggableSender = chatMessage.GetLoggableSender(LogConfiguration.IncludeServer, LogConfiguration.Users);
@@ -67,14 +67,12 @@ public abstract class ChatLog : IChatLog, IDisposable
             WriteLog(chatMessage, loggableSender, loggableBody);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public void WriteLog(ChatMessage chatMessage, string sender, string body)
     {
         WriteDateSeparator();
         var bodyParts = StringHelper.WrapBody(body, LogConfiguration.MessageWrapWidth);
-        var whenString =
-            chatMessage.When.ToString(
-                LogConfiguration.DateTimeFormat ?? DateHelper.CultureDateTimePattern.PatternText, null);
+        var whenString = FormatWhen(chatMessage.When);
         var format = LogConfiguration.Format ?? DefaultFormat;
         var logText = FormatMessage(chatMessage, sender, format, bodyParts[0], whenString);
         WriteLine(logText);
@@ -85,7 +83,7 @@ public abstract class ChatLog : IChatLog, IDisposable
         for (var i = 1; i < bodyParts.Count; i++) WriteLine($"{padding}{bodyParts[i]}");
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public void Close()
     {
         if (IsOpen)
@@ -96,7 +94,7 @@ public abstract class ChatLog : IChatLog, IDisposable
         }
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public void DumpLog(ILogger logger)
     {
         logger.Log($"{LogConfiguration.Name,-12}  {IsOpen,-5}  '{FileName}'");
@@ -106,6 +104,11 @@ public abstract class ChatLog : IChatLog, IDisposable
     {
         GC.SuppressFinalize(this);
         Close();
+    }
+
+    protected virtual string FormatWhen(ZonedDateTime when)
+    {
+        return when.ToString(LogConfiguration.DateTimeFormat ?? DateHelper.CultureDateTimePattern.PatternText, null);
     }
 
     /// <summary>
