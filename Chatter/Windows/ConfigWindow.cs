@@ -31,19 +31,17 @@ public sealed partial class ConfigWindow : Window, IDisposable
     /// </summary>
     private static readonly ChatTypeFlagList GeneralChatTypeFlags = new()
     {
-        {XivChatType.Say, Loc.Message("ChatType.Say"), Loc.Message("ChatType.Say.Help")},
-        {XivChatType.Yell, Loc.Message("ChatType.Yell"), Loc.Message("ChatType.Yell.Help")},
-        {XivChatType.Shout, Loc.Message("ChatType.Shout"), Loc.Message("ChatType.Shout.Help")},
+        {XivChatType.Say, "ChatType.Say", "ChatType.Say.Help"},
+        {XivChatType.Yell, "ChatType.Yell", "ChatType.Yell.Help"},
+        {XivChatType.Shout, "ChatType.Shout", "ChatType.Shout.Help"},
         {
-            XivChatType.TellIncoming, Loc.Message("ChatType.Tell"), Loc.Message("ChatType.Tell.Help"),
-            config => config.SyncFlags()
+            XivChatType.TellIncoming, "ChatType.Tell", "ChatType.Tell.Help", config => config.SyncFlags()
         },
-        {XivChatType.Party, Loc.Message("ChatType.Party"), Loc.Message("ChatType.Party.Help")},
-        {XivChatType.FreeCompany, Loc.Message("ChatType.FreeCompany"), Loc.Message("ChatType.FreeCompany.Help")},
-        {XivChatType.Alliance, Loc.Message("ChatType.Alliance"), Loc.Message("ChatType.Alliance.Help")},
+        {XivChatType.Party, "ChatType.Party", "ChatType.Party.Help"},
+        {XivChatType.FreeCompany, "ChatType.FreeCompany", "ChatType.FreeCompany.Help"},
+        {XivChatType.Alliance, "ChatType.Alliance", "ChatType.Alliance.Help"},
         {
-            XivChatType.StandardEmote, Loc.Message("ChatType.Emote"), Loc.Message("ChatType.Emote.Help"),
-            config => config.SyncFlags()
+            XivChatType.StandardEmote, "ChatType.Emote", "ChatType.Emote.Help", config => config.SyncFlags()
         },
     };
 
@@ -52,14 +50,14 @@ public sealed partial class ConfigWindow : Window, IDisposable
     /// </summary>
     private static readonly ChatTypeFlagList LinkShellChatTypeFlags = new()
     {
-        {XivChatType.Ls1, Loc.Message("ChatType.Ls1"), Loc.Message("ChatType.Ls1.Help")},
-        {XivChatType.Ls2, Loc.Message("ChatType.Ls2"), Loc.Message("ChatType.Ls2.Help")},
-        {XivChatType.Ls3, Loc.Message("ChatType.Ls3"), Loc.Message("ChatType.Ls3.Help")},
-        {XivChatType.Ls4, Loc.Message("ChatType.Ls4"), Loc.Message("ChatType.Ls4.Help")},
-        {XivChatType.Ls5, Loc.Message("ChatType.Ls5"), Loc.Message("ChatType.Ls5.Help")},
-        {XivChatType.Ls6, Loc.Message("ChatType.Ls6"), Loc.Message("ChatType.Ls6.Help")},
-        {XivChatType.Ls7, Loc.Message("ChatType.Ls7"), Loc.Message("ChatType.Ls7.Help")},
-        {XivChatType.Ls8, Loc.Message("ChatType.Ls8"), Loc.Message("ChatType.Ls8.Help")},
+        {XivChatType.Ls1, "ChatType.Ls1", "ChatType.Ls1.Help"},
+        {XivChatType.Ls2, "ChatType.Ls2", "ChatType.Ls2.Help"},
+        {XivChatType.Ls3, "ChatType.Ls3", "ChatType.Ls3.Help"},
+        {XivChatType.Ls4, "ChatType.Ls4", "ChatType.Ls4.Help"},
+        {XivChatType.Ls5, "ChatType.Ls5", "ChatType.Ls5.Help"},
+        {XivChatType.Ls6, "ChatType.Ls6", "ChatType.Ls6.Help"},
+        {XivChatType.Ls7, "ChatType.Ls7", "ChatType.Ls7.Help"},
+        {XivChatType.Ls8, "ChatType.Ls8", "ChatType.Ls8.Help"},
     };
 
     /// <summary>
@@ -67,14 +65,14 @@ public sealed partial class ConfigWindow : Window, IDisposable
     /// </summary>
     private static readonly ChatTypeFlagList CrossWorldLinkShellChatTypeFlags = new()
     {
-        {XivChatType.CrossLinkShell1, Loc.Message("ChatType.Cwls1"), Loc.Message("ChatType.Cwls1.Help")},
-        {XivChatType.CrossLinkShell2, Loc.Message("ChatType.Cwls2"), Loc.Message("ChatType.Cwls2.Help")},
-        {XivChatType.CrossLinkShell3, Loc.Message("ChatType.Cwls3"), Loc.Message("ChatType.Cwls3.Help")},
-        {XivChatType.CrossLinkShell4, Loc.Message("ChatType.Cwls4"), Loc.Message("ChatType.Cwls4.Help")},
-        {XivChatType.CrossLinkShell5, Loc.Message("ChatType.Cwls5"), Loc.Message("ChatType.Cwls5.Help")},
-        {XivChatType.CrossLinkShell6, Loc.Message("ChatType.Cwls6"), Loc.Message("ChatType.Cwls6.Help")},
-        {XivChatType.CrossLinkShell7, Loc.Message("ChatType.Cwls7"), Loc.Message("ChatType.Cwls7.Help")},
-        {XivChatType.CrossLinkShell8, Loc.Message("ChatType.Cwls8"), Loc.Message("ChatType.Cwls8.Help")},
+        {XivChatType.CrossLinkShell1, "ChatType.Cwls1", "ChatType.Cwls1.Help"},
+        {XivChatType.CrossLinkShell2, "ChatType.Cwls2", "ChatType.Cwls2.Help"},
+        {XivChatType.CrossLinkShell3, "ChatType.Cwls3", "ChatType.Cwls3.Help"},
+        {XivChatType.CrossLinkShell4, "ChatType.Cwls4", "ChatType.Cwls4.Help"},
+        {XivChatType.CrossLinkShell5, "ChatType.Cwls5", "ChatType.Cwls5.Help"},
+        {XivChatType.CrossLinkShell6, "ChatType.Cwls6", "ChatType.Cwls6.Help"},
+        {XivChatType.CrossLinkShell7, "ChatType.Cwls7", "ChatType.Cwls7.Help"},
+        {XivChatType.CrossLinkShell8, "ChatType.Cwls8", "ChatType.Cwls8.Help"},
     };
 
     /// <summary>
@@ -82,13 +80,13 @@ public sealed partial class ConfigWindow : Window, IDisposable
     /// </summary>
     private static readonly ChatTypeFlagList OtherChatTypeFlags = new()
     {
-        {XivChatType.Urgent, Loc.Message("ChatType.Urgent"), Loc.Message("ChatType.Urgent.Help")},
-        {XivChatType.Notice, Loc.Message("ChatType.Notice"), Loc.Message("ChatType.Notice.Help")},
-        {XivChatType.NoviceNetwork, Loc.Message("ChatType.NoviceNetwork"), Loc.Message("ChatType.NoviceNetwork.Help")},
-        {XivChatType.PvPTeam, Loc.Message("ChatType.PvPTeam"), Loc.Message("ChatType.PvPTeam.Help")},
-        {XivChatType.Echo, Loc.Message("ChatType.Echo"), Loc.Message("ChatType.Echo.Help")},
-        {XivChatType.SystemError, Loc.Message("ChatType.SystemError"), Loc.Message("ChatType.SystemError.Help")},
-        {XivChatType.SystemMessage, Loc.Message("ChatType.SystemMessage"), Loc.Message("ChatType.SystemMessage.Help")},
+        {XivChatType.Urgent, "ChatType.Urgent", "ChatType.Urgent.Help"},
+        {XivChatType.Notice, "ChatType.Notice", "ChatType.Notice.Help"},
+        {XivChatType.NoviceNetwork, "ChatType.NoviceNetwork", "ChatType.NoviceNetwork.Help"},
+        {XivChatType.PvPTeam, "ChatType.PvPTeam", "ChatType.PvPTeam.Help"},
+        {XivChatType.Echo, "ChatType.Echo", "ChatType.Echo.Help"},
+        {XivChatType.SystemError, "ChatType.SystemError", "ChatType.SystemError.Help"},
+        {XivChatType.SystemMessage, "ChatType.SystemMessage", "ChatType.SystemMessage.Help"},
     };
 
     private static int _timeStampSelected = -1;
@@ -98,6 +96,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
     private readonly List<ComboOption<string>> _dateOptions;
     private readonly List<ComboOption<FileNameOrder>> _fileOrderOptions;
     private readonly FriendManager _friendManager;
+    private readonly Loc _loc;
     private bool _addUserAlreadyExists;
     private string _addUserFullName = Empty;
     private string _addUserReplacementName = Empty;
@@ -118,12 +117,14 @@ public sealed partial class ConfigWindow : Window, IDisposable
     /// <param name="dateHelper"></param>
     /// <param name="friendManager"></param>
     /// <param name="chatterImage">The Chatter plugin icon.</param>
+    /// <param name="loc"></param>
     public ConfigWindow(Configuration config, IDateHelper dateHelper, FriendManager friendManager,
-        TextureWrap? chatterImage) : base(Title)
+        TextureWrap? chatterImage, Loc loc) : base(Title)
     {
         _configuration = config;
         _friendManager = friendManager;
         _chatterImage = chatterImage;
+        _loc = loc;
 
         SizeConstraints = new WindowSizeConstraints
         {
@@ -513,7 +514,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
     ///     Draws the button that brings up the friend selection dialog.
     /// </summary>
     /// <returns><c>true</c> if the button was pressed.</returns>
-    private static bool DrawClearFilterButton()
+    private  bool DrawClearFilterButton()
     {
         ImGui.PushFont(UiBuilder.IconFont);
         var buttonPressed = ImGui.Button($"{(char) FontAwesomeIcon.SquareXmark}##findFriend");
@@ -527,7 +528,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
     ///     Draws the button that brings up the friend selection dialog.
     /// </summary>
     /// <returns><c>true</c> if the button was pressed.</returns>
-    private static bool DrawFindFriendButton()
+    private  bool DrawFindFriendButton()
     {
         ImGui.PushFont(UiBuilder.IconFont);
         var buttonPressed = ImGui.Button($"{(char) FontAwesomeIcon.PersonCirclePlus}##findFriend");
@@ -557,7 +558,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
     {
         if (ImGui.BeginPopupModal("removeUser", ref _removeDialogIsOpen, ImGuiWindowFlags.AlwaysAutoResize))
         {
-            ImGui.TextWrapped(Loc.Message("Text.RemoveUser", _removeDialogUser));
+            ImGui.TextWrapped(_loc.Message("Text.RemoveUser", _removeDialogUser));
             ImGui.Separator();
 
             if (ImGui.Button(MsgButtonRemove, new Vector2(120, 0)))
@@ -621,7 +622,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
     /// <param name="id">The id for the list of items.</param>
     /// <param name="chatLog">The chat log configuration.</param>
     /// <param name="flagList">The list of flags to draw. If a flag is in the list but not set in the config it is ignored.</param>
-    private static void DrawChatTypeFlags(string id, ChatLogConfiguration chatLog,
+    private  void DrawChatTypeFlags(string id, ChatLogConfiguration chatLog,
         ChatTypeFlagList flagList)
     {
         ImGui.Spacing();
@@ -644,13 +645,12 @@ public sealed partial class ConfigWindow : Window, IDisposable
     /// <param name="info">The display information about this flag.</param>
     /// <param name="chatLog">The configuration this flag is from.</param>
     /// <param name="flag">The flag value location.</param>
-    private static void DrawFlag(ChatTypeFlagInfo info, ChatLogConfiguration chatLog,
-        ref bool flag)
+    private void DrawFlag(ChatTypeFlagInfo info, ChatLogConfiguration chatLog, ref bool flag)
     {
         ImGui.TableNextColumn();
-        if (ImGui.Checkbox(info.Label, ref flag)) info.OnChange?.Invoke(chatLog);
+        if (ImGui.Checkbox(_loc.Message(info.Label), ref flag)) info.OnChange?.Invoke(chatLog);
 
-        HelpMarker(info.Help);
+        HelpMarker(_loc.Message(info.Help));
     }
 
     /// <summary>
@@ -735,7 +735,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
     /// </summary>
     private class ChatTypeFlagInfo
     {
-        public ChatTypeFlagInfo(XivChatType type, string label, string? help = null,
+        public ChatTypeFlagInfo(XivChatType type, string label, string help,
             Action<ChatLogConfiguration>? onChange = null)
         {
             Type = type;
@@ -746,7 +746,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
 
         public XivChatType Type { get; }
         public string Label { get; }
-        public string? Help { get; }
+        public string Help { get; }
         public Action<ChatLogConfiguration>? OnChange { get; }
     }
 
@@ -755,7 +755,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
     /// </summary>
     private class ChatTypeFlagList : List<ChatTypeFlagInfo>
     {
-        public void Add(XivChatType type, string label, string? help = null,
+        public void Add(XivChatType type, string label, string help,
             Action<ChatLogConfiguration>? onChange = null)
         {
             Add(new ChatTypeFlagInfo(type, label, help, onChange));

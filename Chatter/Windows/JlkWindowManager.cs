@@ -1,4 +1,5 @@
 using System;
+using Chatter.Localization;
 using Chatter.Model;
 using Chatter.System;
 using Dalamud.Interface.Windowing;
@@ -20,17 +21,18 @@ public sealed class JlkWindowManager : IDisposable
     ///     Creates the manager, all top-level windows, and binds them where needed.
     /// </summary>
     /// <param name="pluginInterface"></param>
+    /// <param name="config"></param>
+    /// <param name="dateHelper"></param>
     /// <param name="friendManager"></param>
     /// <param name="nameSpace"></param>
     /// <param name="chatterImage"></param>
-    /// <param name="config"></param>
-    /// <param name="dateHelper"></param>
+    /// <param name="loc"></param>
     public JlkWindowManager(DalamudPluginInterface pluginInterface, Configuration config, IDateHelper dateHelper,
-        FriendManager friendManager, string nameSpace, TextureWrap chatterImage)
+        FriendManager friendManager, string nameSpace, TextureWrap chatterImage, Loc loc)
     {
         _pluginInterface = pluginInterface;
         _windowSystem = new WindowSystem(nameSpace);
-        _configWindow = Add(new ConfigWindow(config, dateHelper, friendManager, chatterImage));
+        _configWindow = Add(new ConfigWindow(config, dateHelper, friendManager, chatterImage, loc));
         _pluginInterface.UiBuilder.Draw += _windowSystem.Draw;
         _pluginInterface.UiBuilder.OpenConfigUi += ToggleConfig;
     }

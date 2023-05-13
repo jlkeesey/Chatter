@@ -65,62 +65,62 @@ public class LocTests
         [Test]
         public void Load_NothingToLoad()
         {
-            Loc.CultureTag = "en-US"; // Don't assume the language/country is en-US
+            var loc = new Loc("en", "US"); // Don't assume the language/country is en-US
             var logger = new LoggerFake();
             var msgReader = new MsgNullReader();
-            Loc.Load(logger, msgReader);
+            loc.Load(logger, msgReader);
 
-            Assert.That(Loc.Count, Is.EqualTo(0));
+            Assert.That(loc.Count, Is.EqualTo(0));
         }
 
         [Test]
         public void Load_OnlyBase()
         {
-            Loc.CultureTag = "en-US"; // Don't assume the language/country is en-US
+            var loc = new Loc("en", "US"); // Don't assume the language/country is en-US
             var logger = new LoggerFake();
             var msgReader = new MsgSingleReader("messages");
-            Loc.Load(logger, msgReader);
+            loc.Load(logger, msgReader);
 
-            Assert.That(Loc.Count, Is.EqualTo(1));
+            Assert.That(loc.Count, Is.EqualTo(1));
         }
 
         [Test]
         public void Load_OnlyLanguage()
         {
-            Loc.CultureTag = "en-US"; // Don't assume the language/country is en-US
+            var loc = new Loc("en", "US"); // Don't assume the language/country is en-US
             var logger = new LoggerFake();
             var msgReader = new MsgSingleReader("messages-en");
-            Loc.Load(logger, msgReader);
+            loc.Load(logger, msgReader);
 
-            Assert.That(Loc.Count, Is.EqualTo(1));
+            Assert.That(loc.Count, Is.EqualTo(1));
         }
 
         [Test]
         public void Load_OnlyFullCulture()
         {
-            Loc.CultureTag = "en-US"; // Don't assume the language/country is en-US
+            var loc = new Loc("en", "US"); // Don't assume the language/country is en-US
             var logger = new LoggerFake();
             var msgReader = new MsgSingleReader("messages-en-US");
-            Loc.Load(logger, msgReader);
+            loc.Load(logger, msgReader);
 
-            Assert.That(Loc.Count, Is.EqualTo(1));
+            Assert.That(loc.Count, Is.EqualTo(1));
         }
 
         [Test]
         public void Load_Merging()
         {
-            Loc.CultureTag = "en-US"; // Don't assume the language/country is en-US
+            var loc = new Loc("en", "US"); // Don't assume the language/country is en-US
             var logger = new LoggerFake();
             var msgReader = new MsgFullReader();
-            Loc.Load(logger, msgReader);
+            loc.Load(logger, msgReader);
 
-            Assert.That(Loc.Count, Is.EqualTo(6));
-            Assert.That(Loc.Message("base-unique"), Is.EqualTo("base"));
-            Assert.That(Loc.Message("lang=override"), Is.EqualTo("lang"));
-            Assert.That(Loc.Message("full=override"), Is.EqualTo("full"));
-            Assert.That(Loc.Message("both=override"), Is.EqualTo("full"));
-            Assert.That(Loc.Message("lang-unique"), Is.EqualTo("lang"));
-            Assert.That(Loc.Message("full-unique"), Is.EqualTo("full"));
+            Assert.That(loc.Count, Is.EqualTo(6));
+            Assert.That(loc.Message("base-unique"), Is.EqualTo("base"));
+            Assert.That(loc.Message("lang=override"), Is.EqualTo("lang"));
+            Assert.That(loc.Message("full=override"), Is.EqualTo("full"));
+            Assert.That(loc.Message("both=override"), Is.EqualTo("full"));
+            Assert.That(loc.Message("lang-unique"), Is.EqualTo("lang"));
+            Assert.That(loc.Message("full-unique"), Is.EqualTo("full"));
         }
 
         private class MsgFullReader : ILocMessageReader
@@ -168,12 +168,12 @@ public class LocTests
         [Test]
         public void Message_Missing()
         {
-            Loc.CultureTag = "en-US"; // Don't assume the language/country is en-US
+            var loc = new Loc("en", "US"); // Don't assume the language/country is en-US
             var logger = new LoggerFake();
             var msgReader = new MsgNullReader();
-            Loc.Load(logger, msgReader);
+            loc.Load(logger, msgReader);
 
-            var result = Loc.Message("unknown");
+            var result = loc.Message("unknown");
 
             Assert.That(result, Is.EqualTo("??[[unknown]]??"));
         }
@@ -181,12 +181,12 @@ public class LocTests
         [Test]
         public void Message_Found()
         {
-            Loc.CultureTag = "en-US"; // Don't assume the language/country is en-US
+            var loc = new Loc("en", "US"); // Don't assume the language/country is en-US
             var logger = new LoggerFake();
             var msgReader = new MsgSingleReader("messages", MessageFound);
-            Loc.Load(logger, msgReader);
+            loc.Load(logger, msgReader);
 
-            var result = Loc.Message("the-key");
+            var result = loc.Message("the-key");
 
             Assert.That(result, Is.EqualTo("the-message"));
         }
@@ -194,12 +194,12 @@ public class LocTests
         [Test]
         public void Message_FoundReplacement()
         {
-            Loc.CultureTag = "en-US"; // Don't assume the language/country is en-US
+            var loc = new Loc("en", "US"); // Don't assume the language/country is en-US
             var logger = new LoggerFake();
             var msgReader = new MsgSingleReader("messages", MessageFoundReplacement);
-            Loc.Load(logger, msgReader);
+            loc.Load(logger, msgReader);
 
-            var result = Loc.Message("the-key", "one", "two");
+            var result = loc.Message("the-key", "one", "two");
 
             Assert.That(result, Is.EqualTo("the-message here >one< and >two<"));
         }

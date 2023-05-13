@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
+// ReSharper disable once CheckNamespace
 namespace System.Linq;
 
 public class EnumerableWrapper<T> : IEnumerable<T>

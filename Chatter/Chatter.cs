@@ -49,8 +49,9 @@ public sealed partial class Chatter : IDalamudPlugin
 #if DEBUG
             SeSpecialCharacters.Initialize(_logger);
 #endif
-            Loc.Load(_logger);
-            
+            var loc = new Loc();
+            loc.Load(_logger);
+
             var fileHelper = new FileHelper(new WindowsFileSystem());
 
             _configuration = Configuration.Load(pluginInterface, fileHelper);
@@ -61,10 +62,11 @@ public sealed partial class Chatter : IDalamudPlugin
             var friendManager = new FriendManager(worldManager);
 
             _chatLogManager = new ChatLogManager(_configuration, dateManager, fileHelper, myself);
-            _chatManager = new ChatManager(_configuration, _logger, _chatLogManager, chatGui, dateManager, myself.HomeWorld.Name);
+            _chatManager = new ChatManager(_configuration, _logger, _chatLogManager, chatGui, dateManager,
+                myself.HomeWorld.Name);
             _chatterImage = pluginInterface.UiBuilder.LoadImage(Resources.chatter);
             _windowManager = new JlkWindowManager(pluginInterface, _configuration, dateManager, friendManager, Name,
-                _chatterImage);
+                _chatterImage, loc);
             RegisterCommands();
         }
         catch
