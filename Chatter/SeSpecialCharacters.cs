@@ -96,7 +96,11 @@ public static class SeSpecialCharacters
 
     private static ILogger? _logger;
 
-    public static void Initialize(ILogger logger)
+    /// <summary>
+    ///     Set up for DEBUG mode so we have somewhere to send the "unknown" character messages.
+    /// </summary>
+    /// <param name="logger">The target of the messages.</param>
+    public static void InitializeDebug(ILogger logger)
     {
         _logger = logger;
     }

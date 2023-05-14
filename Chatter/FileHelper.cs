@@ -45,7 +45,6 @@ public sealed class FileHelper
         if (_fileSystem.DirectoryExists(directory))
             return true;
         if (_fileSystem.FileExists(directory))
-            // TODO Add handling for this case. Preferably not allow getting here.
             return false;
 
         var parent = _fileSystem.GetDirectoryName(directory);

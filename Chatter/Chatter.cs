@@ -15,9 +15,6 @@ using ImGuiScene;
 
 namespace Chatter;
 
-// TODO Fix tell in vs out
-// TODO auto switch log files once a day
-
 /// <summary>
 /// The entry point for this plugin.
 /// </summary>
@@ -44,10 +41,10 @@ public sealed partial class Chatter : IDalamudPlugin
         try
         {
             Version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "";
-            _logger = new Logger() as ILogger;
+            _logger = new Logger();
 
 #if DEBUG
-            SeSpecialCharacters.Initialize(_logger);
+            SeSpecialCharacters.InitializeDebug(_logger);
 #endif
             var loc = new Loc();
             loc.Load(_logger);

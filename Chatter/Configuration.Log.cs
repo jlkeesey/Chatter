@@ -166,7 +166,6 @@ public partial class Configuration
         /// </remarks>
         public void InitializeTypeFlags()
         {
-            ChatTypeFilterFlags.Clear(); // TODO remove this once setup is working
             foreach (var type in DefaultEnabledTypes)
                 ChatTypeFilterFlags.TryAdd(type, new ChatTypeFlag(true));
         }

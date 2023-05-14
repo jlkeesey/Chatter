@@ -4,10 +4,10 @@
 	<PropertyGroup>
 		<Authors>James Keesey</Authors>
 		<Company></Company>
-		<Version>0.0.0.1</Version>
+		<Version>0.2.0.0</Version>
 		<Description>Plugin to save and filter chats.</Description>
 		<Copyright>(C) James Keesey. All rights reserved.</Copyright>
-		<PackageProjectUrl></PackageProjectUrl>
+		<PackageProjectUrl>https://github.com/jlkeesey/Chatter</PackageProjectUrl>
 	</PropertyGroup>
 
 	<PropertyGroup>

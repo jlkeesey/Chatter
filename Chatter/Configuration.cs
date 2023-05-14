@@ -142,7 +142,6 @@ public partial class Configuration : IPluginConfiguration
     public void InitializeForDebug()
     {
         // ReSharper disable StringLiteralTypo
-        // TODO remove before shipping
         var logConfiguration = new ChatLogConfiguration("Frollo", true)
         {
             Users =
