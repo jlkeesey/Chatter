@@ -1,3 +1,26 @@
+// Copyright 2023 James Keesey
+// 
+// Redistribution and use in source and binary forms, with or without modification,
+// are permitted provided that the following conditions are met:
+// 
+// 1. Redistributions of source code must retain the above copyright notice,
+//    this list of conditions and the following disclaimer.
+// 
+// 2. Redistributions in binary form must reproduce the above copyright notice,
+//    this list of conditions and the following disclaimer in the documentation
+//    and/or other materials provided with the distribution.
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS”
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+// OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 using System.Reflection;
 using Chatter.Chat;
 using Chatter.Localization;
@@ -16,7 +39,7 @@ using ImGuiScene;
 namespace Chatter;
 
 /// <summary>
-/// The entry point for this plugin.
+///     The entry point for this plugin.
 /// </summary>
 public sealed partial class Chatter : IDalamudPlugin
 {
@@ -24,17 +47,17 @@ public sealed partial class Chatter : IDalamudPlugin
 
     private readonly ChatLogManager _chatLogManager;
     private readonly ChatManager _chatManager;
+    private readonly TextureWrap _chatterImage;
     private readonly CommandManager _commandManager;
     private readonly Configuration _configuration;
-    private readonly JlkWindowManager _windowManager;
-    private readonly TextureWrap _chatterImage;
     private readonly ILogger _logger;
+    private readonly JlkWindowManager _windowManager;
 
     public Chatter([RequiredVersion("1.0")] DalamudPluginInterface pluginInterface,
-        [RequiredVersion("1.0")] ChatGui chatGui,
-        [RequiredVersion("1.0")] ClientState clientState,
-        [RequiredVersion("1.0")] CommandManager commandManager,
-        [RequiredVersion("1.0")] DataManager gameData)
+                   [RequiredVersion("1.0")] ChatGui chatGui,
+                   [RequiredVersion("1.0")] ClientState clientState,
+                   [RequiredVersion("1.0")] CommandManager commandManager,
+                   [RequiredVersion("1.0")] DataManager gameData)
     {
         _commandManager = commandManager;
 
@@ -59,11 +82,20 @@ public sealed partial class Chatter : IDalamudPlugin
             var friendManager = new FriendManager(worldManager);
 
             _chatLogManager = new ChatLogManager(_configuration, dateManager, fileHelper, myself);
-            _chatManager = new ChatManager(_configuration, _logger, _chatLogManager, chatGui, dateManager,
-                myself.HomeWorld.Name);
+            _chatManager = new ChatManager(_configuration,
+                                           _logger,
+                                           _chatLogManager,
+                                           chatGui,
+                                           dateManager,
+                                           myself.HomeWorld.Name);
             _chatterImage = pluginInterface.UiBuilder.LoadImage(Resources.chatter);
-            _windowManager = new JlkWindowManager(pluginInterface, _configuration, dateManager, friendManager, Name,
-                _chatterImage, loc);
+            _windowManager = new JlkWindowManager(pluginInterface,
+                                                  _configuration,
+                                                  dateManager,
+                                                  friendManager,
+                                                  Name,
+                                                  _chatterImage,
+                                                  loc);
             RegisterCommands();
         }
         catch

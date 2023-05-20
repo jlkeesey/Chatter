@@ -1,4 +1,27 @@
-﻿using System.Collections.Generic;
+﻿// Copyright 2023 James Keesey
+// 
+// Redistribution and use in source and binary forms, with or without modification,
+// are permitted provided that the following conditions are met:
+// 
+// 1. Redistributions of source code must retain the above copyright notice,
+//    this list of conditions and the following disclaimer.
+// 
+// 2. Redistributions in binary form must reproduce the above copyright notice,
+//    this list of conditions and the following disclaimer in the documentation
+//    and/or other materials provided with the distribution.
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS”
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+// OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Chatter.System;
@@ -22,8 +45,8 @@ public static class SeSpecialCharacters
     private static readonly Dictionary<char, string> SpecialCharacterMap = new()
     {
         {'\uE03C', "\u2747"}, // Flower separator between names and worlds
-        {'\uE040', "["}, // Open double arrow used to surround translatable words
-        {'\uE041', "]"}, // Close double arrow used to surround translatable words
+        {'\uE040', "["},      // Open double arrow used to surround translatable words
+        {'\uE041', "]"},      // Close double arrow used to surround translatable words
         {'\uE049', "\u25CB"}, // D-controller circle button
         {'\uE04A', "\u25FB"}, // D-controller square button
         {'\uE04B', "\u2716"}, // D-controller x button
@@ -138,8 +161,7 @@ public static class SeSpecialCharacters
     public static string Replace(string input)
     {
         var sb = new StringBuilder();
-        foreach (var ch in input)
-            sb.Append(Replacement(ch));
+        foreach (var ch in input) sb.Append(Replacement(ch));
         return sb.ToString();
     }
 
@@ -156,11 +178,9 @@ public static class SeSpecialCharacters
     /// <returns>The replacement string.</returns>
     private static string Replacement(char ch)
     {
-        if (SpecialCharacterMap.TryGetValue(ch, out var value))
-            return value;
+        if (SpecialCharacterMap.TryGetValue(ch, out var value)) return value;
 #if DEBUG
-        if (IsSpecial(ch))
-            _logger?.Debug("Unhandled FFXIV character: (\\u{0:X4})", (int) ch);
+        if (IsSpecial(ch)) _logger?.Debug("Unhandled FFXIV character: (\\u{0:X4})", (int) ch);
 #endif
         return ch.ToString();
     }

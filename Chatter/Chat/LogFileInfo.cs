@@ -1,7 +1,30 @@
+// Copyright 2023 James Keesey
+// 
+// Redistribution and use in source and binary forms, with or without modification,
+// are permitted provided that the following conditions are met:
+// 
+// 1. Redistributions of source code must retain the above copyright notice,
+//    this list of conditions and the following disclaimer.
+// 
+// 2. Redistributions in binary form must reproduce the above copyright notice,
+//    this list of conditions and the following disclaimer in the documentation
+//    and/or other materials provided with the distribution.
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS”
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+// OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 using NodaTime;
 using NodaTime.Text;
-using static NodaTime.Text.LocalTimePattern;
 using static Chatter.Configuration;
+using static NodaTime.Text.LocalTimePattern;
 
 namespace Chatter.Chat;
 
@@ -17,9 +40,12 @@ public class LogFileInfo
     private static readonly ZonedDateTimePattern DefaultFileDateTimePattern =
         ZonedDateTimePattern.CreateWithCurrentCulture("yyyyMMdd-HHmmss", null);
 
-    public LogFileInfo(string? directory = null, string? fileNamePrefix = null,
-        FileNameOrder order = FileNameOrder.None, ZonedDateTime? startTime = null,
-        ZonedDateTimePattern? fileNameDatePattern = null, LocalTime? timeToClose = null)
+    public LogFileInfo(string? directory = null,
+                       string? fileNamePrefix = null,
+                       FileNameOrder order = FileNameOrder.None,
+                       ZonedDateTime? startTime = null,
+                       ZonedDateTimePattern? fileNameDatePattern = null,
+                       LocalTime? timeToClose = null)
     {
         Directory = directory ?? string.Empty;
         FileNamePrefix = fileNamePrefix ?? string.Empty;
@@ -82,20 +108,16 @@ public class LogFileInfo
         {
             WhenToClose = configuration.WhenToCloseLogs;
             // ReSharper disable once RedundantCheckBeforeAssignment
-            if (configuration.WhenToCloseLogs != WhenToClose)
-            {
-                configuration.WhenToCloseLogs = WhenToClose;
-            }
+            if (configuration.WhenToCloseLogs != WhenToClose) configuration.WhenToCloseLogs = WhenToClose;
         }
 
-        if (configuration.LogDirectory == Directory &&
-            configuration.LogFileNamePrefix == FileNamePrefix &&
-            configuration.LogOrder == Order) return false;
+        if (configuration.LogDirectory == Directory
+         && configuration.LogFileNamePrefix == FileNamePrefix
+         && configuration.LogOrder == Order)
+            return false;
         Directory = configuration.LogDirectory;
         FileNamePrefix = configuration.LogFileNamePrefix;
         Order = configuration.LogOrder;
         return true;
     }
-
-
 }

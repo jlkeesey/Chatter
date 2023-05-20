@@ -1,4 +1,27 @@
-﻿using System.Collections.Generic;
+﻿// Copyright 2023 James Keesey
+// 
+// Redistribution and use in source and binary forms, with or without modification,
+// are permitted provided that the following conditions are met:
+// 
+// 1. Redistributions of source code must retain the above copyright notice,
+//    this list of conditions and the following disclaimer.
+// 
+// 2. Redistributions in binary form must reproduce the above copyright notice,
+//    this list of conditions and the following disclaimer in the documentation
+//    and/or other materials provided with the distribution.
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS”
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+// OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+using System.Collections.Generic;
 using Chatter.UnitTests.Support;
 using NUnit.Framework;
 
@@ -148,10 +171,7 @@ public class ChatLogTests
         [Test]
         public void WriteLog_ReopenUsesDifferentFile()
         {
-            var expected = new List<string>
-            {
-                "5-9-2023 17:00:01 Robert Jones [say]: This is a test",
-            };
+            var expected = new List<string> {"5-9-2023 17:00:01 Robert Jones [say]: This is a test",};
             var chatLog = new TestChatLog("test");
             var message = ChatMessageUtils.CreateMessage(chatLog.DateHelper.ZonedNow);
             var message2 = ChatMessageUtils.CreateMessage(chatLog.DateHelper.ZonedNow);
@@ -166,7 +186,7 @@ public class ChatLogTests
 
             Assert.That(chatLog.IsOpen, Is.True);
             Assert.That(chatLog.FileName,
-                Is.EqualTo("C:\\Users\\Bob\\Documents\\FFXIV Chatter\\chatter-test-20230509-170005.log"));
+                        Is.EqualTo("C:\\Users\\Bob\\Documents\\FFXIV Chatter\\chatter-test-20230509-170005.log"));
             var lines = chatLog.FileSystem.Writers[chatLog.FileName].Lines;
             Assert.That(expected, Is.EqualTo(lines).AsCollection);
         }
@@ -193,7 +213,7 @@ public class ChatLogTests
 
             Assert.That(chatLog.IsOpen, Is.True);
             Assert.That(chatLog.FileName,
-                Is.EqualTo("C:\\Users\\Bob\\Documents\\FFXIV Chatter\\chatter-test-20230509-170003.log"));
+                        Is.EqualTo("C:\\Users\\Bob\\Documents\\FFXIV Chatter\\chatter-test-20230509-170003.log"));
             var lines = chatLog.FileSystem.Writers[chatLog.FileName].Lines;
             Assert.That(expected, Is.EqualTo(lines).AsCollection);
         }
@@ -209,8 +229,8 @@ public class ChatLogTests
             };
             var chatLog = new TestChatLog("test");
             var message = ChatMessageUtils.CreateMessage(chatLog.DateHelper.ZonedNow,
-                body:
-                "This is a long message so that we can test if the line wrapping code work, and works the way we expect it to.");
+                                                         body:
+                                                         "This is a long message so that we can test if the line wrapping code work, and works the way we expect it to.");
             var message2 = ChatMessageUtils.CreateMessage(chatLog.DateHelper.ZonedNow);
             var loggableSender =
                 message.GetLoggableSender(chatLog.LogConfiguration.IncludeServer, chatLog.LogConfiguration.Users);
@@ -240,8 +260,8 @@ public class ChatLogTests
             chatLog.LogConfiguration.MessageWrapWidth = 40;
             chatLog.LogConfiguration.MessageWrapIndentation = 38;
             var message = ChatMessageUtils.CreateMessage(chatLog.DateHelper.ZonedNow,
-                body:
-                "This is a long message so that we can test if the line wrapping code work, and works the way we expect it to.");
+                                                         body:
+                                                         "This is a long message so that we can test if the line wrapping code work, and works the way we expect it to.");
             var message2 = ChatMessageUtils.CreateMessage(chatLog.DateHelper.ZonedNow);
             var loggableSender =
                 message.GetLoggableSender(chatLog.LogConfiguration.IncludeServer, chatLog.LogConfiguration.Users);
@@ -262,10 +282,7 @@ public class ChatLogTests
         [Test]
         public void DumpLogs_Closed()
         {
-            var expected = new List<string>
-            {
-                "[L]: test          False  ''",
-            };
+            var expected = new List<string> {"[L]: test          False  ''",};
             var logger = new LoggerFake();
             var chatLog = new TestChatLog("test");
 

@@ -1,3 +1,26 @@
+// Copyright 2023 James Keesey
+// 
+// Redistribution and use in source and binary forms, with or without modification,
+// are permitted provided that the following conditions are met:
+// 
+// 1. Redistributions of source code must retain the above copyright notice,
+//    this list of conditions and the following disclaimer.
+// 
+// 2. Redistributions in binary form must reproduce the above copyright notice,
+//    this list of conditions and the following disclaimer in the documentation
+//    and/or other materials provided with the distribution.
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS”
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+// OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -23,8 +46,10 @@ public abstract class ChatLog : IChatLog, IDisposable
 
     private LocalDate _lastWrite = LocalDate.MinIsoValue;
 
-    protected ChatLog(ChatLogConfiguration configuration, LogFileInfo logFileInfo, IDateHelper dateHelper,
-        FileHelper fileHelper)
+    protected ChatLog(ChatLogConfiguration configuration,
+                      LogFileInfo logFileInfo,
+                      IDateHelper dateHelper,
+                      FileHelper fileHelper)
     {
         LogConfiguration = configuration;
         LogFileInfo = logFileInfo;
@@ -54,8 +79,8 @@ public abstract class ChatLog : IChatLog, IDisposable
     {
         if (!LogConfiguration.IsActive) return false;
         if (LogConfiguration.DebugIncludeAllMessages) return true;
-        return !string.IsNullOrWhiteSpace(chatMessage.TypeLabel) &&
-               LogConfiguration.ChatTypeFilterFlags.GetValueOrDefault(chatMessage.ChatType, DefaultChatTypeFlag).Value;
+        return !string.IsNullOrWhiteSpace(chatMessage.TypeLabel)
+            && LogConfiguration.ChatTypeFilterFlags.GetValueOrDefault(chatMessage.ChatType, DefaultChatTypeFlag).Value;
     }
 
     /// <inheritdoc />
@@ -63,8 +88,7 @@ public abstract class ChatLog : IChatLog, IDisposable
     {
         var loggableSender = chatMessage.GetLoggableSender(LogConfiguration.IncludeServer, LogConfiguration.Users);
         var loggableBody = chatMessage.GetLoggableBody(LogConfiguration.IncludeServer);
-        if (ShouldLog(chatMessage))
-            WriteLog(chatMessage, loggableSender, loggableBody);
+        if (ShouldLog(chatMessage)) WriteLog(chatMessage, loggableSender, loggableBody);
     }
 
     /// <inheritdoc />
@@ -77,8 +101,8 @@ public abstract class ChatLog : IChatLog, IDisposable
         var logText = FormatMessage(chatMessage, sender, format, bodyParts[0], whenString);
         WriteLine(logText);
         var indentation = LogConfiguration.MessageWrapIndentation >= 0
-            ? LogConfiguration.MessageWrapIndentation
-            : logText.IndexOf(bodyParts[0], StringComparison.Ordinal);
+                              ? LogConfiguration.MessageWrapIndentation
+                              : logText.IndexOf(bodyParts[0], StringComparison.Ordinal);
         var padding = "".PadLeft(indentation);
         for (var i = 1; i < bodyParts.Count; i++) WriteLine($"{padding}{bodyParts[i]}");
     }
@@ -136,18 +160,21 @@ public abstract class ChatLog : IChatLog, IDisposable
     /// </param>
     /// <param name="whenString">The formatted timestamp.</param>
     /// <returns></returns>
-    private static string FormatMessage(ChatMessage chatMessage, string cleanedSender, string format, string body,
-        string whenString)
+    private static string FormatMessage(ChatMessage chatMessage,
+                                        string cleanedSender,
+                                        string format,
+                                        string body,
+                                        string whenString)
     {
-        var logText = string.Format(format, // pattern
-            chatMessage.TypeLabel, // {0}
-            chatMessage.TypeLabel, // {1}
-            chatMessage.Sender, // {2}
-            cleanedSender, // {3}
-            $"{cleanedSender} [{chatMessage.TypeLabel}]", // {4}
-            body, // {5}
-            whenString // {6}
-        );
+        var logText = string.Format(format,                                       // pattern
+                                    chatMessage.TypeLabel,                        // {0}
+                                    chatMessage.TypeLabel,                        // {1}
+                                    chatMessage.Sender,                           // {2}
+                                    cleanedSender,                                // {3}
+                                    $"{cleanedSender} [{chatMessage.TypeLabel}]", // {4}
+                                    body,                                         // {5}
+                                    whenString                                    // {6}
+                                   );
         return logText;
     }
 
@@ -171,9 +198,7 @@ public abstract class ChatLog : IChatLog, IDisposable
         LogFileInfo.StartTime ??= DateHelper.ZonedNow; // If this is the first file opened, set the start time.
         var dateString = LogFileInfo.FileNameDatePattern.Format((ZonedDateTime) LogFileInfo.StartTime);
 
-        var pattern = LogFileInfo.Order == FileNameOrder.PrefixGroupDate
-            ? "{0}-{1}-{2}"
-            : "{0}-{2}-{1}";
+        var pattern = LogFileInfo.Order == FileNameOrder.PrefixGroupDate ? "{0}-{1}-{2}" : "{0}-{2}-{1}";
         var name = string.Format(pattern, LogFileInfo.FileNamePrefix, LogConfiguration.Name, dateString);
         FileName = FileHelper.FullFileName(LogFileInfo.Directory, name, FileHelper.LogFileExtension);
         FileHelper.EnsureDirectoryExists(LogFileInfo.FileNamePrefix);

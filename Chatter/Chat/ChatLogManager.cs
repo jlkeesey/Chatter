@@ -1,3 +1,26 @@
+// Copyright 2023 James Keesey
+// 
+// Redistribution and use in source and binary forms, with or without modification,
+// are permitted provided that the following conditions are met:
+// 
+// 1. Redistributions of source code must retain the above copyright notice,
+//    this list of conditions and the following disclaimer.
+// 
+// 2. Redistributions in binary form must reproduce the above copyright notice,
+//    this list of conditions and the following disclaimer in the documentation
+//    and/or other materials provided with the distribution.
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS”
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+// OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 using System;
 using System.Collections.Generic;
 using Chatter.Model;
@@ -23,12 +46,15 @@ public sealed class ChatLogManager : IDisposable
     private readonly Configuration _configuration;
     private readonly IDateHelper _dateHelper;
     private readonly FileHelper _fileHelper;
+    private readonly LogFileInfo _logFileInfo = new();
     private readonly Dictionary<string, IChatLog> _logs = new();
     private readonly IPlayer _myself;
-    private readonly LogFileInfo _logFileInfo = new();
 
-    public ChatLogManager(Configuration configuration, IDateHelper dateHelper, FileHelper fileHelper, IPlayer myself,
-        IChatLogGenerator? chatLogGenerator = null)
+    public ChatLogManager(Configuration configuration,
+                          IDateHelper dateHelper,
+                          FileHelper fileHelper,
+                          IPlayer myself,
+                          IChatLogGenerator? chatLogGenerator = null)
     {
         _configuration = configuration;
         _chatLogGenerator = chatLogGenerator ?? new ChatLogGenerator();
@@ -52,8 +78,8 @@ public sealed class ChatLogManager : IDisposable
     private IChatLog GetLog(ChatLogConfiguration logConfiguration)
     {
         if (!_logs.ContainsKey(logConfiguration.Name))
-            _logs[logConfiguration.Name] = _chatLogGenerator.Create(logConfiguration, _logFileInfo, _dateHelper,
-                _fileHelper, _myself);
+            _logs[logConfiguration.Name] =
+                _chatLogGenerator.Create(logConfiguration, _logFileInfo, _dateHelper, _fileHelper, _myself);
 
         return _logs[logConfiguration.Name];
     }
@@ -69,14 +95,13 @@ public sealed class ChatLogManager : IDisposable
             _logFileInfo.WhenToClose = _configuration.WhenToCloseLogs;
             // ReSharper disable once RedundantCheckBeforeAssignment
             if (_configuration.WhenToCloseLogs != _logFileInfo.WhenToClose)
-            {
                 _configuration.WhenToCloseLogs = _logFileInfo.WhenToClose;
-            }
         }
 
-        if (_configuration.LogDirectory == _logFileInfo.Directory &&
-            _configuration.LogFileNamePrefix == _logFileInfo.FileNamePrefix &&
-            _configuration.LogOrder == _logFileInfo.Order) return;
+        if (_configuration.LogDirectory == _logFileInfo.Directory
+         && _configuration.LogFileNamePrefix == _logFileInfo.FileNamePrefix
+         && _configuration.LogOrder == _logFileInfo.Order)
+            return;
         CloseLogs();
         _logFileInfo.Directory = _configuration.LogDirectory;
         _logFileInfo.FileNamePrefix = _configuration.LogFileNamePrefix;
@@ -91,8 +116,7 @@ public sealed class ChatLogManager : IDisposable
     {
         logger.Log("Prefix        Open   Path");
         logger.Log("------------  -----  ----");
-        foreach (var (_, entry) in _logs)
-            entry.DumpLog(logger);
+        foreach (var (_, entry) in _logs) entry.DumpLog(logger);
     }
 
     /// <summary>
@@ -100,8 +124,7 @@ public sealed class ChatLogManager : IDisposable
     /// </summary>
     private void CloseLogs()
     {
-        foreach (var (_, entry) in _logs)
-            entry.Close();
+        foreach (var (_, entry) in _logs) entry.Close();
         _logFileInfo.StartTime = null;
     }
 
@@ -111,8 +134,7 @@ public sealed class ChatLogManager : IDisposable
     /// <param name="chatMessage">The chat message information.</param>
     public void LogInfo(ChatMessage chatMessage)
     {
-        if (_logFileInfo.UpdateConfigValues(_configuration))
-            CloseLogs();
+        if (_logFileInfo.UpdateConfigValues(_configuration)) CloseLogs();
 
         var now = _dateHelper.ZonedNow.TimeOfDay;
 
