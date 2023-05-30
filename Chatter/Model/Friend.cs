@@ -35,7 +35,7 @@ public class Friend : IPlayer, IComparable<Friend>, IComparable
     /// <summary>
     ///     This friend's content id.
     /// </summary>
-    public readonly ulong ContentId;
+    public readonly long ContentId;
 
     /// <summary>
     ///     The <see cref="World" /> this friend is currently on.
@@ -52,7 +52,7 @@ public class Friend : IPlayer, IComparable<Friend>, IComparable
     /// </summary>
     public readonly bool IsOnline;
 
-    public Friend(ulong contentId, string name, string freeCompany, World homeWorld, World currentWorld, bool isOnline)
+    public Friend(long contentId, string name, string freeCompany, World homeWorld, World currentWorld, bool isOnline)
     {
         ContentId = contentId;
         Name = name;
