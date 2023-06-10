@@ -23,6 +23,7 @@
 
 using System.Collections.Generic;
 using Dalamud.Game.Text;
+using Dalamud.Utility;
 using static System.String;
 
 namespace Chatter.Chat;
@@ -48,8 +49,8 @@ public sealed class ChatTypeHelper
     public string TypeToName(XivChatType chatType, bool showUnknown = false)
     {
         if (_chatCodeToShortName.TryGetValue(chatType, out var name)) return name;
-        var slug = chatType.GetDetails()?.Slug ?? Empty;
+        var slug = chatType.GetAttribute<XivChatTypeInfoAttribute>()?.Slug ?? Empty;
         var defaultValue = showUnknown ? $"?{(int) chatType}?" : Empty;
-        return !IsNullOrWhiteSpace(slug) ? slug : defaultValue;
+        return IsNullOrWhiteSpace(slug) ? defaultValue : slug;
     }
 }

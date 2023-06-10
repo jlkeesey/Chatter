@@ -25,7 +25,6 @@ using System;
 using System.Collections.Generic;
 using Chatter.Model;
 using Chatter.System;
-using Dalamud.Logging;
 using static Chatter.Configuration;
 
 namespace Chatter.Chat;

@@ -27,7 +27,6 @@ using System.IO;
 using Chatter.Reporting;
 using Chatter.System;
 using Chatter.Utilities;
-using Dalamud.Logging;
 using JetBrains.Annotations;
 using NodaTime;
 using static Chatter.Configuration;
