@@ -76,6 +76,18 @@ internal sealed class ChatManager : IDisposable
         XivChatType.Yell,
     };
 
+    /// <summary>
+    ///     All of the other chat types that we have examined and determined we should ignore.
+    /// </summary>
+    private static readonly List<XivChatType> IgnoredChatTypes = new()
+    {
+        (XivChatType) 72,   // Of the X parties currently recruiting, all match your search conditions.
+        (XivChatType) 2091, // You use Teleport.
+        (XivChatType) 2105, // You spent X gil.
+        (XivChatType) 2219, // You ready Teleport.
+        XivChatType.RetainerSale,
+    };
+
     private readonly ChatGui _chatGui;
     private readonly ChatTypeHelper _chatTypeHelper = new();
 
@@ -89,6 +101,7 @@ internal sealed class ChatManager : IDisposable
     ///     Manages connecting to the chat stream and converting them into a form for easier processing.
     /// </summary>
     /// <param name="configuration">The plugin configuration.</param>
+    /// <param name="logger">Where to send log messages.</param>
     /// <param name="logManager">The manager that processes the formalized chat messages.</param>
     /// <param name="chatGui">The interface into the chat stream.</param>
     /// <param name="dateHelper">The manager of date/time objects.</param>
@@ -114,7 +127,7 @@ internal sealed class ChatManager : IDisposable
     {
         _chatGui.ChatMessage -= HandleChatMessage;
     }
-
+    
     /// <summary>
     ///     Chat message handler. This is called for every chat message that passes through the system.
     /// </summary>
@@ -138,9 +151,10 @@ internal sealed class ChatManager : IDisposable
                                    ref SeString seBody,
                                    ref bool isHandled)
     {
+        if (IgnoredChatTypes.Contains(xivType)) return;
         if (!AllSupportedChatTypes.Contains(xivType))
         {
-            if (_configuration.IsDebug) _logger.Log($"Unsupported XivChatType: {xivType}");
+            if (_configuration.IsDebug) _logger.Debug($"Unsupported XivChatType: {xivType}: '{seBody.TextValue}'");
             return;
         }
 

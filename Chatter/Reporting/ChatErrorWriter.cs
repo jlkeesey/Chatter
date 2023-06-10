@@ -1,4 +1,4 @@
-// Copyright 2023 James Keesey
+Ôªø// Copyright 2023 James Keesey
 // 
 // Redistribution and use in source and binary forms, with or without modification,
 // are permitted provided that the following conditions are met:
@@ -10,7 +10,7 @@
 //    this list of conditions and the following disclaimer in the documentation
 //    and/or other materials provided with the distribution.
 // 
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ìAS ISî
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ‚ÄúAS IS‚Äù
 // AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 // IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
 // ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
@@ -21,33 +21,25 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-using Chatter.Reporting;
-using Chatter.System;
-using NodaTime;
-using NodaTime.Text;
-using static Chatter.Configuration;
+using Dalamud.Game.Gui;
 
-namespace Chatter.Chat;
+namespace Chatter.Reporting;
 
 /// <summary>
-///     Chat log for the log that record everything.
+///     An <see cref="IErrorWriter" /> that sends the messages to the chat box.
 /// </summary>
-public class AllChatLog : ChatLog
+internal class ChatErrorWriter : IErrorWriter
 {
-    public AllChatLog(ChatLogConfiguration configuration,
-                      LogFileInfo logFileInfo,
-                      IDateHelper dateHelper,
-                      FileHelper fileHelper,
-                      IErrorWriter errorWriter) : base(configuration, logFileInfo, dateHelper, fileHelper, errorWriter)
+    private readonly ChatGui _chatGui;
+
+    public ChatErrorWriter(ChatGui chatGui)
     {
+        _chatGui = chatGui;
     }
 
-    protected override string DefaultFormat => "{6}:{2}:{0}:{5}";
-
-    protected override string FormatWhen(ZonedDateTime when)
+    /// <inheritdoc />
+    public void PrintError(string message)
     {
-        var instant = when.ToInstant();
-        var pattern = InstantPattern.ExtendedIso;
-        return pattern.Format(instant);
+        _chatGui.PrintError(message);
     }
 }

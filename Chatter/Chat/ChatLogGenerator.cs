@@ -22,6 +22,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using Chatter.Model;
+using Chatter.Reporting;
 using Chatter.System;
 using static Chatter.Configuration;
 
@@ -32,6 +33,13 @@ namespace Chatter.Chat;
 /// </summary>
 public class ChatLogGenerator : IChatLogGenerator
 {
+    private readonly IErrorWriter _errorWriter;
+
+    public ChatLogGenerator(IErrorWriter errorWriter)
+    {
+        _errorWriter = errorWriter;
+    }
+
     /// <inheritdoc />
     public IChatLog Create(ChatLogConfiguration logConfiguration,
                            LogFileInfo logFileInfo,
@@ -40,7 +48,7 @@ public class ChatLogGenerator : IChatLogGenerator
                            IPlayer myself)
     {
         return logConfiguration.Name == AllLogName
-                   ? new AllChatLog(logConfiguration, logFileInfo, dateHelper, fileHelper)
-                   : new GroupChatLog(logConfiguration, logFileInfo, dateHelper, fileHelper, myself);
+                   ? new AllChatLog(logConfiguration, logFileInfo, dateHelper, fileHelper, _errorWriter)
+                   : new GroupChatLog(logConfiguration, logFileInfo, dateHelper, fileHelper, myself, _errorWriter);
     }
 }

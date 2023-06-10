@@ -41,7 +41,7 @@ public class FileHelperTests
 
             var result = fileHelper.EnsureDirectoryExists(path);
 
-            Assert.True(result);
+            Assert.AreEqual(FileHelper.EnsureCode.Success, result);
         }
 
         [Test]
@@ -54,7 +54,7 @@ public class FileHelperTests
 
             var result = fileHelper.EnsureDirectoryExists(path);
 
-            Assert.False(result);
+            Assert.AreEqual(FileHelper.EnsureCode.FileExists, result);
         }
 
         [Test]
@@ -68,7 +68,7 @@ public class FileHelperTests
 
             var result = fileHelper.EnsureDirectoryExists(path);
 
-            Assert.True(result, "Directory was created");
+            Assert.AreEqual(FileHelper.EnsureCode.Success, result);
             Assert.True(fileSystem.DirectoryExists(path), "Directory now exists");
         }
 
@@ -81,7 +81,7 @@ public class FileHelperTests
 
             var result = fileHelper.EnsureDirectoryExists(path);
 
-            Assert.False(result);
+            Assert.AreEqual(FileHelper.EnsureCode.ParentDoesNotExist, result);
         }
     }
 

@@ -21,33 +21,9 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-using Chatter.Reporting;
-using Chatter.System;
-using NodaTime;
-using NodaTime.Text;
-using static Chatter.Configuration;
+namespace Chatter.Reporting;
 
-namespace Chatter.Chat;
-
-/// <summary>
-///     Chat log for the log that record everything.
-/// </summary>
-public class AllChatLog : ChatLog
+public interface IErrorWriter
 {
-    public AllChatLog(ChatLogConfiguration configuration,
-                      LogFileInfo logFileInfo,
-                      IDateHelper dateHelper,
-                      FileHelper fileHelper,
-                      IErrorWriter errorWriter) : base(configuration, logFileInfo, dateHelper, fileHelper, errorWriter)
-    {
-    }
-
-    protected override string DefaultFormat => "{6}:{2}:{0}:{5}";
-
-    protected override string FormatWhen(ZonedDateTime when)
-    {
-        var instant = when.ToInstant();
-        var pattern = InstantPattern.ExtendedIso;
-        return pattern.Format(instant);
-    }
+    public void PrintError(string message);
 }

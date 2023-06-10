@@ -79,4 +79,9 @@ public sealed class ChatMessage
     {
         return Body.AsText(includeServer);
     }
+
+    public override string ToString()
+    {
+        return $"{When}: '{Sender}' said '{Body}'";
+    }
 }

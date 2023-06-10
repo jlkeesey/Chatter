@@ -33,6 +33,32 @@ namespace Chatter;
 public sealed class FileHelper
 {
     /// <summary>
+    ///     Defines the possible results of the <see cref="FileHelper.EnsureDirectoryExists" /> method.
+    /// </summary>
+    public enum EnsureCode
+    {
+        /// <summary>
+        ///     The ensure operation was successful and the directory exists.
+        /// </summary>
+        Success = 0,
+
+        /// <summary>
+        ///     The path name exists but is a file instead of a directory.
+        /// </summary>
+        FileExists = 1,
+
+        /// <summary>
+        ///     The parent path does not exist.
+        /// </summary>
+        ParentDoesNotExist = 2,
+
+        /// <summary>
+        ///     Something went wrong at the system level.
+        /// </summary>
+        SystemError = 3,
+    }
+
+    /// <summary>
     ///     The file extension for log files.
     /// </summary>
     public const string LogFileExtension = ".log";
@@ -49,6 +75,12 @@ public sealed class FileHelper
         _fileSystem = fileSystem;
     }
 
+    /// <summary>
+    ///     Returns a <see cref="TextWriter" /> into the given file.
+    /// </summary>
+    /// <param name="path">The path name of the file to open.</param>
+    /// <param name="append"><c>true</c> if the file should be appended to, false to overwrite.</param>
+    /// <returns>The <see cref="TextWriter" />. If the file cannot be written to, <see cref="TextWriter.Null" /> is returned.</returns>
     public TextWriter OpenFile(string path, bool append)
     {
         return _fileSystem.OpenFile(path, append);
@@ -62,16 +94,15 @@ public sealed class FileHelper
     ///     If any other part of the path does not exist this fails and returns <see cref="string.Empty" />.
     /// </remarks>
     /// <param name="directory">The directory to ensure exists.</param>
-    /// <returns>The name of the directory if it exists, <see cref="string.Empty" /> otherwise.</returns>
-    public bool EnsureDirectoryExists(string directory)
+    /// <returns>An <see cref="EnsureCode" /> describing the result of the operation.</returns>
+    public EnsureCode EnsureDirectoryExists(string directory)
     {
-        if (_fileSystem.DirectoryExists(directory)) return true;
-        if (_fileSystem.FileExists(directory)) return false;
+        if (_fileSystem.DirectoryExists(directory)) return EnsureCode.Success;
+        if (_fileSystem.FileExists(directory)) return EnsureCode.FileExists;
 
         var parent = _fileSystem.GetDirectoryName(directory);
-        if (!_fileSystem.DirectoryExists(parent)) return false;
-        _fileSystem.CreateDirectory(directory);
-        return _fileSystem.DirectoryExists(directory);
+        if (!_fileSystem.DirectoryExists(parent)) return EnsureCode.ParentDoesNotExist;
+        return _fileSystem.CreateDirectory(directory) ? EnsureCode.Success : EnsureCode.SystemError;
     }
 
     /// <summary>

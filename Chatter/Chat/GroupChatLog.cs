@@ -22,6 +22,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using Chatter.Model;
+using Chatter.Reporting;
 using Chatter.System;
 using static Chatter.Configuration;
 
@@ -38,7 +39,12 @@ public class GroupChatLog : ChatLog
                         LogFileInfo logFileInfo,
                         IDateHelper dateHelper,
                         FileHelper fileHelper,
-                        IPlayer myself) : base(configuration, logFileInfo, dateHelper, fileHelper)
+                        IPlayer myself,
+                        IErrorWriter errorWriter) : base(configuration,
+                                                         logFileInfo,
+                                                         dateHelper,
+                                                         fileHelper,
+                                                         errorWriter)
     {
         _myself = myself;
     }

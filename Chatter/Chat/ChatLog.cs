@@ -24,8 +24,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Chatter.Reporting;
 using Chatter.System;
 using Chatter.Utilities;
+using Dalamud.Logging;
 using JetBrains.Annotations;
 using NodaTime;
 using static Chatter.Configuration;
@@ -49,13 +51,17 @@ public abstract class ChatLog : IChatLog, IDisposable
     protected ChatLog(ChatLogConfiguration configuration,
                       LogFileInfo logFileInfo,
                       IDateHelper dateHelper,
-                      FileHelper fileHelper)
+                      FileHelper fileHelper,
+                      IErrorWriter errorWriter)
     {
         LogConfiguration = configuration;
         LogFileInfo = logFileInfo;
         DateHelper = dateHelper;
         FileHelper = fileHelper;
+        ErrorWriter = errorWriter;
     }
+
+    private IErrorWriter ErrorWriter { get; }
 
     /// <summary>
     ///     The <see cref="TextWriter" /> that we are writing to.
@@ -66,6 +72,8 @@ public abstract class ChatLog : IChatLog, IDisposable
     ///     The default format string for this log.
     /// </summary>
     protected abstract string DefaultFormat { get; }
+
+    private bool Failed { get; set; }
 
     /// <inheritdoc />
     public string FileName { get; private set; } = string.Empty;
@@ -110,12 +118,10 @@ public abstract class ChatLog : IChatLog, IDisposable
     /// <inheritdoc />
     public void Close()
     {
-        if (IsOpen)
-        {
-            Log.Close();
-            Log = TextWriter.Null;
-            FileName = string.Empty;
-        }
+        if (!IsOpen) return;
+        Log.Close();
+        Log = TextWriter.Null;
+        FileName = string.Empty;
     }
 
     /// <inheritdoc />
@@ -184,6 +190,7 @@ public abstract class ChatLog : IChatLog, IDisposable
     /// <param name="line">The text to output.</param>
     private void WriteLine(string line)
     {
+        if (Failed) return;
         Open();
         Log.WriteLine(line);
         Log.Flush();
@@ -194,14 +201,27 @@ public abstract class ChatLog : IChatLog, IDisposable
     /// </summary>
     private void Open()
     {
+        if (Failed) return;
         if (IsOpen) return;
-        LogFileInfo.StartTime ??= DateHelper.ZonedNow; // If this is the first file opened, set the start time.
-        var dateString = LogFileInfo.FileNameDatePattern.Format((ZonedDateTime) LogFileInfo.StartTime);
+        /*
+         * There is a logic error if we get to this point and StartDate is null but rather than
+         * give up we'll just use the current time as it is only used for the file name and is
+         * therefore not critical.
+         */
+        var startDate = LogFileInfo.StartTime ?? DateHelper.ZonedNow;
+        var dateString = LogFileInfo.FileNameDatePattern.Format(startDate);
 
         var pattern = LogFileInfo.Order == FileNameOrder.PrefixGroupDate ? "{0}-{1}-{2}" : "{0}-{2}-{1}";
         var name = string.Format(pattern, LogFileInfo.FileNamePrefix, LogConfiguration.Name, dateString);
         FileName = FileHelper.FullFileName(LogFileInfo.Directory, name, FileHelper.LogFileExtension);
-        FileHelper.EnsureDirectoryExists(LogFileInfo.FileNamePrefix);
+        var ensureCode = FileHelper.EnsureDirectoryExists(LogFileInfo.Directory);
+        if (ensureCode != FileHelper.EnsureCode.Success)
+        {
+            ErrorWriter.PrintError($"Could not create logging directory '{LogFileInfo.Directory}' because {ensureCode}");
+            Failed = true; // So we don't keep trying to create a failure.
+            return;
+        }
+
         Log = FileHelper.OpenFile(FileName, true);
     }
 }

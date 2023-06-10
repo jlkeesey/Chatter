@@ -24,6 +24,7 @@
 using System;
 using System.IO;
 using System.Security;
+using Dalamud.Logging;
 
 namespace Chatter.System;
 
@@ -96,7 +97,6 @@ public sealed class WindowsFileSystem : IFileSystem
         catch (SecurityException)
         {
         }
-
         return TextWriter.Null;
     }
 
