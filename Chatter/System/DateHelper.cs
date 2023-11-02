@@ -21,10 +21,10 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-using System.Globalization;
 using NodaTime;
 using NodaTime.Extensions;
 using NodaTime.Text;
+using System.Globalization;
 
 namespace Chatter.System;
 

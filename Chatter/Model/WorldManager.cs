@@ -21,9 +21,9 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+using Dalamud.Plugin.Services;
 using System.Collections.Generic;
 using System.Linq;
-using Dalamud.Data;
 
 namespace Chatter.Model;
 
@@ -32,11 +32,11 @@ namespace Chatter.Model;
 /// </summary>
 public class WorldManager
 {
-    private readonly DataManager _gameData;
+    private readonly IDataManager _gameData;
     private readonly Dictionary<uint, World> _worldById = new();
     private readonly Dictionary<string, World> _worldByName = new();
 
-    public WorldManager(DataManager gameData)
+    public WorldManager(IDataManager gameData)
     {
         _gameData = gameData;
     }

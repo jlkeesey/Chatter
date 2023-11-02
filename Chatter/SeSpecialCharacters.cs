@@ -21,10 +21,10 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+using Chatter.System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Chatter.System;
 
 namespace Chatter;
 
@@ -180,7 +180,7 @@ public static class SeSpecialCharacters
     {
         if (SpecialCharacterMap.TryGetValue(ch, out var value)) return value;
 #if DEBUG
-        if (IsSpecial(ch)) _logger?.Debug("Unhandled FFXIV character: (\\u{0:X4})", (int) ch);
+        if (IsSpecial(ch)) _logger?.Debug("Unhandled FFXIV character: (\\u{0:X4})", (int)ch);
 #endif
         return ch.ToString();
     }

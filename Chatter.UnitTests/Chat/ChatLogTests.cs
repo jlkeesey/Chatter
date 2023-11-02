@@ -21,9 +21,9 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-using System.Collections.Generic;
 using Chatter.UnitTests.Support;
 using NUnit.Framework;
+using System.Collections.Generic;
 
 namespace Chatter.UnitTests.Chat;
 
@@ -171,7 +171,7 @@ public class ChatLogTests
         [Test]
         public void WriteLog_ReopenUsesDifferentFile()
         {
-            var expected = new List<string> {"5-9-2023 17:00:02 Robert Jones [say]: This is a test",};
+            var expected = new List<string> { "5-9-2023 17:00:02 Robert Jones [say]: This is a test", };
             var chatLog = new TestChatLog("test");
             var message = ChatMessageUtils.CreateMessage(chatLog.DateHelper.ZonedNow);
             var message2 = ChatMessageUtils.CreateMessage(chatLog.DateHelper.ZonedNow);
@@ -282,7 +282,7 @@ public class ChatLogTests
         [Test]
         public void DumpLogs_Closed()
         {
-            var expected = new List<string> {"[L]: test          False  ''",};
+            var expected = new List<string> { "[L]: test          False  ''", };
             var logger = new LoggerFake();
             var chatLog = new TestChatLog("test");
 

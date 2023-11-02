@@ -21,13 +21,13 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-using System.Collections.Generic;
 using Chatter.Chat;
 using Chatter.System;
 using Chatter.UnitTests.Support;
 using Dalamud.Game.Text;
 using Moq;
 using NUnit.Framework;
+using System.Collections.Generic;
 using static Chatter.Configuration;
 
 namespace Chatter.UnitTests.Chat;
@@ -248,7 +248,7 @@ public class ChatLogManagerTests
         [Test]
         public void DumpLogs_empty()
         {
-            var expected = new List<string> {"[L]: Prefix        Open   Path", "[L]: ------------  -----  ----",};
+            var expected = new List<string> { "[L]: Prefix        Open   Path", "[L]: ------------  -----  ----", };
             var logger = new LoggerFake();
 
             _chatLogManager.DumpLogs(logger);
@@ -259,7 +259,7 @@ public class ChatLogManagerTests
         [Test]
         public void DumpLogs_WithLogs()
         {
-            var expected = new List<string> {"[L]: Prefix        Open   Path", "[L]: ------------  -----  ----",};
+            var expected = new List<string> { "[L]: Prefix        Open   Path", "[L]: ------------  -----  ----", };
             var logger = new LoggerFake();
             _chatLogManager.LogInfo(_chatMessage);
 

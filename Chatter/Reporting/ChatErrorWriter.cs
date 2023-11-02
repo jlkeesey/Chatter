@@ -21,7 +21,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-using Dalamud.Game.Gui;
+using Dalamud.Plugin.Services;
 
 namespace Chatter.Reporting;
 
@@ -30,9 +30,9 @@ namespace Chatter.Reporting;
 /// </summary>
 internal class ChatErrorWriter : IErrorWriter
 {
-    private readonly ChatGui _chatGui;
+    private readonly IChatGui _chatGui;
 
-    public ChatErrorWriter(ChatGui chatGui)
+    public ChatErrorWriter(IChatGui chatGui)
     {
         _chatGui = chatGui;
     }

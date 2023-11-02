@@ -21,11 +21,6 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Numerics;
 using Chatter.Localization;
 using Chatter.Model;
 using Chatter.System;
@@ -33,7 +28,12 @@ using Dalamud.Game.Text;
 using Dalamud.Interface;
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
-using ImGuiScene;
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
+using System.Numerics;
+using Dalamud.Interface.Internal;
 using static Chatter.Configuration;
 using static Chatter.Configuration.FileNameOrder;
 using static System.String;
@@ -109,7 +109,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
     };
 
     private static int _timeStampSelected = -1;
-    private readonly TextureWrap? _chatterImage;
+    private readonly IDalamudTextureWrap _chatterImage;
     private readonly Configuration _configuration;
 
     private readonly List<ComboOption<string>> _dateOptions;
@@ -140,7 +140,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
     public ConfigWindow(Configuration config,
                         IDateHelper dateHelper,
                         FriendManager friendManager,
-                        TextureWrap? chatterImage,
+                        IDalamudTextureWrap chatterImage,
                         Loc loc) : base(Title)
     {
         _configuration = config;
@@ -150,7 +150,8 @@ public sealed partial class ConfigWindow : Window, IDisposable
 
         SizeConstraints = new WindowSizeConstraints
         {
-            MinimumSize = new Vector2(450, 520), MaximumSize = new Vector2(float.MaxValue, float.MaxValue),
+            MinimumSize = new Vector2(450, 520),
+            MaximumSize = new Vector2(float.MaxValue, float.MaxValue),
         };
 
         Size = new Vector2(800, 520);
@@ -182,11 +183,8 @@ public sealed partial class ConfigWindow : Window, IDisposable
     /// </summary>
     public override void Draw()
     {
-        if (_chatterImage != null)
-        {
-            ImGui.Image(_chatterImage.ImGuiHandle, new Vector2(64, 64));
-            VerticalSpace(5.0f);
-        }
+        ImGui.Image(_chatterImage.ImGuiHandle, new Vector2(64, 64));
+        VerticalSpace(5.0f);
 
         if (ImGui.BeginTabBar("tabBar", ImGuiTabBarFlags.None))
         {
@@ -549,7 +547,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
     private bool DrawClearFilterButton()
     {
         ImGui.PushFont(UiBuilder.IconFont);
-        var buttonPressed = ImGui.Button($"{(char) FontAwesomeIcon.SquareXmark}##findFriend");
+        var buttonPressed = ImGui.Button($"{(char)FontAwesomeIcon.SquareXmark}##findFriend");
         ImGui.PopFont();
         if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled)) DrawTooltip(MsgButtonClearFilterHelp);
         return buttonPressed;
@@ -562,7 +560,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
     private bool DrawFindFriendButton()
     {
         ImGui.PushFont(UiBuilder.IconFont);
-        var buttonPressed = ImGui.Button($"{(char) FontAwesomeIcon.PersonCirclePlus}##findFriend");
+        var buttonPressed = ImGui.Button($"{(char)FontAwesomeIcon.PersonCirclePlus}##findFriend");
         ImGui.PopFont();
         if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled)) DrawTooltip(MsgButtonFriendSelectorHelp);
         return buttonPressed;
@@ -576,7 +574,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
     private static bool DrawUserRemoveButton(string user)
     {
         ImGui.PushFont(UiBuilder.IconFont);
-        var buttonPressed = ImGui.Button($"{(char) FontAwesomeIcon.Trash}##{user}Trash");
+        var buttonPressed = ImGui.Button($"{(char)FontAwesomeIcon.Trash}##{user}Trash");
         ImGui.PopFont();
         return buttonPressed;
     }
@@ -727,7 +725,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
         if (sameLine) ImGui.SameLine();
         ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0.4f, 0.4f, 0.55f, 1.0f));
         ImGui.PushFont(UiBuilder.IconFont);
-        ImGui.Text($"{(char) FontAwesomeIcon.QuestionCircle}");
+        ImGui.Text($"{(char)FontAwesomeIcon.QuestionCircle}");
         ImGui.PopFont();
         ImGui.PopStyleColor();
         if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled)) DrawTooltip(text);

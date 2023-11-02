@@ -21,12 +21,12 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-using System;
-using System.Collections.Generic;
 using Chatter.System;
-using Dalamud.Game.Gui;
 using Dalamud.Game.Text;
 using Dalamud.Game.Text.SeStringHandling;
+using Dalamud.Plugin.Services;
+using System;
+using System.Collections.Generic;
 
 namespace Chatter.Chat;
 
@@ -88,7 +88,7 @@ internal sealed class ChatManager : IDisposable
         XivChatType.RetainerSale,
     };
 
-    private readonly ChatGui _chatGui;
+    private readonly IChatGui _chatGui;
     private readonly ChatTypeHelper _chatTypeHelper = new();
 
     private readonly Configuration _configuration;
@@ -109,7 +109,7 @@ internal sealed class ChatManager : IDisposable
     public ChatManager(Configuration configuration,
                        ILogger logger,
                        ChatLogManager logManager,
-                       ChatGui chatGui,
+                       IChatGui chatGui,
                        IDateHelper dateHelper,
                        string defaultHomeWorld)
     {
@@ -127,7 +127,7 @@ internal sealed class ChatManager : IDisposable
     {
         _chatGui.ChatMessage -= HandleChatMessage;
     }
-    
+
     /// <summary>
     ///     Chat message handler. This is called for every chat message that passes through the system.
     /// </summary>
