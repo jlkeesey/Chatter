@@ -36,8 +36,8 @@ public static class StringHelper
     /// <returns>The list of lines, there will always be at least 1 line even if <see cref="string.Empty" />.</returns>
     public static List<string> WrapBody(string body, int width)
     {
-        if (width < 1) return new List<string> {body,};
-        if (body.Length < 1) return new List<string> {Empty,};
+        if (width < 1) return new List<string> { body, };
+        if (body.Length < 1) return new List<string> { Empty, };
         var lines = new List<string>();
         while (body.Length > width)
         {

@@ -91,7 +91,7 @@ public class FileHelperTests
         public void InitialLogDirectory()
         {
             const string parent = "C:\\A\\B";
-            var fileSystem = new FileSystemFake {DocumentsPath = parent,};
+            var fileSystem = new FileSystemFake { DocumentsPath = parent, };
             var fileHelper = new FileHelper(fileSystem);
 
             var path = fileHelper.InitialLogDirectory();

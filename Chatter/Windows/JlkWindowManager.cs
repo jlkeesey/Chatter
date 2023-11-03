@@ -21,13 +21,13 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-using System;
 using Chatter.Localization;
 using Chatter.Model;
 using Chatter.System;
+using Dalamud.Interface.Internal;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
-using ImGuiScene;
+using System;
 
 namespace Chatter.Windows;
 
@@ -55,7 +55,7 @@ public sealed class JlkWindowManager : IDisposable
                             IDateHelper dateHelper,
                             FriendManager friendManager,
                             string nameSpace,
-                            TextureWrap chatterImage,
+                            IDalamudTextureWrap chatterImage,
                             Loc loc)
     {
         _pluginInterface = pluginInterface;

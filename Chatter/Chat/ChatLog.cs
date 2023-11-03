@@ -21,14 +21,14 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-using System;
-using System.Collections.Generic;
-using System.IO;
 using Chatter.Reporting;
 using Chatter.System;
 using Chatter.Utilities;
 using JetBrains.Annotations;
 using NodaTime;
+using System;
+using System.Collections.Generic;
+using System.IO;
 using static Chatter.Configuration;
 
 namespace Chatter.Chat;

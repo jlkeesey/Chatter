@@ -21,7 +21,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-using Dalamud.Game.ClientState;
+using Dalamud.Plugin.Services;
 
 namespace Chatter.Model;
 
@@ -30,13 +30,13 @@ namespace Chatter.Model;
 /// </summary>
 public class Myself : IPlayer
 {
-    private readonly ClientState _clientState;
+    private readonly IClientState _clientState;
     private readonly WorldManager _worldManager;
 
     private World? _homeWorld;
     private string? _name;
 
-    public Myself(ClientState clientState, WorldManager worldManager)
+    public Myself(IClientState clientState, WorldManager worldManager)
     {
         _clientState = clientState;
         _worldManager = worldManager;

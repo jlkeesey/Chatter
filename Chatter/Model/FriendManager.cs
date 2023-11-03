@@ -21,10 +21,10 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-using System;
-using System.Collections.Generic;
 using Dalamud.Memory;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
+using System;
+using System.Collections.Generic;
 
 namespace Chatter.Model;
 
@@ -59,9 +59,11 @@ public class FriendManager
             var entry = agent->GetFriend(i);
             var homeWorld = _worldManager.GetWorld(entry->HomeWorld);
             var currentWorld = _worldManager.GetWorld(entry->CurrentWorld);
-            var name = MemoryHelper.ReadSeStringNullTerminated((IntPtr) entry->Name).TextValue;
-            var freeCompany = MemoryHelper.ReadSeStringNullTerminated((IntPtr) entry->FCTag).TextValue;
-            var isOnline = (entry->DutyStatus & 0x80) != 0;
+            var name = MemoryHelper.ReadSeStringNullTerminated((IntPtr)entry->Name).TextValue;
+            var freeCompany = MemoryHelper.ReadSeStringNullTerminated((IntPtr)entry->FCTag).TextValue;
+            // var isOnline = (entry->DutyStatus & 0x80) != 0;
+            //  TODO: fix this test
+            var isOnline = true;
 
             friends.Add(new Friend(entry->ContentId, name, freeCompany, homeWorld, currentWorld, isOnline));
         }

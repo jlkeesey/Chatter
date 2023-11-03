@@ -21,9 +21,9 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-using System.Collections.Generic;
 using Dalamud.Game.Text;
 using Dalamud.Utility;
+using System.Collections.Generic;
 using static System.String;
 
 namespace Chatter.Chat;
@@ -50,7 +50,7 @@ public sealed class ChatTypeHelper
     {
         if (_chatCodeToShortName.TryGetValue(chatType, out var name)) return name;
         var slug = chatType.GetAttribute<XivChatTypeInfoAttribute>()?.Slug ?? Empty;
-        var defaultValue = showUnknown ? $"?{(int) chatType}?" : Empty;
+        var defaultValue = showUnknown ? $"?{(int)chatType}?" : Empty;
         return IsNullOrWhiteSpace(slug) ? defaultValue : slug;
     }
 }

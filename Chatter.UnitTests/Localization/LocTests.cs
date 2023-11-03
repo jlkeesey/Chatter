@@ -152,10 +152,10 @@ public class LocTests
             {
                 return name switch
                 {
-                    "messages"       => BaseMessageJson,
-                    "messages-en"    => LangMessageJson,
+                    "messages" => BaseMessageJson,
+                    "messages-en" => LangMessageJson,
                     "messages-en-US" => FullMessageJson,
-                    _                => Empty,
+                    _ => Empty,
                 };
             }
         }
