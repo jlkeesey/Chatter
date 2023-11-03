@@ -21,9 +21,9 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-using System.Collections.Generic;
 using Dalamud.Game.Text;
 using NodaTime;
+using System.Collections.Generic;
 
 namespace Chatter.Chat;
 
@@ -78,5 +78,10 @@ public sealed class ChatMessage
     public string GetLoggableBody(bool includeServer)
     {
         return Body.AsText(includeServer);
+    }
+
+    public override string ToString()
+    {
+        return $"{When}: '{Sender}' said '{Body}'";
     }
 }

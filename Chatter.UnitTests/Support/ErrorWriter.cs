@@ -21,48 +21,17 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-using Dalamud.Plugin.Services;
+using Chatter.Reporting;
+using System.Collections.Generic;
 
-namespace Chatter.Model;
+namespace Chatter.UnitTests.Support;
 
-/// <summary>
-///     Information about the player running this plugin.
-/// </summary>
-public class Myself : IPlayer
+internal class ErrorWriter : IErrorWriter
 {
-    private readonly IClientState _clientState;
-    private readonly WorldManager _worldManager;
+    public List<string> Lines { get; init; } = new();
 
-    private World? _homeWorld;
-    private string? _name;
-
-    public Myself(IClientState clientState, WorldManager worldManager)
+    public void PrintError(string message)
     {
-        _clientState = clientState;
-        _worldManager = worldManager;
+        Lines.Add(message);
     }
-
-    /// <summary>
-    ///     The player character's name.
-    /// </summary>
-    public string Name
-    {
-        get { return _name ??= _clientState.LocalPlayer?.Name.TextValue ?? "Who am I?"; }
-    }
-
-    /// <summary>
-    ///     The player character's home world.
-    /// </summary>
-    public World HomeWorld
-    {
-        get
-        {
-            return _homeWorld ??= _worldManager.GetWorld(_clientState.LocalPlayer?.HomeWorld.GameData?.Name.ToString());
-        }
-    }
-
-    /// <summary>
-    ///     Returns my full name (name plus home world).
-    /// </summary>
-    public string FullName => $"{Name}@{HomeWorld.Name}";
 }

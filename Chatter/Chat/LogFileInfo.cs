@@ -40,6 +40,8 @@ public class LogFileInfo
     private static readonly ZonedDateTimePattern DefaultFileDateTimePattern =
         ZonedDateTimePattern.CreateWithCurrentCulture("yyyyMMdd-HHmmss", null);
 
+    private ZonedDateTime? _startTime;
+
     public LogFileInfo(string? directory = null,
                        string? fileNamePrefix = null,
                        FileNameOrder order = FileNameOrder.None,
@@ -58,43 +60,63 @@ public class LogFileInfo
     /// <summary>
     ///     The directory to write logs to.
     /// </summary>
-    public string Directory { get; set; }
+    public string Directory { get; private set; }
 
     /// <summary>
     ///     The prefix for log file names.
     /// </summary>
-    public string FileNamePrefix { get; set; }
+    public string FileNamePrefix { get; private set; }
 
     /// <summary>
     ///     The order of the parts in a log file name.
     /// </summary>
-    public FileNameOrder Order { get; set; }
+    public FileNameOrder Order { get; private set; }
 
     /// <summary>
     ///     When the logs were started. Used for roll-overs and day markers.
     /// </summary>
-    public ZonedDateTime? StartTime { get; set; }
+    public ZonedDateTime? StartTime
+    {
+        get => _startTime;
+        set
+        {
+            _startTime = value;
+            if (_startTime == null) return;
+            var when = _startTime.Value;
+            CloseCutoff = when.TimeOfDay < TimeToClose
+                              ? when.Date.At(TimeToClose)              // Cutoff is later today
+                              : when.Date.PlusDays(1).At(TimeToClose); // Cutoff is tomorrow
+        }
+    }
 
     /// <summary>
     ///     The date time format pattern for the date in a log file name. This is always fixed.
     /// </summary>
-    public ZonedDateTimePattern FileNameDatePattern { get; init; }
+    public ZonedDateTimePattern FileNameDatePattern { get; }
+
+    public LocalDateTime CloseCutoff { get; private set; }
 
     /// <summary>
     ///     The <see cref="LocalTime" /> parsing of <see cref="WhenToClose" />.
     /// </summary>
-    public LocalTime TimeToClose { get; private set; }
+    private LocalTime TimeToClose { get; set; }
 
     /// <summary>
     ///     The string setting from the configuration for when logs should be closed and reopened.
     /// </summary>
-    public string WhenToClose
+    private string WhenToClose
     {
         get => TimePattern.Format(TimeToClose);
         set
         {
             var result = TimePattern.Parse(value);
             TimeToClose = result.Success ? result.Value : DefaultTimeToClose;
+            /*
+             * If we have started logging, set the cutoff time to today at that time. If it is before now,
+             * this will force a close and reopen as expected. If it is after now, then the cutoff will happen
+             * as normal.
+             */
+            if (StartTime != null) CloseCutoff = StartTime.Value.Date.At(TimeToClose);
         }
     }
 
@@ -107,6 +129,10 @@ public class LogFileInfo
         if (configuration.WhenToCloseLogs != WhenToClose)
         {
             WhenToClose = configuration.WhenToCloseLogs;
+            /*
+             * This next line copies the parsed and formatted time back into the configuration if
+             * it is different to normalize the format.
+             */
             // ReSharper disable once RedundantCheckBeforeAssignment
             if (configuration.WhenToCloseLogs != WhenToClose) configuration.WhenToCloseLogs = WhenToClose;
         }

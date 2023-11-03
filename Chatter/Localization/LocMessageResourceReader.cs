@@ -22,7 +22,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using System.IO;
-using Chatter.Properties;
+using System.Reflection;
 using static System.String;
 
 namespace Chatter.Localization;
@@ -32,11 +32,14 @@ namespace Chatter.Localization;
 /// </summary>
 internal class LocMessageResourceReader : ILocMessageReader
 {
+    private Assembly? _assembly;
+
     /// <inheritdoc />
     public string Read(string name)
     {
-        if (Resources.ResourceManager.GetObject(name) is not byte[] content) return Empty;
-        using var stream = new MemoryStream(content);
+        _assembly ??= Assembly.GetExecutingAssembly();
+        using var stream = _assembly.GetManifestResourceStream(GetType(), $"{name}.json");
+        if (stream == null) return Empty;
         using var reader = new StreamReader(stream);
         var result = reader.ReadToEnd();
         return result;

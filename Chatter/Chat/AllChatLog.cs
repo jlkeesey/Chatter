@@ -21,6 +21,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+using Chatter.Reporting;
 using Chatter.System;
 using NodaTime;
 using NodaTime.Text;
@@ -36,7 +37,8 @@ public class AllChatLog : ChatLog
     public AllChatLog(ChatLogConfiguration configuration,
                       LogFileInfo logFileInfo,
                       IDateHelper dateHelper,
-                      FileHelper fileHelper) : base(configuration, logFileInfo, dateHelper, fileHelper)
+                      FileHelper fileHelper,
+                      IErrorWriter errorWriter) : base(configuration, logFileInfo, dateHelper, fileHelper, errorWriter)
     {
     }
 

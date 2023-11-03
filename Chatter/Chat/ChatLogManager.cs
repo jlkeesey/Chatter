@@ -21,10 +21,10 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-using System;
-using System.Collections.Generic;
 using Chatter.Model;
 using Chatter.System;
+using System;
+using System.Collections.Generic;
 using static Chatter.Configuration;
 
 namespace Chatter.Chat;
@@ -54,15 +54,15 @@ public sealed class ChatLogManager : IDisposable
                           IDateHelper dateHelper,
                           FileHelper fileHelper,
                           IPlayer myself,
-                          IChatLogGenerator? chatLogGenerator = null)
+                          IChatLogGenerator chatLogGenerator)
     {
         _configuration = configuration;
-        _chatLogGenerator = chatLogGenerator ?? new ChatLogGenerator();
+        _chatLogGenerator = chatLogGenerator;
         _dateHelper = dateHelper;
         _fileHelper = fileHelper;
         _myself = myself;
 
-        _logFileInfo.StartTime = dateHelper.ZonedNow;
+        //_logFileInfo.StartTime = dateHelper.ZonedNow;
     }
 
     public void Dispose()
@@ -82,30 +82,6 @@ public sealed class ChatLogManager : IDisposable
                 _chatLogGenerator.Create(logConfiguration, _logFileInfo, _dateHelper, _fileHelper, _myself);
 
         return _logs[logConfiguration.Name];
-    }
-
-    /// <summary>
-    ///     Checks if any configuration values have changed that warrant the closing and possible reopening of the
-    ///     currently open log files.
-    /// </summary>
-    private void UpdateConfigValues()
-    {
-        if (_configuration.WhenToCloseLogs != _logFileInfo.WhenToClose)
-        {
-            _logFileInfo.WhenToClose = _configuration.WhenToCloseLogs;
-            // ReSharper disable once RedundantCheckBeforeAssignment
-            if (_configuration.WhenToCloseLogs != _logFileInfo.WhenToClose)
-                _configuration.WhenToCloseLogs = _logFileInfo.WhenToClose;
-        }
-
-        if (_configuration.LogDirectory == _logFileInfo.Directory
-         && _configuration.LogFileNamePrefix == _logFileInfo.FileNamePrefix
-         && _configuration.LogOrder == _logFileInfo.Order)
-            return;
-        CloseLogs();
-        _logFileInfo.Directory = _configuration.LogDirectory;
-        _logFileInfo.FileNamePrefix = _configuration.LogFileNamePrefix;
-        _logFileInfo.Order = _configuration.LogOrder;
     }
 
     /// <summary>
@@ -134,12 +110,10 @@ public sealed class ChatLogManager : IDisposable
     /// <param name="chatMessage">The chat message information.</param>
     public void LogInfo(ChatMessage chatMessage)
     {
+        _logFileInfo.StartTime ??= _dateHelper.ZonedNow; // If this is the first log message, set the start time.
         if (_logFileInfo.UpdateConfigValues(_configuration)) CloseLogs();
-
-        var now = _dateHelper.ZonedNow.TimeOfDay;
-
-        if (_logFileInfo.TimeToClose < now) CloseLogs();
-
+        var now = _dateHelper.ZonedNow.LocalDateTime;
+        if (_logFileInfo.CloseCutoff < now) CloseLogs();
         foreach (var (_, configurationChatLog) in _configuration.ChatLogs)
             GetLog(configurationChatLog).LogInfo(chatMessage);
     }

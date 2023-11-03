@@ -21,20 +21,19 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-using System.Reflection;
 using Chatter.Chat;
 using Chatter.Localization;
 using Chatter.Model;
-using Chatter.Properties;
+using Chatter.Reporting;
 using Chatter.System;
 using Chatter.Windows;
-using Dalamud.Data;
-using Dalamud.Game.ClientState;
-using Dalamud.Game.Command;
-using Dalamud.Game.Gui;
+using Dalamud.Interface.Internal;
 using Dalamud.IoC;
 using Dalamud.Plugin;
+using Dalamud.Plugin.Services;
 using ImGuiScene;
+using System.IO;
+using System.Reflection;
 
 namespace Chatter;
 
@@ -47,17 +46,17 @@ public sealed partial class Chatter : IDalamudPlugin
 
     private readonly ChatLogManager _chatLogManager;
     private readonly ChatManager _chatManager;
-    private readonly TextureWrap _chatterImage;
-    private readonly CommandManager _commandManager;
+    private readonly ICommandManager _commandManager;
     private readonly Configuration _configuration;
     private readonly ILogger _logger;
     private readonly JlkWindowManager _windowManager;
+    private readonly IDalamudTextureWrap _chatterImage;
 
     public Chatter([RequiredVersion("1.0")] DalamudPluginInterface pluginInterface,
-                   [RequiredVersion("1.0")] ChatGui chatGui,
-                   [RequiredVersion("1.0")] ClientState clientState,
-                   [RequiredVersion("1.0")] CommandManager commandManager,
-                   [RequiredVersion("1.0")] DataManager gameData)
+                   [RequiredVersion("1.0")] IChatGui chatGui,
+                   [RequiredVersion("1.0")] IClientState clientState,
+                   [RequiredVersion("1.0")] ICommandManager commandManager,
+                   [RequiredVersion("1.0")] IDataManager gameData)
     {
         _commandManager = commandManager;
 
@@ -80,15 +79,18 @@ public sealed partial class Chatter : IDalamudPlugin
             var worldManager = new WorldManager(gameData);
             var myself = new Myself(clientState, worldManager);
             var friendManager = new FriendManager(worldManager);
+            var errorWriter = new ChatErrorWriter(chatGui);
+            var chatLogGenerator = new ChatLogGenerator(errorWriter);
 
-            _chatLogManager = new ChatLogManager(_configuration, dateManager, fileHelper, myself);
+            _chatLogManager = new ChatLogManager(_configuration, dateManager, fileHelper, myself, chatLogGenerator);
             _chatManager = new ChatManager(_configuration,
                                            _logger,
                                            _chatLogManager,
                                            chatGui,
                                            dateManager,
                                            myself.HomeWorld.Name);
-            _chatterImage = pluginInterface.UiBuilder.LoadImage(Resources.chatter);
+
+            _chatterImage = LoadImage(pluginInterface, "chatter.png");
             _windowManager = new JlkWindowManager(pluginInterface,
                                                   _configuration,
                                                   dateManager,
@@ -129,5 +131,18 @@ public sealed partial class Chatter : IDalamudPlugin
         _chatLogManager?.Dispose();
         _chatManager?.Dispose();
         // ReSharper restore ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
+    }
+
+    /// <summary>
+    ///     Loads an image from the game assembly relative to the project root.
+    /// </summary>
+    /// <param name="pluginInterface">The controlling <see cref="DalamudPluginInterface" />.</param>
+    /// <param name="name">The image file name relative to the project root.</param>
+    /// <returns>The <see cref="TextureWrap" /> representing the image.</returns>
+    private static IDalamudTextureWrap LoadImage(DalamudPluginInterface pluginInterface, string name)
+    {
+        var assemblyLocation = Assembly.GetExecutingAssembly().Location;
+        var imagePath = Path.Combine(Path.GetDirectoryName(assemblyLocation)!, name);
+        return pluginInterface.UiBuilder.LoadImage(imagePath);
     }
 }

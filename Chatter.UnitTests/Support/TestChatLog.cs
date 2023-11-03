@@ -22,6 +22,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using Chatter.Chat;
+using Chatter.Reporting;
 using Chatter.System;
 using static Chatter.Configuration;
 
@@ -38,22 +39,26 @@ internal class TestChatLog : ChatLog
     public TestChatLog(ChatLogConfiguration configuration) : this(configuration,
                                                                   new LogFileInfo(),
                                                                   new DateHelperFake(),
-                                                                  new FileSystemFake())
+                                                                  new FileSystemFake(),
+                                                                  new ErrorWriter())
     {
     }
 
     private TestChatLog(ChatLogConfiguration configuration,
                         LogFileInfo logFileInfo,
                         IDateHelper dateHelper,
-                        FileSystemFake fileSystem) : base(configuration,
-                                                          logFileInfo,
-                                                          dateHelper,
-                                                          new FileHelper(fileSystem))
+                        FileSystemFake fileSystem,
+                        IErrorWriter errorWriter) : base(configuration,
+                                                         logFileInfo,
+                                                         dateHelper,
+                                                         new FileHelper(fileSystem),
+                                                         errorWriter)
     {
         FileSystem = fileSystem;
         Configuration = new Configuration();
         Configuration.Initialize(FileHelper);
         logFileInfo.UpdateConfigValues(Configuration);
+        logFileInfo.StartTime = dateHelper.ZonedNow;
     }
 
     public Configuration Configuration { get; }

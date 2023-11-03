@@ -21,9 +21,9 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-using System.Collections.Generic;
 using Chatter.UnitTests.Support;
 using NUnit.Framework;
+using System.Collections.Generic;
 
 namespace Chatter.UnitTests.Chat;
 
@@ -106,8 +106,8 @@ public class ChatLogTests
             var expected = new List<string>
             {
                 "============================== Tuesday, May 9, 2023 ==============================",
-                "5-9-2023 17:00:00 Robert Jones [say]: This is a test",
                 "5-9-2023 17:00:01 Robert Jones [say]: This is a test",
+                "5-9-2023 17:00:02 Robert Jones [say]: This is a test",
             };
             var chatLog = new TestChatLog("test");
             var message = ChatMessageUtils.CreateMessage(chatLog.DateHelper.ZonedNow);
@@ -121,7 +121,7 @@ public class ChatLogTests
 
             Assert.That(chatLog.IsOpen, Is.True);
             var lines = chatLog.FileSystem.Writers[chatLog.FileName].Lines;
-            Assert.That(expected, Is.EqualTo(lines).AsCollection);
+            Assert.That(lines, Is.EqualTo(expected).AsCollection);
         }
 
         [Test]
@@ -171,7 +171,7 @@ public class ChatLogTests
         [Test]
         public void WriteLog_ReopenUsesDifferentFile()
         {
-            var expected = new List<string> {"5-9-2023 17:00:01 Robert Jones [say]: This is a test",};
+            var expected = new List<string> { "5-9-2023 17:00:02 Robert Jones [say]: This is a test", };
             var chatLog = new TestChatLog("test");
             var message = ChatMessageUtils.CreateMessage(chatLog.DateHelper.ZonedNow);
             var message2 = ChatMessageUtils.CreateMessage(chatLog.DateHelper.ZonedNow);
@@ -181,14 +181,14 @@ public class ChatLogTests
 
             chatLog.WriteLog(message, loggableSender, loggableBody);
             chatLog.Close();
-            chatLog.LogFileInfo.StartTime = null;
+            chatLog.LogFileInfo.StartTime = chatLog.DateHelper.ZonedNow;
             chatLog.WriteLog(message2, loggableSender, loggableBody);
 
             Assert.That(chatLog.IsOpen, Is.True);
             Assert.That(chatLog.FileName,
-                        Is.EqualTo("C:\\Users\\Bob\\Documents\\FFXIV Chatter\\chatter-test-20230509-170005.log"));
+                        Is.EqualTo("C:\\Users\\Bob\\Documents\\FFXIV Chatter\\chatter-test-20230509-170004.log"));
             var lines = chatLog.FileSystem.Writers[chatLog.FileName].Lines;
-            Assert.That(expected, Is.EqualTo(lines).AsCollection);
+            Assert.That(lines, Is.EqualTo(expected).AsCollection);
         }
 
         [Test]
@@ -197,8 +197,8 @@ public class ChatLogTests
             var expected = new List<string>
             {
                 "============================== Tuesday, May 9, 2023 ==============================",
-                "5-9-2023 17:00:00 Robert Jones [say]: This is a test",
                 "5-9-2023 17:00:01 Robert Jones [say]: This is a test",
+                "5-9-2023 17:00:02 Robert Jones [say]: This is a test",
             };
             var chatLog = new TestChatLog("test");
             var message = ChatMessageUtils.CreateMessage(chatLog.DateHelper.ZonedNow);
@@ -213,7 +213,7 @@ public class ChatLogTests
 
             Assert.That(chatLog.IsOpen, Is.True);
             Assert.That(chatLog.FileName,
-                        Is.EqualTo("C:\\Users\\Bob\\Documents\\FFXIV Chatter\\chatter-test-20230509-170003.log"));
+                        Is.EqualTo("C:\\Users\\Bob\\Documents\\FFXIV Chatter\\chatter-test-20230509-170000.log"));
             var lines = chatLog.FileSystem.Writers[chatLog.FileName].Lines;
             Assert.That(expected, Is.EqualTo(lines).AsCollection);
         }
@@ -224,8 +224,8 @@ public class ChatLogTests
             var expected = new List<string>
             {
                 "============================== Tuesday, May 9, 2023 ==============================",
-                "5-9-2023 17:00:00 Robert Jones [say]: This is a long message so that we can test if the line wrapping code work, and works the way we expect it to.",
-                "5-9-2023 17:00:01 Robert Jones [say]: This is a test",
+                "5-9-2023 17:00:01 Robert Jones [say]: This is a long message so that we can test if the line wrapping code work, and works the way we expect it to.",
+                "5-9-2023 17:00:02 Robert Jones [say]: This is a test",
             };
             var chatLog = new TestChatLog("test");
             var message = ChatMessageUtils.CreateMessage(chatLog.DateHelper.ZonedNow,
@@ -251,10 +251,10 @@ public class ChatLogTests
             var expected = new List<string>
             {
                 "============================== Tuesday, May 9, 2023 ==============================",
-                "5-9-2023 17:00:00 Robert Jones [say]: This is a long message so that we can",
+                "5-9-2023 17:00:01 Robert Jones [say]: This is a long message so that we can",
                 "                                      test if the line wrapping code work,",
                 "                                      and works the way we expect it to.",
-                "5-9-2023 17:00:01 Robert Jones [say]: This is a test",
+                "5-9-2023 17:00:02 Robert Jones [say]: This is a test",
             };
             var chatLog = new TestChatLog("test");
             chatLog.LogConfiguration.MessageWrapWidth = 40;
@@ -282,7 +282,7 @@ public class ChatLogTests
         [Test]
         public void DumpLogs_Closed()
         {
-            var expected = new List<string> {"[L]: test          False  ''",};
+            var expected = new List<string> { "[L]: test          False  ''", };
             var logger = new LoggerFake();
             var chatLog = new TestChatLog("test");
 
@@ -296,7 +296,7 @@ public class ChatLogTests
         {
             var expected = new List<string>
             {
-                "[L]: test          True   'C:\\Users\\Bob\\Documents\\FFXIV Chatter\\chatter-test-20230509-170002.log'",
+                "[L]: test          True   'C:\\Users\\Bob\\Documents\\FFXIV Chatter\\chatter-test-20230509-170000.log'",
             };
             var logger = new LoggerFake();
             var chatLog = new TestChatLog("test");

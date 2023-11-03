@@ -21,12 +21,12 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Chatter.Model;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace Chatter.Chat;
 
@@ -83,24 +83,24 @@ public sealed class ChatString
                     switch (nameState)
                     {
                         case NameState.LookingForName:
-                        {
-                            nameState = NameState.Nothing;
-                            // EndsWith to account for special characters in front of name
-                            if (str == player!.Name || str.EndsWith(player.Name))
                             {
-                                nameState = NameState.LookingForWorld;
-                                continue;
-                            }
+                                nameState = NameState.Nothing;
+                                // EndsWith to account for special characters in front of name
+                                if (str == player!.Name || str.EndsWith(player.Name))
+                                {
+                                    nameState = NameState.LookingForWorld;
+                                    continue;
+                                }
 
-                            break;
-                        }
+                                break;
+                            }
                         case NameState.LookingForWorld:
-                        {
-                            nameState = NameState.Nothing;
-                            if (str.StartsWith(player!.World)) str = str[player.World.Length..];
-                            player = null;
-                            break;
-                        }
+                            {
+                                nameState = NameState.Nothing;
+                                if (str.StartsWith(player!.World)) str = str[player.World.Length..];
+                                player = null;
+                                break;
+                            }
                         case NameState.Nothing:
                             break;
                     }

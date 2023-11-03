@@ -76,7 +76,7 @@ public class ChatTypeHelperTests
         public void TypeToNameTest_ShowUnknown()
         {
             var chatTypeHelper = new ChatTypeHelper();
-            var expected = $"?{(int) XivChatType.GatheringSystemMessage}?";
+            var expected = $"?{(int)XivChatType.GatheringSystemMessage}?";
 
             var actual = chatTypeHelper.TypeToName(XivChatType.GatheringSystemMessage, true);
 

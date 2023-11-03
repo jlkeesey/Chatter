@@ -23,46 +23,23 @@
 
 using Dalamud.Plugin.Services;
 
-namespace Chatter.Model;
+namespace Chatter.Reporting;
 
 /// <summary>
-///     Information about the player running this plugin.
+///     An <see cref="IErrorWriter" /> that sends the messages to the chat box.
 /// </summary>
-public class Myself : IPlayer
+internal class ChatErrorWriter : IErrorWriter
 {
-    private readonly IClientState _clientState;
-    private readonly WorldManager _worldManager;
+    private readonly IChatGui _chatGui;
 
-    private World? _homeWorld;
-    private string? _name;
-
-    public Myself(IClientState clientState, WorldManager worldManager)
+    public ChatErrorWriter(IChatGui chatGui)
     {
-        _clientState = clientState;
-        _worldManager = worldManager;
+        _chatGui = chatGui;
     }
 
-    /// <summary>
-    ///     The player character's name.
-    /// </summary>
-    public string Name
+    /// <inheritdoc />
+    public void PrintError(string message)
     {
-        get { return _name ??= _clientState.LocalPlayer?.Name.TextValue ?? "Who am I?"; }
+        _chatGui.PrintError(message);
     }
-
-    /// <summary>
-    ///     The player character's home world.
-    /// </summary>
-    public World HomeWorld
-    {
-        get
-        {
-            return _homeWorld ??= _worldManager.GetWorld(_clientState.LocalPlayer?.HomeWorld.GameData?.Name.ToString());
-        }
-    }
-
-    /// <summary>
-    ///     Returns my full name (name plus home world).
-    /// </summary>
-    public string FullName => $"{Name}@{HomeWorld.Name}";
 }
