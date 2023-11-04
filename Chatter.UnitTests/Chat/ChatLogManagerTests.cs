@@ -48,7 +48,7 @@ public class ChatLogManagerTests
         {
             _chatLogMock = new Mock<IChatLog>(MockBehavior.Strict);
             _chatLogMock.Setup(cl => cl.LogInfo(It.IsAny<ChatMessage>()));
-            var chatLog = _chatLogMock.Object!;
+            var chatLog = _chatLogMock.Object;
             _chatLogGenerator = new ChatLogGeneratorFake(chatLog);
 
             var fileSystem = new FileSystemFake();
@@ -179,7 +179,7 @@ public class ChatLogManagerTests
         public void Setup()
         {
             _chatLogMock = new Mock<IChatLog>(MockBehavior.Strict);
-            var chatLog = _chatLogMock.Object!;
+            var chatLog = _chatLogMock.Object;
             var chatLogGenerator = new ChatLogGeneratorFake(chatLog);
 
             var fileSystem = new FileSystemFake();
@@ -228,7 +228,7 @@ public class ChatLogManagerTests
             var chatLogMock = new Mock<IChatLog>(MockBehavior.Strict);
             chatLogMock.Setup(cl => cl.LogInfo(It.IsAny<ChatMessage>()));
             chatLogMock.Setup(cl => cl.DumpLog(It.IsAny<ILogger>()));
-            var chatLog = chatLogMock.Object!;
+            var chatLog = chatLogMock.Object;
             var chatLogGenerator = new ChatLogGeneratorFake(chatLog);
 
             var fileSystem = new FileSystemFake();

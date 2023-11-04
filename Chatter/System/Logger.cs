@@ -21,8 +21,9 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-using Dalamud.Logging;
 using System;
+using Dalamud.Logging;
+using Dalamud.Plugin.Services;
 
 namespace Chatter.System;
 
@@ -31,18 +32,25 @@ namespace Chatter.System;
 /// </summary>
 public class Logger : ILogger
 {
+    private readonly IPluginLog _pluginLog;
+
+    public Logger(IPluginLog pluginLog)
+    {
+        _pluginLog = pluginLog;
+    }
+
     public void Log(string pattern, params object[] args)
     {
-        PluginLog.Log(pattern, args);
+        _pluginLog.Information(pattern, args);
     }
 
     public void Debug(string pattern, params object[] args)
     {
-        PluginLog.Debug(pattern, args);
+        _pluginLog.Debug(pattern, args);
     }
 
     public void Error(Exception? exception, string pattern, params object[] args)
     {
-        PluginLog.Error(exception, pattern, args);
+        _pluginLog.Error(exception, pattern, args);
     }
 }
