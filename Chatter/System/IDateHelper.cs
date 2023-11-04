@@ -21,6 +21,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+using JetBrains.Annotations;
 using NodaTime;
 using NodaTime.Text;
 
@@ -29,6 +30,7 @@ namespace Chatter.System;
 /// <summary>
 ///     The basic date management needed by this plugin.
 /// </summary>
+[PublicAPI]
 public interface IDateHelper
 {
     /// <summary>

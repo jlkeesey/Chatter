@@ -63,7 +63,7 @@ public class FriendManager
             var freeCompany = MemoryHelper.ReadSeStringNullTerminated((IntPtr)entry->FCTag).TextValue;
             // var isOnline = (entry->DutyStatus & 0x80) != 0;
             //  TODO: fix this test
-            var isOnline = true;
+            const bool isOnline = true;
 
             friends.Add(new Friend(entry->ContentId, name, freeCompany, homeWorld, currentWorld, isOnline));
         }

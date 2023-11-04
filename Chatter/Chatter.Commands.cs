@@ -113,6 +113,8 @@ public sealed partial class Chatter
             }
         }
 
+        return;
+
         // <summary>
         //     Handles the list debug flags sub command.
         // </summary>

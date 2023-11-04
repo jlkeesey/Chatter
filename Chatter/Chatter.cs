@@ -44,7 +44,8 @@ namespace Chatter;
 [UsedImplicitly]
 public sealed partial class Chatter : IDalamudPlugin
 {
-    public static string Version = string.Empty;
+    [UsedImplicitly]
+    public static string Version { get; private set; } = string.Empty;
 
     private readonly ChatLogManager _chatLogManager;
     private readonly ChatManager _chatManager;
@@ -110,7 +111,7 @@ public sealed partial class Chatter : IDalamudPlugin
         }
     }
 
-    private static string Name { get; } = "Chatter";
+    private static string Name => "Chatter";
 
     /// <summary>
     ///     Disposes all of the resources created by the plugin.

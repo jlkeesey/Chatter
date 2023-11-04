@@ -24,12 +24,14 @@
 using Dalamud.Game.Text;
 using NodaTime;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 
 namespace Chatter.Chat;
 
 /// <summary>
 ///     Represents a single chat message received.
 /// </summary>
+[PublicAPI]
 public sealed class ChatMessage
 {
     public ChatMessage(XivChatType xivType,

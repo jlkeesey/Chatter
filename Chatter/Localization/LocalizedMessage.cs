@@ -22,12 +22,14 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using System.Text.Json.Serialization;
+using JetBrains.Annotations;
 
 namespace Chatter.Localization;
 
 /// <summary>
 ///     A localized (translated) message and it's metadata.
 /// </summary>
+[PublicAPI]
 public struct LocalizedMessage
 {
     public LocalizedMessage(string key, string? message = null, string? description = null)
