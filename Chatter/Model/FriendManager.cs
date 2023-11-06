@@ -25,6 +25,7 @@ using Dalamud.Memory;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using System;
 using System.Collections.Generic;
+using FFXIVClientStructs.FFXIV.Client.UI.Info;
 
 namespace Chatter.Model;
 
@@ -61,9 +62,7 @@ public class FriendManager
             var currentWorld = _worldManager.GetWorld(entry->CurrentWorld);
             var name = MemoryHelper.ReadSeStringNullTerminated((IntPtr)entry->Name).TextValue;
             var freeCompany = MemoryHelper.ReadSeStringNullTerminated((IntPtr)entry->FCTag).TextValue;
-            // var isOnline = (entry->DutyStatus & 0x80) != 0;
-            //  TODO: fix this test
-            const bool isOnline = true;
+            var isOnline = (entry->State & InfoProxyCommonList.CharacterData.OnlineStatus.Online) != 0;
 
             friends.Add(new Friend(entry->ContentId, name, freeCompany, homeWorld, currentWorld, isOnline));
         }
