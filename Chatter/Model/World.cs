@@ -21,12 +21,15 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+using JetBrains.Annotations;
+
 namespace Chatter.Model;
 
 /// <summary>
 ///     Represents an FFXIV world. FFXIV has it's own type but it's not easily consumable by C# so
 ///     when a world is loaded from FFXIV it is converted to this object type.
 /// </summary>
+[PublicAPI]
 public class World
 {
     public static readonly World Null = new(uint.MaxValue, "?world?", "?dc?");

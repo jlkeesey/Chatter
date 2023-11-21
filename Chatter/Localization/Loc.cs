@@ -118,12 +118,10 @@ public class Loc
     public void Load(ILogger logger, ILocMessageReader msgReader)
     {
         _messages = LoadMessageList(logger, msgReader, Empty);
-        var shortLanguage = Language;
-        var languageMessages = LoadMessageList(logger, msgReader, shortLanguage);
+        var languageMessages = LoadMessageList(logger, msgReader, Language);
         _messages.Merge(languageMessages);
 
-        var regionalLanguage = LanguageTag;
-        var regionalLanguageMessages = LoadMessageList(logger, msgReader, regionalLanguage);
+        var regionalLanguageMessages = LoadMessageList(logger, msgReader, LanguageTag);
         _messages.Merge(regionalLanguageMessages);
     }
 

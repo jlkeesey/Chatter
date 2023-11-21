@@ -21,6 +21,8 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+using System.IO;
+using System.Reflection;
 using Chatter.Chat;
 using Chatter.Localization;
 using Chatter.Model;
@@ -32,27 +34,29 @@ using Dalamud.IoC;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using ImGuiScene;
-using System.IO;
-using System.Reflection;
+using JetBrains.Annotations;
 
 namespace Chatter;
 
 /// <summary>
 ///     The entry point for this plugin.
 /// </summary>
+[UsedImplicitly]
 public sealed partial class Chatter : IDalamudPlugin
 {
-    public static string Version = string.Empty;
+    [UsedImplicitly]
+    public static string Version { get; private set; } = string.Empty;
 
     private readonly ChatLogManager _chatLogManager;
     private readonly ChatManager _chatManager;
+    private readonly IDalamudTextureWrap _chatterImage;
     private readonly ICommandManager _commandManager;
     private readonly Configuration _configuration;
     private readonly ILogger _logger;
     private readonly JlkWindowManager _windowManager;
-    private readonly IDalamudTextureWrap _chatterImage;
 
     public Chatter([RequiredVersion("1.0")] DalamudPluginInterface pluginInterface,
+                   [RequiredVersion("1.0")] IPluginLog pluginLog,
                    [RequiredVersion("1.0")] IChatGui chatGui,
                    [RequiredVersion("1.0")] IClientState clientState,
                    [RequiredVersion("1.0")] ICommandManager commandManager,
@@ -63,7 +67,7 @@ public sealed partial class Chatter : IDalamudPlugin
         try
         {
             Version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "";
-            _logger = new Logger();
+            _logger = new Logger(pluginLog);
 
 #if DEBUG
             SeSpecialCharacters.InitializeDebug(_logger);
@@ -107,7 +111,7 @@ public sealed partial class Chatter : IDalamudPlugin
         }
     }
 
-    public string Name => "Chatter";
+    private static string Name => "Chatter";
 
     /// <summary>
     ///     Disposes all of the resources created by the plugin.

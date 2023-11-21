@@ -21,10 +21,10 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-using Dalamud.Game.Command;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Dalamud.Game.Command;
 
 namespace Chatter;
 
@@ -51,14 +51,12 @@ public sealed partial class Chatter
 
         _commands[CommandChatter] = new CommandInfo(OnChatterConfig)
         {
-            HelpMessage = "Opens the Chatter configuration window.",
-            ShowInHelp = true,
+            HelpMessage = "Opens the Chatter configuration window.", ShowInHelp = true,
         };
 
         _commands[CommandDebug] = new CommandInfo(OnChatterDebug)
         {
-            HelpMessage = "Executes debug commands",
-            ShowInHelp = false,
+            HelpMessage = "Executes debug commands", ShowInHelp = false,
         };
 
         foreach (var (command, info) in _commands) _commandManager.AddHandler(command, info);
@@ -114,6 +112,8 @@ public sealed partial class Chatter
                     break;
             }
         }
+
+        return;
 
         // <summary>
         //     Handles the list debug flags sub command.

@@ -21,6 +21,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 
@@ -30,7 +31,8 @@ namespace Chatter.Model;
 ///     Represents a single FFXIV friend. FFXIV has it's own type but it's not easily consumable by C# so
 ///     when a friend is loaded from FFXIV it is converted to this object type.
 /// </summary>
-public class Friend : IPlayer, IComparable<Friend>, IComparable
+[PublicAPI]
+public sealed class Friend : IPlayer, IComparable<Friend>, IComparable
 {
     /// <summary>
     ///     This friend's content id.
@@ -84,7 +86,7 @@ public class Friend : IPlayer, IComparable<Friend>, IComparable
         return other is Friend rhs && Equals(rhs);
     }
 
-    protected bool Equals(Friend other)
+    public bool Equals(Friend other)
     {
         return Name == other.Name
             && HomeWorld.Equals(other.HomeWorld)
