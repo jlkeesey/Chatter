@@ -39,7 +39,7 @@ public class ChatTypeHelperTests
 
             var actual = chatTypeHelper.TypeToName(XivChatType.Say);
 
-            Assert.AreEqual("say", actual);
+            Assert.That(actual, Is.EqualTo("say"));
         }
 
         [Test]
@@ -49,7 +49,7 @@ public class ChatTypeHelperTests
 
             var actual = chatTypeHelper.TypeToName(XivChatType.TellOutgoing);
 
-            Assert.AreEqual("tellOut", actual);
+            Assert.That(actual, Is.EqualTo("tellOut"));
         }
 
         [Test]
@@ -59,7 +59,7 @@ public class ChatTypeHelperTests
 
             var actual = chatTypeHelper.TypeToName(XivChatType.CustomEmote);
 
-            Assert.AreEqual("emote", actual);
+            Assert.That(actual, Is.EqualTo("emote"));
         }
 
         [Test]
@@ -69,7 +69,7 @@ public class ChatTypeHelperTests
 
             var actual = chatTypeHelper.TypeToName(XivChatType.GatheringSystemMessage);
 
-            Assert.AreEqual("", actual);
+            Assert.That(actual, Is.Empty);
         }
 
         [Test]
@@ -80,7 +80,7 @@ public class ChatTypeHelperTests
 
             var actual = chatTypeHelper.TypeToName(XivChatType.GatheringSystemMessage, true);
 
-            Assert.AreEqual(expected, actual);
+            Assert.That(actual, Is.EqualTo(expected));
         }
     }
 }

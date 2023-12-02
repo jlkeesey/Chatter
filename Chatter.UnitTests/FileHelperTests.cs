@@ -34,54 +34,54 @@ public class FileHelperTests
         [Test]
         public void EnsureDirectoryExists_DirectoryExists()
         {
-            const string path = "C:\\A\\B\\C";
+            const string path = @"C:\A\B\C";
             var fileSystem = new FileSystemFake();
             fileSystem.Directories.Add(path);
             var fileHelper = new FileHelper(fileSystem);
 
-            var result = fileHelper.EnsureDirectoryExists(path);
+            var actual = fileHelper.EnsureDirectoryExists(path);
 
-            Assert.AreEqual(FileHelper.EnsureCode.Success, result);
+            Assert.That(actual, Is.EqualTo(FileHelper.EnsureCode.Success));
         }
 
         [Test]
         public void EnsureDirectoryExists_FileExists()
         {
-            const string path = "C:\\A\\B\\C";
+            const string path = @"C:\A\B\C";
             var fileSystem = new FileSystemFake();
             fileSystem.Files.Add(path);
             var fileHelper = new FileHelper(fileSystem);
 
-            var result = fileHelper.EnsureDirectoryExists(path);
+            var actual = fileHelper.EnsureDirectoryExists(path);
 
-            Assert.AreEqual(FileHelper.EnsureCode.FileExists, result);
+            Assert.That(actual, Is.EqualTo(FileHelper.EnsureCode.FileExists));
         }
 
         [Test]
         public void EnsureDirectoryExists_DirectoryDoesNotExist()
         {
-            const string parent = "C:\\A\\B";
-            const string path = "C:\\A\\B\\C";
+            const string parent = @"C:\A\B";
+            const string path = @"C:\A\B\C";
             var fileSystem = new FileSystemFake();
             fileSystem.Directories.Add(parent);
             var fileHelper = new FileHelper(fileSystem);
 
-            var result = fileHelper.EnsureDirectoryExists(path);
+            var actual = fileHelper.EnsureDirectoryExists(path);
 
-            Assert.AreEqual(FileHelper.EnsureCode.Success, result);
-            Assert.True(fileSystem.DirectoryExists(path), "Directory now exists");
+            Assert.That(actual, Is.EqualTo(FileHelper.EnsureCode.Success));
+            Assert.That(fileSystem.DirectoryExists(path), Is.True, "Directory now exists");
         }
 
         [Test]
         public void EnsureDirectoryExists_ParentDoesNotExist()
         {
-            const string path = "C:\\A\\B\\C";
+            const string path = @"C:\A\B\C";
             var fileSystem = new FileSystemFake();
             var fileHelper = new FileHelper(fileSystem);
 
-            var result = fileHelper.EnsureDirectoryExists(path);
+            var actual = fileHelper.EnsureDirectoryExists(path);
 
-            Assert.AreEqual(FileHelper.EnsureCode.ParentDoesNotExist, result);
+            Assert.That(actual, Is.EqualTo(FileHelper.EnsureCode.ParentDoesNotExist));
         }
     }
 
@@ -90,13 +90,13 @@ public class FileHelperTests
         [Test]
         public void InitialLogDirectory()
         {
-            const string parent = "C:\\A\\B";
+            const string parent = @"C:\A\B";
             var fileSystem = new FileSystemFake { DocumentsPath = parent, };
             var fileHelper = new FileHelper(fileSystem);
 
-            var path = fileHelper.InitialLogDirectory();
+            var actual = fileHelper.InitialLogDirectory();
 
-            Assert.AreEqual(parent + "\\" + FileHelper.DefaultDirectory, path);
+            Assert.That(actual, Is.EqualTo(parent + @"\" + FileHelper.DefaultDirectory));
         }
     }
 
@@ -105,29 +105,29 @@ public class FileHelperTests
         [Test]
         public void FullFileName()
         {
-            const string path = "C:\\A\\B\\C";
+            const string path = @"C:\A\B\C";
             const string expected = path + "\\" + "filename.log";
             var fileSystem = new FileSystemFake();
             var fileHelper = new FileHelper(fileSystem);
 
-            var result = fileHelper.FullFileName(path, "filename", ".log");
+            var actual = fileHelper.FullFileName(path, "filename", ".log");
 
-            Assert.AreEqual(expected, result);
+            Assert.That(actual, Is.EqualTo(expected));
         }
 
         [Test]
         public void FullFileName_Exists()
         {
-            const string path = "C:\\A\\B\\C";
+            const string path = @"C:\A\B\C";
             const string first = path + "\\" + "filename.log";
             const string expected = path + "\\" + "filename-1.log";
             var fileSystem = new FileSystemFake();
             fileSystem.Files.Add(first);
             var fileHelper = new FileHelper(fileSystem);
 
-            var result = fileHelper.FullFileName(path, "filename", ".log");
+            var actual = fileHelper.FullFileName(path, "filename", ".log");
 
-            Assert.AreEqual(expected, result);
+            Assert.That(actual, Is.EqualTo(expected));
         }
     }
 }

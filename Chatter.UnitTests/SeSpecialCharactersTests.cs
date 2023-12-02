@@ -33,31 +33,31 @@ public class SeSpecialCharactersTests
         [Test]
         public void IsSpecialNormalCharacter()
         {
-            Assert.False(SeSpecialCharacters.IsSpecial('\uDFFF'));
+            Assert.That(SeSpecialCharacters.IsSpecial('\uDFFF'), Is.False);
         }
 
         [Test]
         public void IsSpecialSpecialCharacterBegin()
         {
-            Assert.True(SeSpecialCharacters.IsSpecial('\uE000'));
+            Assert.That(SeSpecialCharacters.IsSpecial('\uE000'), Is.True);
         }
 
         [Test]
         public void IsSpecialSpecialCharacterMiddle()
         {
-            Assert.True(SeSpecialCharacters.IsSpecial('\uE031'));
+            Assert.That(SeSpecialCharacters.IsSpecial('\uE031'), Is.True);
         }
 
         [Test]
         public void IsSpecialSpecialCharacterEnd()
         {
-            Assert.True(SeSpecialCharacters.IsSpecial('\uF8FF'));
+            Assert.That(SeSpecialCharacters.IsSpecial('\uF8FF'), Is.True);
         }
 
         [Test]
         public void IsSpecialSpecialCharacterAbove()
         {
-            Assert.False(SeSpecialCharacters.IsSpecial('\uF900'));
+            Assert.That(SeSpecialCharacters.IsSpecial('\uF900'), Is.False);
         }
     }
 
@@ -66,32 +66,27 @@ public class SeSpecialCharactersTests
         [Test]
         public void ReplaceNone()
         {
-            const string expected = "This is a test";
+            var actual = SeSpecialCharacters.Replace("This is a test");
 
-            var actual = SeSpecialCharacters.Replace(expected);
-
-            Assert.AreEqual(expected, actual);
+            Assert.That(actual, Is.EqualTo("This is a test"));
         }
 
         [Test]
         public void ReplaceSpecials()
         {
             const string input = "This \uE03Cis a test\uE0BB";
-            const string expected = "This \u2747is a test\u02A2";
 
             var actual = SeSpecialCharacters.Replace(input);
 
-            Assert.AreEqual(expected, actual);
+            Assert.That(actual, Is.EqualTo("This \u2747is a test\u02A2"));
         }
 
         [Test]
         public void ReplaceEmpty()
         {
-            const string expected = "";
+            var actual = SeSpecialCharacters.Replace("");
 
-            var actual = SeSpecialCharacters.Replace(expected);
-
-            Assert.AreEqual(expected, actual);
+            Assert.That(actual, Is.Empty);
         }
     }
 
@@ -100,32 +95,27 @@ public class SeSpecialCharactersTests
         [Test]
         public void CleanNone()
         {
-            const string expected = "This is a test";
+            var actual = SeSpecialCharacters.Clean("This is a test");
 
-            var actual = SeSpecialCharacters.Clean(expected);
-
-            Assert.AreEqual(expected, actual);
+            Assert.That(actual, Is.EqualTo("This is a test"));
         }
 
         [Test]
         public void CleanSpecials()
         {
             const string input = "This \uE081is a test\uE021";
-            const string expected = "This is a test";
 
             var actual = SeSpecialCharacters.Clean(input);
 
-            Assert.AreEqual(expected, actual);
+            Assert.That(actual, Is.EqualTo("This is a test"));
         }
 
         [Test]
         public void CleanEmpty()
         {
-            const string expected = "";
+            var actual = SeSpecialCharacters.Clean("");
 
-            var actual = SeSpecialCharacters.Clean(expected);
-
-            Assert.AreEqual(expected, actual);
+            Assert.That(actual, Is.Empty);
         }
     }
 }

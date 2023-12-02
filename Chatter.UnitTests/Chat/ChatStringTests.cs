@@ -40,7 +40,7 @@ public class ChatStringTests
 
             var chatString = new ChatString(seString);
 
-            Assert.AreEqual("", chatString.ToString());
+            Assert.That(chatString.ToString(), Is.Empty);
         }
 
         [Test]
@@ -54,8 +54,9 @@ public class ChatStringTests
             var seString = builder.Build();
 
             var chatString = new ChatString(seString);
+            var actual = chatString.ToString();
 
-            Assert.AreEqual("This is some text.", chatString.ToString());
+            Assert.That(actual, Is.EqualTo("This is some text."));
         }
 
         // Can't do this test right now because PlayerPayload will try to read data from the FFXIV data sheets
@@ -83,9 +84,9 @@ public class ChatStringTests
         {
             var cString = new ChatString(new ChatString.CsTextItem("text"));
 
-            var result = cString.HasInitialPlayer();
+            var actual = cString.HasInitialPlayer();
 
-            Assert.False(result);
+            Assert.That(actual, Is.False);
         }
 
         [Test]
@@ -93,9 +94,9 @@ public class ChatStringTests
         {
             var cString = new ChatString(new ChatString.CsPlayerItem("name", "world"));
 
-            var result = cString.HasInitialPlayer();
+            var actual = cString.HasInitialPlayer();
 
-            Assert.True(result);
+            Assert.That(actual, Is.True);
         }
     }
 
@@ -106,10 +107,10 @@ public class ChatStringTests
         {
             var cString = new ChatString(new ChatString.CsTextItem("text"));
 
-            var result = cString.GetInitialPlayerItem("player", "server");
+            var actual = cString.GetInitialPlayerItem("player", "server");
 
-            Assert.AreEqual("player", result.Name);
-            Assert.AreEqual("server", result.World);
+            Assert.That(actual.Name, Is.EqualTo("player"));
+            Assert.That(actual.World, Is.EqualTo("server"));
         }
 
         [Test]
@@ -117,10 +118,10 @@ public class ChatStringTests
         {
             var cString = new ChatString(new ChatString.CsPlayerItem("name", "world"));
 
-            var result = cString.GetInitialPlayerItem("player", "server");
+            var actual = cString.GetInitialPlayerItem("player", "server");
 
-            Assert.AreEqual("name", result.Name);
-            Assert.AreEqual("world", result.World);
+            Assert.That(actual.Name, Is.EqualTo("name"));
+            Assert.That(actual.World, Is.EqualTo("world"));
         }
     }
 
@@ -131,9 +132,9 @@ public class ChatStringTests
         {
             var cString = new ChatString(new ChatString.CsTextItem("This is text"));
 
-            var result = cString.ToString();
+            var actual = cString.ToString();
 
-            Assert.AreEqual("This is text", result);
+            Assert.That(actual, Is.EqualTo("This is text"));
         }
 
         [Test]
@@ -141,9 +142,9 @@ public class ChatStringTests
         {
             var cString = new ChatString(new ChatString.CsPlayerItem("name", "world"));
 
-            var result = cString.ToString();
+            var actual = cString.ToString();
 
-            Assert.AreEqual("name@world", result);
+            Assert.That(actual, Is.EqualTo("name@world"));
         }
     }
 
@@ -154,9 +155,9 @@ public class ChatStringTests
         {
             var cString = new ChatString(new ChatString.CsTextItem("This is text"));
 
-            var result = cString.AsText(false);
+            var actual = cString.AsText(false);
 
-            Assert.AreEqual("This is text", result);
+            Assert.That(actual, Is.EqualTo("This is text"));
         }
 
         [Test]
@@ -164,9 +165,9 @@ public class ChatStringTests
         {
             var cString = new ChatString(new ChatString.CsTextItem("This is text"));
 
-            var result = cString.AsText(true);
+            var actual = cString.AsText(true);
 
-            Assert.AreEqual("This is text", result);
+            Assert.That(actual, Is.EqualTo("This is text"));
         }
 
         [Test]
@@ -174,9 +175,9 @@ public class ChatStringTests
         {
             var cString = new ChatString(new ChatString.CsPlayerItem("name", "world"));
 
-            var result = cString.AsText(false);
+            var actual = cString.AsText(false);
 
-            Assert.AreEqual("name", result);
+            Assert.That(actual, Is.EqualTo("name"));
         }
 
         [Test]
@@ -184,9 +185,9 @@ public class ChatStringTests
         {
             var cString = new ChatString(new ChatString.CsPlayerItem("name", "world"));
 
-            var result = cString.AsText(true);
+            var actual = cString.AsText(true);
 
-            Assert.AreEqual("name@world", result);
+            Assert.That(actual, Is.EqualTo("name@world"));
         }
     }
 }
