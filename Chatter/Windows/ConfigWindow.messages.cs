@@ -32,7 +32,12 @@ public partial class ConfigWindow
     private string MsgButtonAddUser => _loc.Message("Button.AddUser");
     private string MsgButtonCancel => _loc.Message("Button.Cancel");
     private string MsgButtonClearFilterHelp => _loc.Message("Button.ClearFilter.Help");
+    private string MsgButtonDelete => _loc.Message("Button.Delete");
+    private string MsgButtonDeleteHelp => _loc.Message("Button.Delete.Help");
+    private string MsgButtonDeleteDisabledHelp => _loc.Message("Button.Delete.Disabled.Help");
     private string MsgButtonFriendSelectorHelp => _loc.Message("Button.FriendSelector.Help");
+    private string MsgButtonNew => _loc.Message("Button.New");
+    private string MsgButtonNewHelp => _loc.Message("Button.New.Help");
     private string MsgButtonRemove => _loc.Message("Button.Remove");
     private string MsgColumnFullName => _loc.Message("ColumnHeader.FullName");
     private string MsgColumnReplacement => _loc.Message("ColumnHeader.Replacement");

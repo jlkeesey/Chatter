@@ -31,12 +31,14 @@ using ImGuiNET;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Linq;
 using System.Numerics;
 using Dalamud.Interface.Internal;
 using static Chatter.Configuration;
 using static Chatter.Configuration.FileNameOrder;
 using static System.String;
+using static System.Net.Mime.MediaTypeNames;
 
 // ReSharper disable InvertIf
 
@@ -150,8 +152,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
 
         SizeConstraints = new WindowSizeConstraints
         {
-            MinimumSize = new Vector2(450, 520),
-            MaximumSize = new Vector2(float.MaxValue, float.MaxValue),
+            MinimumSize = new Vector2(450, 520), MaximumSize = new Vector2(float.MaxValue, float.MaxValue),
         };
 
         Size = new Vector2(800, 520);
@@ -547,7 +548,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
     private bool DrawClearFilterButton()
     {
         ImGui.PushFont(UiBuilder.IconFont);
-        var buttonPressed = ImGui.Button($"{(char)FontAwesomeIcon.SquareXmark}##findFriend");
+        var buttonPressed = ImGui.Button($"{(char) FontAwesomeIcon.SquareXmark}##findFriend");
         ImGui.PopFont();
         if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled)) DrawTooltip(MsgButtonClearFilterHelp);
         return buttonPressed;
@@ -560,7 +561,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
     private bool DrawFindFriendButton()
     {
         ImGui.PushFont(UiBuilder.IconFont);
-        var buttonPressed = ImGui.Button($"{(char)FontAwesomeIcon.PersonCirclePlus}##findFriend");
+        var buttonPressed = ImGui.Button($"{(char) FontAwesomeIcon.PersonCirclePlus}##findFriend");
         ImGui.PopFont();
         if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled)) DrawTooltip(MsgButtonFriendSelectorHelp);
         return buttonPressed;
@@ -574,7 +575,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
     private static bool DrawUserRemoveButton(string user)
     {
         ImGui.PushFont(UiBuilder.IconFont);
-        var buttonPressed = ImGui.Button($"{(char)FontAwesomeIcon.Trash}##{user}Trash");
+        var buttonPressed = ImGui.Button($"{(char) FontAwesomeIcon.Trash}##{user}Trash");
         ImGui.PopFont();
         return buttonPressed;
     }
@@ -626,10 +627,17 @@ public sealed partial class ConfigWindow : Window, IDisposable
         ImGui.BeginChild("groupsChild",
                          new Vector2(ImGui.GetContentRegionAvail().X * 0.25f, ImGui.GetContentRegionAvail().Y),
                          true);
+        var frameHeight = ImGui.GetFrameHeight();
+        var style = ImGui.GetStyle();
+        var horizontalPadding = style.FramePadding.X;
+        var verticalPadding = style.FramePadding.Y;
+        var buttonHeight = verticalPadding + frameHeight;
         if (ImGui.BeginListBox("##groups",
-                               new Vector2(ImGui.GetContentRegionAvail().X, ImGui.GetContentRegionAvail().Y)))
+                               new Vector2(ImGui.GetContentRegionAvail().X,
+                                           ImGui.GetContentRegionAvail().Y - buttonHeight)))
         {
-            foreach (var (_, cl) in _configuration.ChatLogs)
+            foreach (var (_, cl) in _configuration.ChatLogs.OrderBy(chat => chat.Key,
+                                                                    StringComparer.CurrentCultureIgnoreCase))
             {
                 var isSelected = _selectedGroup == cl.Name;
                 if (ImGui.Selectable(cl.Name, isSelected)) _selectedGroup = cl.Name;
@@ -640,8 +648,24 @@ public sealed partial class ConfigWindow : Window, IDisposable
             ImGui.EndListBox();
         }
 
+        var buttonWidth = (ImGui.GetContentRegionAvail().X - horizontalPadding) * 0.5f;
+        DrawGroupButton(MsgButtonNew, buttonWidth, tooltip: MsgButtonNewHelp);
+        ImGui.SameLine();
+        DrawGroupButton(MsgButtonDelete,
+                        buttonWidth,
+                        disabled: _selectedGroup == AllLogName,
+                        tooltip: _selectedGroup == AllLogName ? MsgButtonDeleteDisabledHelp : MsgButtonDeleteHelp);
+
         ImGui.EndChild();
         ImGui.PopStyleVar();
+    }
+
+    private void DrawGroupButton(string label, float width, string tooltip = "", bool disabled = false)
+    {
+        if (disabled) ImGui.BeginDisabled();
+        ImGui.Button(label, new Vector2(width, 0.0f));
+        if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled)) DrawTooltip(tooltip);
+        if (disabled) ImGui.EndDisabled();
     }
 
     /// <summary>
@@ -725,7 +749,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
         if (sameLine) ImGui.SameLine();
         ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0.4f, 0.4f, 0.55f, 1.0f));
         ImGui.PushFont(UiBuilder.IconFont);
-        ImGui.Text($"{(char)FontAwesomeIcon.QuestionCircle}");
+        ImGui.Text($"{(char) FontAwesomeIcon.QuestionCircle}");
         ImGui.PopFont();
         ImGui.PopStyleColor();
         if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled)) DrawTooltip(text);

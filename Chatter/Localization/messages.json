@@ -564,6 +564,31 @@
       "key": "Input.WrapIndent.Help",
       "message": "The indentation for each wrapped message line. Be sure to account for an spaces between fields. Set to 0 to have no indentation. Set to -1 to have the indentation calculated.",
       "description": ""
+    },
+    {
+      "key": "Button.New",
+      "message": "New",
+      "description": ""
+    },
+    {
+      "key": "Button.New.Help",
+      "message": "Creates a new group.",
+      "description": ""
+    },
+    {
+      "key": "Button.Delete",
+      "message": "Delete",
+      "description": ""
+    },
+    {
+      "key": "Button.Delete.Help",
+      "message": "Deletes the selected group.",
+      "description": ""
+    },
+    {
+      "key": "Button.Delete.Disabled.Help",
+      "message": "Deletes the selected group. Cannot delete the all group.",
+      "description": ""
     }
   ]
 }
