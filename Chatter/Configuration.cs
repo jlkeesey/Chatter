@@ -28,6 +28,7 @@ using NodaTime;
 using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using Chatter.System;
 
 namespace Chatter;
 
@@ -101,9 +102,9 @@ public partial class Configuration : IPluginConfiguration
     ///     Adds a log configuration.
     /// </summary>
     /// <param name="logConfiguration">The <see cref="Configuration.ChatLogConfiguration" /> to add.</param>
-    public void AddLog(ChatLogConfiguration logConfiguration)
+    public bool TryAddLog(ChatLogConfiguration logConfiguration)
     {
-        ChatLogs[logConfiguration.Name] = logConfiguration;
+        return ChatLogs.TryAdd(logConfiguration.Name, logConfiguration);
     }
 
     /// <summary>
@@ -135,16 +136,15 @@ public partial class Configuration : IPluginConfiguration
     ///     Loads the most recently saved configuration or creates a new one.
     /// </summary>
     /// <returns>The configuration to use.</returns>
-    public static Configuration Load(DalamudPluginInterface pluginInterface, FileHelper fileHelper)
+    public static Configuration Load(DalamudPluginInterface pluginInterface, FileHelper fileHelper, ILogger logger)
     {
-        // var config = new Configuration();
-        // pluginInterface.SavePluginConfig(config);
         if (pluginInterface.GetPluginConfig() is not Configuration config) config = new Configuration();
+        config._logger = logger;
         config._pluginInterface = pluginInterface;
 
-#if DEBUG
-        config.InitializeForDebug();
-#endif
+// #if DEBUG
+//         config.InitializeForDebug();
+// #endif
         config.Initialize(fileHelper);
 
         config.Save();
@@ -156,7 +156,7 @@ public partial class Configuration : IPluginConfiguration
         if (string.IsNullOrWhiteSpace(LogDirectory)) LogDirectory = fileHelper.InitialLogDirectory();
 
         if (!ChatLogs.ContainsKey(AllLogName))
-            AddLog(new ChatLogConfiguration(AllLogName, true, includeAllUsers: true));
+            TryAddLog(new ChatLogConfiguration(AllLogName, includeAllUsers: true));
 
         foreach (var (_, chatLogConfiguration) in ChatLogs) chatLogConfiguration.InitializeTypeFlags();
     }
@@ -165,7 +165,7 @@ public partial class Configuration : IPluginConfiguration
     public void InitializeForDebug()
     {
         // ReSharper disable StringLiteralTypo
-        var logConfiguration = new ChatLogConfiguration("Frollo", true)
+        var logConfiguration = new ChatLogConfiguration("Frollo")
         {
             Users =
             {
@@ -174,8 +174,8 @@ public partial class Configuration : IPluginConfiguration
                 ["Quasimodo Curveback@Zalera"] = "The Oppressed",
             },
         };
-        AddLog(logConfiguration);
-        AddLog(new ChatLogConfiguration("Pimpernel", true, wrapColumn: 60, wrapIndent: 54, includeAllUsers: true));
+        TryAddLog(logConfiguration);
+        TryAddLog(new ChatLogConfiguration("Pimpernel", wrapColumn: 60, wrapIndent: 54, includeAllUsers: true));
         // ReSharper restore StringLiteralTypo
     }
 #endif
@@ -217,4 +217,5 @@ public partial class Configuration : IPluginConfiguration
     };
 
     [JsonIgnore] private DalamudPluginInterface? _pluginInterface;
+    [JsonIgnore] private ILogger _logger;
 }

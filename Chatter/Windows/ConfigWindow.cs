@@ -21,24 +21,22 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
+using System.Numerics;
 using Chatter.Localization;
 using Chatter.Model;
 using Chatter.System;
 using Dalamud.Game.Text;
 using Dalamud.Interface;
+using Dalamud.Interface.Internal;
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Globalization;
-using System.Linq;
-using System.Numerics;
-using Dalamud.Interface.Internal;
 using static Chatter.Configuration;
 using static Chatter.Configuration.FileNameOrder;
 using static System.String;
-using static System.Net.Mime.MediaTypeNames;
 
 // ReSharper disable InvertIf
 
@@ -636,8 +634,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
                                new Vector2(ImGui.GetContentRegionAvail().X,
                                            ImGui.GetContentRegionAvail().Y - buttonHeight)))
         {
-            foreach (var (_, cl) in _configuration.ChatLogs.OrderBy(chat => chat.Key,
-                                                                    StringComparer.CurrentCultureIgnoreCase))
+            foreach (var (_, cl) in GetOrderedGroups())
             {
                 var isSelected = _selectedGroup == cl.Name;
                 if (ImGui.Selectable(cl.Name, isSelected)) _selectedGroup = cl.Name;
@@ -649,23 +646,103 @@ public sealed partial class ConfigWindow : Window, IDisposable
         }
 
         var buttonWidth = (ImGui.GetContentRegionAvail().X - horizontalPadding) * 0.5f;
-        DrawGroupButton(MsgButtonNew, buttonWidth, tooltip: MsgButtonNewHelp);
+        if (DrawGroupButton(MsgButtonNew, buttonWidth, MsgButtonNewHelp))
+        {
+            CreateGroup();
+        }
+
+        DrawCreateGroupPopup();
         ImGui.SameLine();
-        DrawGroupButton(MsgButtonDelete,
-                        buttonWidth,
-                        disabled: _selectedGroup == AllLogName,
-                        tooltip: _selectedGroup == AllLogName ? MsgButtonDeleteDisabledHelp : MsgButtonDeleteHelp);
+        if (DrawGroupButton(MsgButtonDelete,
+                            buttonWidth,
+                            disabled: _selectedGroup == AllLogName,
+                            tooltip: _selectedGroup == AllLogName ? MsgButtonDeleteDisabledHelp : MsgButtonDeleteHelp))
+            DeleteGroup(_selectedGroup);
 
         ImGui.EndChild();
         ImGui.PopStyleVar();
     }
 
-    private void DrawGroupButton(string label, float width, string tooltip = "", bool disabled = false)
+    private bool _createGroupAlreadyExists;
+    private string _createGroupName = Empty;
+
+    private void CreateGroup()
+    {
+        _createGroupAlreadyExists = false;
+        _createGroupName = Empty;
+        ImGui.OpenPopup("createGroup");
+    }
+
+    /// <summary>
+    ///     Draws the popup to create a new group.
+    /// </summary>
+    private void DrawCreateGroupPopup()
+    {
+        ImGui.SetNextWindowSizeConstraints(new Vector2(350.0f, 100.0f), new Vector2(350.0f, 200.0f));
+        if (ImGui.BeginPopup("createGroup", ImGuiWindowFlags.ChildWindow))
+        {
+            if (_createGroupAlreadyExists)
+            {
+                VerticalSpace();
+                ImGui.TextColored(new Vector4(1.0f, 0.0f, 0.0f, 1.0f), MsgGroupAlreadyExists);
+                VerticalSpace();
+            }
+
+            LongInputField(MsgGroupName, ref _createGroupName, 128, "##groupName", MsgGroupNameHelp, extraWidth: 30);
+
+            VerticalSpace();
+            ImGui.Separator();
+            VerticalSpace();
+
+            if (ImGui.Button(MsgButtonCreate, new Vector2(120, 0)))
+            {
+                _createGroupAlreadyExists = false;
+                var name = _createGroupName.Trim();
+                if (!IsNullOrWhiteSpace(name))
+                {
+                    if (_configuration.TryAddLog(new ChatLogConfiguration(name)))
+                    {
+                        _selectedGroup = name;
+                        ImGui.CloseCurrentPopup();
+                    }
+                    else
+                        _createGroupAlreadyExists = true;
+                }
+            }
+
+            ImGui.SameLine();
+            if (ImGui.Button(MsgButtonCancel, new Vector2(120, 0)))
+            {
+                _createGroupAlreadyExists = false;
+                ImGui.CloseCurrentPopup();
+            }
+
+            ImGui.EndPopup();
+        }
+    }
+
+    private IOrderedEnumerable<KeyValuePair<string, ChatLogConfiguration>> GetOrderedGroups()
+    {
+        return _configuration.ChatLogs.OrderBy(chat => chat.Key, StringComparer.CurrentCultureIgnoreCase);
+    }
+
+    private void DeleteGroup(string group)
+    {
+        if (_configuration.ChatLogs.Count == 1) return; // Can't delete all group
+        var groups = GetOrderedGroups().Select(g => g.Key).ToImmutableList();
+        var index = groups.IndexOf(_selectedGroup);
+        var newSelection = index == groups.Count - 1 ? groups[index - 1] : groups[index + 1];
+        _configuration.ChatLogs.Remove(group);
+        _selectedGroup = newSelection;
+    }
+
+    private static bool DrawGroupButton(string label, float width, string tooltip = "", bool disabled = false)
     {
         if (disabled) ImGui.BeginDisabled();
-        ImGui.Button(label, new Vector2(width, 0.0f));
+        var result = ImGui.Button(label, new Vector2(width, 0.0f));
         if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled)) DrawTooltip(tooltip);
         if (disabled) ImGui.EndDisabled();
+        return result;
     }
 
     /// <summary>

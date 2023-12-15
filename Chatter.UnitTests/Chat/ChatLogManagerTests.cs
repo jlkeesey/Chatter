@@ -79,7 +79,7 @@ public class ChatLogManagerTests
         [Test]
         public void LogInfo_LogsConfigured()
         {
-            _configuration.AddLog(new ChatLogConfiguration("Pimpernel",
+            _configuration.TryAddLog(new ChatLogConfiguration("Pimpernel",
                                                            true,
                                                            wrapColumn: 60,
                                                            wrapIndent: 54,
@@ -94,7 +94,7 @@ public class ChatLogManagerTests
         [Test]
         public void LogInfo_WhenToClose()
         {
-            _configuration.AddLog(new ChatLogConfiguration("Pimpernel",
+            _configuration.TryAddLog(new ChatLogConfiguration("Pimpernel",
                                                            true,
                                                            wrapColumn: 60,
                                                            wrapIndent: 54,
@@ -113,7 +113,7 @@ public class ChatLogManagerTests
         [Test]
         public void LogInfo_UpdateLogDirectory()
         {
-            _configuration.AddLog(new ChatLogConfiguration("Pimpernel",
+            _configuration.TryAddLog(new ChatLogConfiguration("Pimpernel",
                                                            true,
                                                            wrapColumn: 60,
                                                            wrapIndent: 54,
@@ -133,7 +133,7 @@ public class ChatLogManagerTests
         [Test]
         public void LogInfo_UpdateLogFileNamePrefix()
         {
-            _configuration.AddLog(new ChatLogConfiguration("Pimpernel",
+            _configuration.TryAddLog(new ChatLogConfiguration("Pimpernel",
                                                            true,
                                                            wrapColumn: 60,
                                                            wrapIndent: 54,
@@ -152,7 +152,7 @@ public class ChatLogManagerTests
         [Test]
         public void LogInfo_UpdateLogOrder()
         {
-            _configuration.AddLog(new ChatLogConfiguration("Pimpernel",
+            _configuration.TryAddLog(new ChatLogConfiguration("Pimpernel",
                                                            true,
                                                            wrapColumn: 60,
                                                            wrapIndent: 54,

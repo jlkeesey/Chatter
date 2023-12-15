@@ -21,10 +21,10 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-using Chatter.System;
 using System;
 using System.Globalization;
 using System.Text.Json;
+using Chatter.System;
 using static System.String;
 
 // ReSharper disable LocalizableElement
@@ -38,8 +38,7 @@ public class Loc
 {
     private static readonly JsonSerializerOptions SerializeOptions = new()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        WriteIndented = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true,
     };
 
     private LocalizedMessageList _messages = new();

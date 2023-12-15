@@ -77,7 +77,7 @@ public sealed partial class Chatter : IDalamudPlugin
 
             var fileHelper = new FileHelper(new WindowsFileSystem());
 
-            _configuration = Configuration.Load(pluginInterface, fileHelper);
+            _configuration = Configuration.Load(pluginInterface, fileHelper, _logger);
 
             var dateManager = new DateHelper() as IDateHelper;
             var worldManager = new WorldManager(gameData);

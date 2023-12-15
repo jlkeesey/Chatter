@@ -32,6 +32,7 @@ public partial class ConfigWindow
     private string MsgButtonAddUser => _loc.Message("Button.AddUser");
     private string MsgButtonCancel => _loc.Message("Button.Cancel");
     private string MsgButtonClearFilterHelp => _loc.Message("Button.ClearFilter.Help");
+    private string MsgButtonCreate => _loc.Message("Button.Create");
     private string MsgButtonDelete => _loc.Message("Button.Delete");
     private string MsgButtonDeleteHelp => _loc.Message("Button.Delete.Help");
     private string MsgButtonDeleteDisabledHelp => _loc.Message("Button.Delete.Disabled.Help");
@@ -54,6 +55,9 @@ public partial class ConfigWindow
     private string MsgComboTimestampSortable => _loc.Message("Combo.Timestamp.Sortable");
     private string MsgComboTimestampSortableHelp => _loc.Message("Combo.Timestamp.Sortable.Help");
     private string MsgDescriptionIncludedUsers => _loc.Message("Description.IncludedUsers");
+    private string MsgGroupAlreadyExists => _loc.Message("Message.Group.AlreadyExists");
+    private string MsgGroupName => _loc.Message("Message.Group.Name");
+    private string MsgGroupNameHelp => _loc.Message("Message.Group.Name.Help");
     private string MsgHeaderIncludedChatTypes => _loc.Message("Header.IncludedChatTypes");
     private string MsgHeaderIncludedUsers => _loc.Message("Header.IncludedUsers");
     private string MsgInputWrapIndentHelp => _loc.Message("Input.WrapIndent.Help");

@@ -589,6 +589,26 @@
       "key": "Button.Delete.Disabled.Help",
       "message": "Deletes the selected group. Cannot delete the all group.",
       "description": ""
+    },
+    {
+      "key": "Message.Group.AlreadyExists",
+      "message": "This group already exist.",
+      "description": ""
+    },
+    {
+      "key": "Message.Group.Name",
+      "message": "Group Name",
+      "description": ""
+    },
+    {
+      "key": "Message.Group.Name.Help",
+      "message": "The name for the new group.",
+      "description": ""
+    },
+    {
+      "key": "Button.Create",
+      "message": "Create",
+      "description": ""
     }
   ]
 }

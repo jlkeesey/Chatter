@@ -138,7 +138,7 @@ public partial class Configuration
         public int MessageWrapWidth;
 
         public ChatLogConfiguration(string name,
-                                    bool isActive = false,
+                                    bool isActive = true,
                                     bool includeServer = false,
                                     bool includeMe = true,
                                     bool includeAllUsers = false,
@@ -156,6 +156,7 @@ public partial class Configuration
             MessageWrapWidth = wrapColumn;
             MessageWrapIndentation = wrapIndent;
             Format = format;
+            
         }
 
         /// <summary>
