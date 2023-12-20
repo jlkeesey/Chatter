@@ -139,7 +139,7 @@ public partial class Configuration : IPluginConfiguration
     public static Configuration Load(DalamudPluginInterface pluginInterface, FileHelper fileHelper, ILogger logger)
     {
         if (pluginInterface.GetPluginConfig() is not Configuration config) config = new Configuration();
-        config._logger = logger;
+        // config._logger = logger;
         config._pluginInterface = pluginInterface;
 
 // #if DEBUG
@@ -217,5 +217,5 @@ public partial class Configuration : IPluginConfiguration
     };
 
     [JsonIgnore] private DalamudPluginInterface? _pluginInterface;
-    [JsonIgnore] private ILogger _logger;
+    // [JsonIgnore] private ILogger _logger;
 }

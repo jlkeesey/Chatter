@@ -80,7 +80,6 @@ public class ChatLogManagerTests
         public void LogInfo_LogsConfigured()
         {
             _configuration.TryAddLog(new ChatLogConfiguration("Pimpernel",
-                                                           true,
                                                            wrapColumn: 60,
                                                            wrapIndent: 54,
                                                            includeAllUsers: true));
@@ -95,7 +94,6 @@ public class ChatLogManagerTests
         public void LogInfo_WhenToClose()
         {
             _configuration.TryAddLog(new ChatLogConfiguration("Pimpernel",
-                                                           true,
                                                            wrapColumn: 60,
                                                            wrapIndent: 54,
                                                            includeAllUsers: true));
@@ -114,7 +112,6 @@ public class ChatLogManagerTests
         public void LogInfo_UpdateLogDirectory()
         {
             _configuration.TryAddLog(new ChatLogConfiguration("Pimpernel",
-                                                           true,
                                                            wrapColumn: 60,
                                                            wrapIndent: 54,
                                                            includeAllUsers: true));
@@ -134,7 +131,6 @@ public class ChatLogManagerTests
         public void LogInfo_UpdateLogFileNamePrefix()
         {
             _configuration.TryAddLog(new ChatLogConfiguration("Pimpernel",
-                                                           true,
                                                            wrapColumn: 60,
                                                            wrapIndent: 54,
                                                            includeAllUsers: true));
@@ -153,7 +149,6 @@ public class ChatLogManagerTests
         public void LogInfo_UpdateLogOrder()
         {
             _configuration.TryAddLog(new ChatLogConfiguration("Pimpernel",
-                                                           true,
                                                            wrapColumn: 60,
                                                            wrapIndent: 54,
                                                            includeAllUsers: true));
