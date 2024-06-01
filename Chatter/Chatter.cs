@@ -145,7 +145,7 @@ public sealed partial class Chatter : IDalamudPlugin
     /// <returns>The <see cref="TextureWrap" /> representing the image.</returns>
     private static IDalamudTextureWrap LoadImage(DalamudPluginInterface pluginInterface, string name)
     {
-        var assemblyLocation = Assembly.GetExecutingAssembly().Location;
+        var assemblyLocation = pluginInterface.AssemblyLocation.FullName;
         var imagePath = Path.Combine(Path.GetDirectoryName(assemblyLocation)!, name);
         return pluginInterface.UiBuilder.LoadImage(imagePath);
     }
