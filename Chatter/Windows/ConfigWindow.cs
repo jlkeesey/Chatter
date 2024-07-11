@@ -34,6 +34,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Numerics;
 using Dalamud.Interface.Internal;
+using Dalamud.Interface.Textures.TextureWraps;
 using static Chatter.Configuration;
 using static Chatter.Configuration.FileNameOrder;
 using static System.String;

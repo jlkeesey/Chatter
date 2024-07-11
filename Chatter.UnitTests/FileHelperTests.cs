@@ -41,7 +41,7 @@ public class FileHelperTests
 
             var result = fileHelper.EnsureDirectoryExists(path);
 
-            Assert.AreEqual(FileHelper.EnsureCode.Success, result);
+            Assert.That(FileHelper.EnsureCode.Success == result);
         }
 
         [Test]
@@ -54,7 +54,7 @@ public class FileHelperTests
 
             var result = fileHelper.EnsureDirectoryExists(path);
 
-            Assert.AreEqual(FileHelper.EnsureCode.FileExists, result);
+            Assert.That(FileHelper.EnsureCode.FileExists == result);
         }
 
         [Test]
@@ -68,8 +68,8 @@ public class FileHelperTests
 
             var result = fileHelper.EnsureDirectoryExists(path);
 
-            Assert.AreEqual(FileHelper.EnsureCode.Success, result);
-            Assert.True(fileSystem.DirectoryExists(path), "Directory now exists");
+            Assert.That(FileHelper.EnsureCode.Success == result);
+            Assert.That(fileSystem.DirectoryExists(path), "Directory now exists");
         }
 
         [Test]
@@ -81,7 +81,7 @@ public class FileHelperTests
 
             var result = fileHelper.EnsureDirectoryExists(path);
 
-            Assert.AreEqual(FileHelper.EnsureCode.ParentDoesNotExist, result);
+            Assert.That(FileHelper.EnsureCode.ParentDoesNotExist == result);
         }
     }
 
@@ -96,7 +96,7 @@ public class FileHelperTests
 
             var path = fileHelper.InitialLogDirectory();
 
-            Assert.AreEqual(parent + "\\" + FileHelper.DefaultDirectory, path);
+            Assert.That(path.Equals(parent + "\\" + FileHelper.DefaultDirectory));
         }
     }
 
@@ -112,7 +112,7 @@ public class FileHelperTests
 
             var result = fileHelper.FullFileName(path, "filename", ".log");
 
-            Assert.AreEqual(expected, result);
+            Assert.That(result.Equals(expected));
         }
 
         [Test]
@@ -127,7 +127,7 @@ public class FileHelperTests
 
             var result = fileHelper.FullFileName(path, "filename", ".log");
 
-            Assert.AreEqual(expected, result);
+            Assert.That(result.Equals(expected));
         }
     }
 }

@@ -52,9 +52,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="DalamudPackager" Version="2.1.12" />
-		<PackageReference Include="JetBrains.Annotations" Version="2023.3.0" />
-		<PackageReference Include="NodaTime" Version="3.1.9" />
+		<PackageReference Include="DalamudPackager" Version="2.1.13" />
+		<PackageReference Include="JetBrains.Annotations" Version="2024.2.0" />
+		<PackageReference Include="NodaTime" Version="3.1.11" />
 		<Reference Include="FFXIVClientStructs">
 			<HintPath>$(DalamudLibPath)FFXIVClientStructs.dll</HintPath>
 			<Private>false</Private>

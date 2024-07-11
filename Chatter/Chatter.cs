@@ -29,8 +29,7 @@ using Chatter.Model;
 using Chatter.Reporting;
 using Chatter.System;
 using Chatter.Windows;
-using Dalamud.Interface.Internal;
-using Dalamud.IoC;
+using Dalamud.Interface.Textures.TextureWraps;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using ImGuiScene;
@@ -44,8 +43,7 @@ namespace Chatter;
 [UsedImplicitly]
 public sealed partial class Chatter : IDalamudPlugin
 {
-    [UsedImplicitly]
-    public static string Version { get; private set; } = string.Empty;
+    [UsedImplicitly] public static string Version { get; private set; } = string.Empty;
 
     private readonly ChatLogManager _chatLogManager;
     private readonly ChatManager _chatManager;
@@ -55,12 +53,13 @@ public sealed partial class Chatter : IDalamudPlugin
     private readonly ILogger _logger;
     private readonly JlkWindowManager _windowManager;
 
-    public Chatter([RequiredVersion("1.0")] DalamudPluginInterface pluginInterface,
-                   [RequiredVersion("1.0")] IPluginLog pluginLog,
-                   [RequiredVersion("1.0")] IChatGui chatGui,
-                   [RequiredVersion("1.0")] IClientState clientState,
-                   [RequiredVersion("1.0")] ICommandManager commandManager,
-                   [RequiredVersion("1.0")] IDataManager gameData)
+    public Chatter(IDalamudPluginInterface pluginInterface,
+                   IPluginLog pluginLog,
+                   IChatGui chatGui,
+                   IClientState clientState,
+                   ICommandManager commandManager,
+                   IDataManager gameData,
+                   IConsole console)
     {
         _commandManager = commandManager;
 
@@ -143,7 +142,7 @@ public sealed partial class Chatter : IDalamudPlugin
     /// <param name="pluginInterface">The controlling <see cref="DalamudPluginInterface" />.</param>
     /// <param name="name">The image file name relative to the project root.</param>
     /// <returns>The <see cref="TextureWrap" /> representing the image.</returns>
-    private static IDalamudTextureWrap LoadImage(DalamudPluginInterface pluginInterface, string name)
+    private static IDalamudTextureWrap LoadImage(IDalamudPluginInterface pluginInterface, string name)
     {
         var assemblyLocation = pluginInterface.AssemblyLocation.FullName;
         var imagePath = Path.Combine(Path.GetDirectoryName(assemblyLocation)!, name);
