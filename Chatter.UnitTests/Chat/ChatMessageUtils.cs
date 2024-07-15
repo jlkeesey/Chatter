@@ -54,7 +54,7 @@ public static class ChatMessageUtils
     public static ChatMessage CreateMessage(ZonedDateTime when,
                                             XivChatType chatType = XivChatType.Say,
                                             string? typeLabel = null,
-                                            uint senderId = 123,
+                                            int senderId = 123,
                                             IPlayer? sender = null,
                                             string body = "This is a test")
     {

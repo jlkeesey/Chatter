@@ -24,11 +24,10 @@
 using Chatter.Localization;
 using Chatter.Model;
 using Chatter.System;
-using Dalamud.Interface.Internal;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
 using System;
-using Dalamud.Interface.Textures.TextureWraps;
+using Dalamud.Interface.Textures;
 
 namespace Chatter.Windows;
 
@@ -56,7 +55,7 @@ public sealed class JlkWindowManager : IDisposable
                             IDateHelper dateHelper,
                             FriendManager friendManager,
                             string nameSpace,
-                            IDalamudTextureWrap chatterImage,
+                            ISharedImmediateTexture chatterImage,
                             Loc loc)
     {
         _pluginInterface = pluginInterface;

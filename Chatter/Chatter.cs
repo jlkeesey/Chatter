@@ -29,6 +29,7 @@ using Chatter.Model;
 using Chatter.Reporting;
 using Chatter.System;
 using Chatter.Windows;
+using Dalamud.Interface.Textures;
 using Dalamud.Interface.Textures.TextureWraps;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
@@ -47,7 +48,7 @@ public sealed partial class Chatter : IDalamudPlugin
 
     private readonly ChatLogManager _chatLogManager;
     private readonly ChatManager _chatManager;
-    private readonly IDalamudTextureWrap _chatterImage;
+    private readonly ISharedImmediateTexture _chatterImage;
     private readonly ICommandManager _commandManager;
     private readonly Configuration _configuration;
     private readonly ILogger _logger;
@@ -58,8 +59,11 @@ public sealed partial class Chatter : IDalamudPlugin
                    IChatGui chatGui,
                    IClientState clientState,
                    ICommandManager commandManager,
+                   ITextureProvider textureProvider,
                    IDataManager gameData,
+#pragma warning disable Dalamud001
                    IConsole console)
+#pragma warning restore Dalamud001
     {
         _commandManager = commandManager;
 
@@ -93,7 +97,7 @@ public sealed partial class Chatter : IDalamudPlugin
                                            dateManager,
                                            myself.HomeWorld.Name);
 
-            _chatterImage = LoadImage(pluginInterface, "chatter.png");
+            _chatterImage = LoadImage(pluginInterface, textureProvider, "chatter.png");
             _windowManager = new JlkWindowManager(pluginInterface,
                                                   _configuration,
                                                   dateManager,
@@ -113,14 +117,14 @@ public sealed partial class Chatter : IDalamudPlugin
     private static string Name => "Chatter";
 
     /// <summary>
-    ///     Disposes all of the resources created by the plugin.
+    ///     Disposes all the resources created by the plugin.
     /// </summary>
     /// <remarks>
     ///     In theory all of these objects are non-null so they all exist by this point in code, however, there is
     ///     a try/catch block around the initialization code which means that the constructor can fail before
     ///     reaching this point. That means that some of these objects are actually null at this point so we
     ///     add a null check to all of them just in case. If this were an application we could ignore them as the
-    ///     system would clean up regardless, but as we are a DLL that is loaded into an application, the clean up
+    ///     system would clean up regardless, but as we are a DLL that is loaded into an application, the cleanup
     ///     will not occur until that application (Dalamud) exits.
     /// </remarks>
     public void Dispose()
@@ -130,7 +134,6 @@ public sealed partial class Chatter : IDalamudPlugin
 
         UnregisterCommands();
         _windowManager?.Dispose();
-        _chatterImage?.Dispose();
         _chatLogManager?.Dispose();
         _chatManager?.Dispose();
         // ReSharper restore ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
@@ -140,12 +143,15 @@ public sealed partial class Chatter : IDalamudPlugin
     ///     Loads an image from the game assembly relative to the project root.
     /// </summary>
     /// <param name="pluginInterface">The controlling <see cref="DalamudPluginInterface" />.</param>
+    /// <param name="textureProvider">Texture provider.</param>
     /// <param name="name">The image file name relative to the project root.</param>
     /// <returns>The <see cref="TextureWrap" /> representing the image.</returns>
-    private static IDalamudTextureWrap LoadImage(IDalamudPluginInterface pluginInterface, string name)
+    private static ISharedImmediateTexture LoadImage(IDalamudPluginInterface pluginInterface,
+                                                     ITextureProvider textureProvider,
+                                                     string name)
     {
         var assemblyLocation = pluginInterface.AssemblyLocation.FullName;
         var imagePath = Path.Combine(Path.GetDirectoryName(assemblyLocation)!, name);
-        return pluginInterface.UiBuilder.LoadImage(imagePath);
+        return textureProvider.GetFromFile(imagePath);
     }
 }

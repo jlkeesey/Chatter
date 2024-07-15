@@ -36,7 +36,7 @@ public sealed class ChatMessage
 {
     public ChatMessage(XivChatType xivType,
                        string typeLabel,
-                       uint senderId,
+                       int senderId,
                        ChatString sender,
                        ChatString body,
                        ZonedDateTime when)
@@ -50,7 +50,7 @@ public sealed class ChatMessage
     }
 
     public XivChatType ChatType { get; }
-    public uint SenderId { get; }
+    public int SenderId { get; }
     public ChatString Sender { get; }
     public ChatString Body { get; }
     public ZonedDateTime When { get; }
