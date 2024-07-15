@@ -72,7 +72,7 @@ public class ChatLogManagerTests
 
             _chatLogManager.LogInfo(_chatMessage);
 
-            Assert.AreEqual(0, _chatLogGenerator.Count);
+            Assert.That(0 == _chatLogGenerator.Count);
             _chatLogMock.Verify(cl => cl.LogInfo(It.IsAny<ChatMessage>()), Times.Never);
         }
 
@@ -87,7 +87,7 @@ public class ChatLogManagerTests
 
             _chatLogManager.LogInfo(_chatMessage);
 
-            Assert.AreEqual(2, _chatLogGenerator.Count);
+            Assert.That(2 == _chatLogGenerator.Count);
             _chatLogMock.Verify(cl => cl.LogInfo(It.IsAny<ChatMessage>()), Times.Exactly(2));
         }
 
@@ -105,7 +105,7 @@ public class ChatLogManagerTests
             _configuration.WhenToCloseLogs = "17:00"; // Force close
             _chatLogManager.LogInfo(_chatMessage);
 
-            Assert.AreEqual(2, _chatLogGenerator.Count);
+            Assert.That(2 == _chatLogGenerator.Count);
             _chatLogMock.Verify(cl => cl.LogInfo(It.IsAny<ChatMessage>()), Times.Exactly(4));
             _chatLogMock.Verify(cl => cl.Close(), Times.Exactly(2));
         }
@@ -125,7 +125,7 @@ public class ChatLogManagerTests
             _configuration.LogDirectory = "C:\\A\\B\\C"; // Force close
             _chatLogManager.LogInfo(_chatMessage);
 
-            Assert.AreEqual(2, _chatLogGenerator.Count);
+            Assert.That(2 == _chatLogGenerator.Count);
             _chatLogMock.Verify(cl => cl.LogInfo(It.IsAny<ChatMessage>()), Times.Exactly(4));
             _chatLogMock.Verify(cl => cl.Close(), Times.Exactly(2));
         }
@@ -144,7 +144,7 @@ public class ChatLogManagerTests
             _configuration.LogFileNamePrefix = "talker"; // Force close
             _chatLogManager.LogInfo(_chatMessage);
 
-            Assert.AreEqual(2, _chatLogGenerator.Count);
+            Assert.That(2 == _chatLogGenerator.Count);
             _chatLogMock.Verify(cl => cl.LogInfo(It.IsAny<ChatMessage>()), Times.Exactly(4));
             _chatLogMock.Verify(cl => cl.Close(), Times.Exactly(2));
         }
@@ -163,7 +163,7 @@ public class ChatLogManagerTests
             _configuration.LogOrder = FileNameOrder.PrefixDateGroup; // Force close
             _chatLogManager.LogInfo(_chatMessage);
 
-            Assert.AreEqual(2, _chatLogGenerator.Count);
+            Assert.That(2 == _chatLogGenerator.Count);
             _chatLogMock.Verify(cl => cl.LogInfo(It.IsAny<ChatMessage>()), Times.Exactly(4));
             _chatLogMock.Verify(cl => cl.Close(), Times.Exactly(2));
         }

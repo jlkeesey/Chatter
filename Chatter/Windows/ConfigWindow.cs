@@ -33,10 +33,10 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Numerics;
-using Dalamud.Interface.Internal;
 using static Chatter.Configuration;
 using static Chatter.Configuration.FileNameOrder;
 using static System.String;
+using Dalamud.Interface.Textures;
 
 // ReSharper disable InvertIf
 
@@ -109,7 +109,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
     };
 
     private static int _timeStampSelected = -1;
-    private readonly IDalamudTextureWrap _chatterImage;
+    private readonly ISharedImmediateTexture _chatterImage;
     private readonly Configuration _configuration;
 
     private readonly List<ComboOption<string>> _dateOptions;
@@ -140,7 +140,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
     public ConfigWindow(Configuration config,
                         IDateHelper dateHelper,
                         FriendManager friendManager,
-                        IDalamudTextureWrap chatterImage,
+                        ISharedImmediateTexture chatterImage,
                         Loc loc) : base(Title)
     {
         _configuration = config;
@@ -183,7 +183,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
     /// </summary>
     public override void Draw()
     {
-        ImGui.Image(_chatterImage.ImGuiHandle, new Vector2(64, 64));
+        ImGui.Image(_chatterImage.GetWrapOrEmpty().ImGuiHandle, new Vector2(64, 64));
         VerticalSpace(5.0f);
 
         if (ImGui.BeginTabBar("tabBar", ImGuiTabBarFlags.None))

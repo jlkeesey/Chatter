@@ -33,31 +33,31 @@ public class SeSpecialCharactersTests
         [Test]
         public void IsSpecialNormalCharacter()
         {
-            Assert.False(SeSpecialCharacters.IsSpecial('\uDFFF'));
+            Assert.That(!SeSpecialCharacters.IsSpecial('\uDFFF'));
         }
 
         [Test]
         public void IsSpecialSpecialCharacterBegin()
         {
-            Assert.True(SeSpecialCharacters.IsSpecial('\uE000'));
+            Assert.That(SeSpecialCharacters.IsSpecial('\uE000'));
         }
 
         [Test]
         public void IsSpecialSpecialCharacterMiddle()
         {
-            Assert.True(SeSpecialCharacters.IsSpecial('\uE031'));
+            Assert.That(SeSpecialCharacters.IsSpecial('\uE031'));
         }
 
         [Test]
         public void IsSpecialSpecialCharacterEnd()
         {
-            Assert.True(SeSpecialCharacters.IsSpecial('\uF8FF'));
+            Assert.That(SeSpecialCharacters.IsSpecial('\uF8FF'));
         }
 
         [Test]
         public void IsSpecialSpecialCharacterAbove()
         {
-            Assert.False(SeSpecialCharacters.IsSpecial('\uF900'));
+            Assert.That(!SeSpecialCharacters.IsSpecial('\uF900'));
         }
     }
 
@@ -70,7 +70,7 @@ public class SeSpecialCharactersTests
 
             var actual = SeSpecialCharacters.Replace(expected);
 
-            Assert.AreEqual(expected, actual);
+            Assert.That(actual.Equals(expected));
         }
 
         [Test]
@@ -81,7 +81,7 @@ public class SeSpecialCharactersTests
 
             var actual = SeSpecialCharacters.Replace(input);
 
-            Assert.AreEqual(expected, actual);
+            Assert.That(actual.Equals(expected));
         }
 
         [Test]
@@ -91,7 +91,7 @@ public class SeSpecialCharactersTests
 
             var actual = SeSpecialCharacters.Replace(expected);
 
-            Assert.AreEqual(expected, actual);
+            Assert.That(actual.Equals(expected));
         }
     }
 
@@ -104,7 +104,7 @@ public class SeSpecialCharactersTests
 
             var actual = SeSpecialCharacters.Clean(expected);
 
-            Assert.AreEqual(expected, actual);
+            Assert.That(actual.Equals(expected));
         }
 
         [Test]
@@ -115,7 +115,7 @@ public class SeSpecialCharactersTests
 
             var actual = SeSpecialCharacters.Clean(input);
 
-            Assert.AreEqual(expected, actual);
+            Assert.That(actual.Equals(expected));
         }
 
         [Test]
@@ -125,7 +125,7 @@ public class SeSpecialCharactersTests
 
             var actual = SeSpecialCharacters.Clean(expected);
 
-            Assert.AreEqual(expected, actual);
+            Assert.That(actual.Equals(expected));
         }
     }
 }

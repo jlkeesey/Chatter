@@ -32,7 +32,7 @@ using System.Text.Json.Serialization;
 namespace Chatter;
 
 /// <summary>
-///     Contains all of the user configuration settings.
+///     Contains all the user configuration settings.
 /// </summary>
 [Serializable]
 public partial class Configuration : IPluginConfiguration
@@ -116,7 +116,7 @@ public partial class Configuration : IPluginConfiguration
     }
 
     /// <summary>
-    ///     Removes all of the logs from the configuration.
+    ///     Removes all the logs from the configuration.
     /// </summary>
     public void RemoveAllLogs()
     {
@@ -135,7 +135,7 @@ public partial class Configuration : IPluginConfiguration
     ///     Loads the most recently saved configuration or creates a new one.
     /// </summary>
     /// <returns>The configuration to use.</returns>
-    public static Configuration Load(DalamudPluginInterface pluginInterface, FileHelper fileHelper)
+    public static Configuration Load(IDalamudPluginInterface pluginInterface, FileHelper fileHelper)
     {
         // var config = new Configuration();
         // pluginInterface.SavePluginConfig(config);
@@ -183,38 +183,16 @@ public partial class Configuration : IPluginConfiguration
     /// <summary>
     ///     These chat type should all be enabled by default on new configurations.
     /// </summary>
-    private static readonly List<XivChatType> DefaultEnabledTypes = new()
-    {
-        XivChatType.Say,
-        XivChatType.TellOutgoing,
-        XivChatType.TellIncoming,
-        XivChatType.Shout,
-        XivChatType.Party,
-        XivChatType.Alliance,
-        XivChatType.Ls1,
-        XivChatType.Ls2,
-        XivChatType.Ls3,
-        XivChatType.Ls4,
-        XivChatType.Ls5,
-        XivChatType.Ls6,
-        XivChatType.Ls7,
-        XivChatType.Ls8,
-        XivChatType.FreeCompany,
-        XivChatType.NoviceNetwork,
-        XivChatType.CustomEmote,
-        XivChatType.StandardEmote,
-        XivChatType.Yell,
-        XivChatType.CrossParty,
-        XivChatType.PvPTeam,
-        XivChatType.CrossLinkShell1,
-        XivChatType.CrossLinkShell2,
-        XivChatType.CrossLinkShell3,
-        XivChatType.CrossLinkShell4,
-        XivChatType.CrossLinkShell5,
-        XivChatType.CrossLinkShell6,
-        XivChatType.CrossLinkShell7,
-        XivChatType.CrossLinkShell8,
-    };
+    private static readonly List<XivChatType> DefaultEnabledTypes =
+    [
+        XivChatType.Say, XivChatType.TellOutgoing, XivChatType.TellIncoming, XivChatType.Shout, XivChatType.Party,
+        XivChatType.Alliance, XivChatType.Ls1, XivChatType.Ls2, XivChatType.Ls3, XivChatType.Ls4, XivChatType.Ls5,
+        XivChatType.Ls6, XivChatType.Ls7, XivChatType.Ls8, XivChatType.FreeCompany, XivChatType.NoviceNetwork,
+        XivChatType.CustomEmote, XivChatType.StandardEmote, XivChatType.Yell, XivChatType.CrossParty,
+        XivChatType.PvPTeam, XivChatType.CrossLinkShell1, XivChatType.CrossLinkShell2, XivChatType.CrossLinkShell3,
+        XivChatType.CrossLinkShell4, XivChatType.CrossLinkShell5, XivChatType.CrossLinkShell6,
+        XivChatType.CrossLinkShell7, XivChatType.CrossLinkShell8,
+    ];
 
-    [JsonIgnore] private DalamudPluginInterface? _pluginInterface;
+    [JsonIgnore] private IDalamudPluginInterface? _pluginInterface;
 }

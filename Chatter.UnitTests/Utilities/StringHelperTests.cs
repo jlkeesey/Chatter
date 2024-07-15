@@ -36,8 +36,8 @@ public class StringHelperTests
         {
             var result = StringHelper.WrapBody(string.Empty, 50);
 
-            Assert.AreEqual(1, result.Count);
-            Assert.AreEqual("", result[0]);
+            Assert.That(1 == result.Count);
+            Assert.That(result[0].Equals(""));
         }
 
         [Test]
@@ -46,8 +46,8 @@ public class StringHelperTests
             var expected = "12345 67890";
             var result = StringHelper.WrapBody(expected, 11);
 
-            Assert.AreEqual(1, result.Count);
-            Assert.AreEqual(expected, result[0]);
+            Assert.That(1 == result.Count);
+            Assert.That(result[0].Equals(expected));
         }
 
         [Test]
@@ -56,9 +56,9 @@ public class StringHelperTests
             var expected = "12345 67890";
             var result = StringHelper.WrapBody(expected, 10);
 
-            Assert.AreEqual(2, result.Count);
-            Assert.AreEqual("12345", result[0]);
-            Assert.AreEqual("67890", result[1]);
+            Assert.That(2 == result.Count);
+            Assert.That(result[0].Equals("12345"));
+            Assert.That(result[1].Equals("67890"));
         }
 
         [Test]
@@ -67,9 +67,9 @@ public class StringHelperTests
             var expected = "12345    67890";
             var result = StringHelper.WrapBody(expected, 10);
 
-            Assert.AreEqual(2, result.Count);
-            Assert.AreEqual("12345", result[0]);
-            Assert.AreEqual("67890", result[1]);
+            Assert.That(2 == result.Count);
+            Assert.That(result[0].Equals("12345"));
+            Assert.That(result[1].Equals("67890"));
         }
 
         [Test]
@@ -78,9 +78,9 @@ public class StringHelperTests
             var expected = "1234567890";
             var result = StringHelper.WrapBody(expected, 5);
 
-            Assert.AreEqual(2, result.Count);
-            Assert.AreEqual("12345", result[0]);
-            Assert.AreEqual("67890", result[1]);
+            Assert.That(2 == result.Count);
+            Assert.That(result[0].Equals("12345"));
+            Assert.That(result[1].Equals("67890"));
         }
 
         [Test]
@@ -89,8 +89,8 @@ public class StringHelperTests
             var expected = "123 4567 890";
             var result = StringHelper.WrapBody(expected, 0);
 
-            Assert.AreEqual(1, result.Count);
-            Assert.AreEqual(expected, result[0]);
+            Assert.That(1 == result.Count);
+            Assert.That(result[0].Equals(expected));
         }
     }
 }

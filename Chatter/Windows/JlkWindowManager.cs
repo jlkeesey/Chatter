@@ -24,10 +24,10 @@
 using Chatter.Localization;
 using Chatter.Model;
 using Chatter.System;
-using Dalamud.Interface.Internal;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
 using System;
+using Dalamud.Interface.Textures;
 
 namespace Chatter.Windows;
 
@@ -37,7 +37,7 @@ namespace Chatter.Windows;
 public sealed class JlkWindowManager : IDisposable
 {
     private readonly ConfigWindow _configWindow;
-    private readonly DalamudPluginInterface _pluginInterface;
+    private readonly IDalamudPluginInterface _pluginInterface;
     private readonly WindowSystem _windowSystem;
 
     /// <summary>
@@ -50,12 +50,12 @@ public sealed class JlkWindowManager : IDisposable
     /// <param name="nameSpace"></param>
     /// <param name="chatterImage"></param>
     /// <param name="loc"></param>
-    public JlkWindowManager(DalamudPluginInterface pluginInterface,
+    public JlkWindowManager(IDalamudPluginInterface pluginInterface,
                             Configuration config,
                             IDateHelper dateHelper,
                             FriendManager friendManager,
                             string nameSpace,
-                            IDalamudTextureWrap chatterImage,
+                            ISharedImmediateTexture chatterImage,
                             Loc loc)
     {
         _pluginInterface = pluginInterface;

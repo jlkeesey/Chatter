@@ -117,7 +117,9 @@ public static class SeSpecialCharacters
         {'\uE0C6', "\u2165"}, // Roman numeral VI
     };
 
+#if DEBUG
     private static ILogger? _logger;
+#endif
 
     /// <summary>
     ///     Set up for DEBUG mode so we have somewhere to send the "unknown" character messages.
@@ -125,7 +127,9 @@ public static class SeSpecialCharacters
     /// <param name="logger">The target of the messages.</param>
     public static void InitializeDebug(ILogger logger)
     {
+#if DEBUG
         _logger = logger;
+#endif
     }
 
     // ReSharper disable once MemberCanBePrivate.Global

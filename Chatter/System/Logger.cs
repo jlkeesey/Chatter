@@ -22,35 +22,27 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using System;
-using Dalamud.Logging;
 using Dalamud.Plugin.Services;
 
 namespace Chatter.System;
 
 /// <summary>
-///     Implementation for the simple logger that passes through to the <see cref="PluginLog" />.
+///     Implementation for the simple logger that passes through to the <see cref="IPluginLog" />.
 /// </summary>
-public class Logger : ILogger
+public class Logger(IPluginLog pluginLog) : ILogger
 {
-    private readonly IPluginLog _pluginLog;
-
-    public Logger(IPluginLog pluginLog)
-    {
-        _pluginLog = pluginLog;
-    }
-
     public void Log(string pattern, params object[] args)
     {
-        _pluginLog.Information(pattern, args);
+        pluginLog.Information(pattern, args);
     }
 
     public void Debug(string pattern, params object[] args)
     {
-        _pluginLog.Debug(pattern, args);
+        pluginLog.Debug(pattern, args);
     }
 
     public void Error(Exception? exception, string pattern, params object[] args)
     {
-        _pluginLog.Error(exception, pattern, args);
+        pluginLog.Error(exception, pattern, args);
     }
 }

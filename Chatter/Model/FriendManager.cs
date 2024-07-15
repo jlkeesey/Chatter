@@ -21,10 +21,8 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-using Dalamud.Memory;
-using FFXIVClientStructs.FFXIV.Client.UI.Agent;
-using System;
 using System.Collections.Generic;
+using Dalamud.Game.Text.SeStringHandling;
 using FFXIVClientStructs.FFXIV.Client.UI.Info;
 
 namespace Chatter.Model;
@@ -32,36 +30,33 @@ namespace Chatter.Model;
 /// <summary>
 ///     Utilities for manipulating <see cref="Friend" /> objects.
 /// </summary>
-public class FriendManager
+public class FriendManager(WorldManager worldManager)
 {
-    private readonly WorldManager _worldManager;
-
-    public FriendManager(WorldManager worldManager)
-    {
-        _worldManager = worldManager;
-    }
-
     /// <summary>
-    ///     Returns a list of all of the current player's friends.
+    ///     Returns a list of all the current player's friends.
     /// </summary>
     /// <returns>A list of <see cref="Friend" /> objects.</returns>
     public unsafe IEnumerable<Friend> GetFriends()
     {
         List<Friend> friends = new();
 
-        var agent = AgentFriendList.Instance();
-        if (agent == null) return friends;
-
-        var length = agent->Count;
+        var infoProxy = InfoProxyFriendList.Instance();
+        if (infoProxy == null) return friends;
+        var length = infoProxy->EntryCount;
         if (length == 0) return friends;
+
+        // var agent = AgentFriendList.Instance();
+        // if (agent == null) return friends;
+
+        // var length = agent->Count;
 
         for (var i = 0u; i < length; i++)
         {
-            var entry = agent->GetFriend(i);
-            var homeWorld = _worldManager.GetWorld(entry->HomeWorld);
-            var currentWorld = _worldManager.GetWorld(entry->CurrentWorld);
-            var name = MemoryHelper.ReadSeStringNullTerminated((IntPtr)entry->Name).TextValue;
-            var freeCompany = MemoryHelper.ReadSeStringNullTerminated((IntPtr)entry->FCTag).TextValue;
+            var entry = infoProxy->GetEntry(i);
+            var homeWorld = worldManager.GetWorld(entry->HomeWorld);
+            var currentWorld = worldManager.GetWorld(entry->CurrentWorld);
+            var name = SeString.Parse(entry->Name).TextValue;
+            var freeCompany = SeString.Parse(entry->FCTag).TextValue;
             var isOnline = (entry->State & InfoProxyCommonList.CharacterData.OnlineStatus.Online) != 0;
 
             friends.Add(new Friend(entry->ContentId, name, freeCompany, homeWorld, currentWorld, isOnline));

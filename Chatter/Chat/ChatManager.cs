@@ -146,7 +146,7 @@ internal sealed class ChatManager : IDisposable
     ///     passed on.
     /// </param>
     private void HandleChatMessage(XivChatType xivType,
-                                   uint senderId,
+                                   int senderId,
                                    ref SeString seSender,
                                    ref SeString seBody,
                                    ref bool isHandled)
