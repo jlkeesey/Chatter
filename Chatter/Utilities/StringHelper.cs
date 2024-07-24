@@ -29,15 +29,15 @@ namespace Chatter.Utilities;
 public static class StringHelper
 {
     /// <summary>
-    ///     Returns a list of all of the wrapped lines of the body.
+    ///     Returns a list of all the wrapped lines of the body.
     /// </summary>
     /// <param name="body">The body to wrap.</param>
     /// <param name="width">The maximum width of each part of the string.</param>
     /// <returns>The list of lines, there will always be at least 1 line even if <see cref="string.Empty" />.</returns>
     public static List<string> WrapBody(string body, int width)
     {
-        if (width < 1) return new List<string> { body, };
-        if (body.Length < 1) return new List<string> { Empty, };
+        if (width < 1) return [body,];
+        if (body.Length < 1) return [Empty,];
         var lines = new List<string>();
         while (body.Length > width)
         {

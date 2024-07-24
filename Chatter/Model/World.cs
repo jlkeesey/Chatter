@@ -26,33 +26,26 @@ using JetBrains.Annotations;
 namespace Chatter.Model;
 
 /// <summary>
-///     Represents an FFXIV world. FFXIV has it's own type but it's not easily consumable by C# so
+///     Represents an FFXIV world. FFXIV has its own type, but it's not easily consumable by C# so
 ///     when a world is loaded from FFXIV it is converted to this object type.
 /// </summary>
 [PublicAPI]
-public class World
+public class World(uint id, string name, string dataCenter)
 {
     public static readonly World Null = new(uint.MaxValue, "?world?", "?dc?");
 
     /// <summary>
     ///     This world's data center.
     /// </summary>
-    public readonly string DataCenter;
+    public readonly string DataCenter = dataCenter;
 
     /// <summary>
     ///     This world's content id.
     /// </summary>
-    public readonly uint Id;
+    public readonly uint Id = id;
 
     /// <summary>
     ///     This world's name.
     /// </summary>
-    public readonly string Name;
-
-    public World(uint id, string name, string dataCenter)
-    {
-        Id = id;
-        Name = name;
-        DataCenter = dataCenter;
-    }
+    public readonly string Name = name;
 }

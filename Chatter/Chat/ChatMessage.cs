@@ -32,33 +32,24 @@ namespace Chatter.Chat;
 ///     Represents a single chat message received.
 /// </summary>
 [PublicAPI]
-public sealed class ChatMessage
+public sealed class ChatMessage(
+    XivChatType xivType,
+    string typeLabel,
+    int senderId,
+    ChatString sender,
+    ChatString body,
+    ZonedDateTime when)
 {
-    public ChatMessage(XivChatType xivType,
-                       string typeLabel,
-                       int senderId,
-                       ChatString sender,
-                       ChatString body,
-                       ZonedDateTime when)
-    {
-        ChatType = xivType;
-        TypeLabel = typeLabel;
-        SenderId = senderId;
-        Sender = sender;
-        Body = body;
-        When = when;
-    }
-
-    public XivChatType ChatType { get; }
-    public int SenderId { get; }
-    public ChatString Sender { get; }
-    public ChatString Body { get; }
-    public ZonedDateTime When { get; }
+    public XivChatType ChatType { get; } = xivType;
+    public int SenderId { get; } = senderId;
+    public ChatString Sender { get; } = sender;
+    public ChatString Body { get; } = body;
+    public ZonedDateTime When { get; } = when;
 
     /// <summary>
     ///     Returns the string label for the chat type.
     /// </summary>
-    public string TypeLabel { get; }
+    public string TypeLabel { get; } = typeLabel;
 
     /// <summary>
     ///     Replaces the sender if there is a replacement defined.

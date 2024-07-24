@@ -21,6 +21,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+using Chatter.Model;
 using Chatter.System;
 using Dalamud.Game.Text;
 using Dalamud.Game.Text.SeStringHandling;
@@ -36,64 +37,47 @@ namespace Chatter.Chat;
 internal sealed class ChatManager : IDisposable
 {
     /// <summary>
-    ///     Lists of all of the chat types that we support. Not all of these are currently exposed to the user.
+    ///     Lists of all the chat types that we support. Not all of these are currently exposed to the user.
     /// </summary>
-    private static readonly List<XivChatType> AllSupportedChatTypes = new()
-    {
-        XivChatType.Alliance,
-        XivChatType.CrossLinkShell1,
-        XivChatType.CrossLinkShell2,
-        XivChatType.CrossLinkShell3,
-        XivChatType.CrossLinkShell4,
-        XivChatType.CrossLinkShell5,
-        XivChatType.CrossLinkShell6,
-        XivChatType.CrossLinkShell7,
-        XivChatType.CrossLinkShell8,
-        XivChatType.CrossParty,
-        XivChatType.CustomEmote,
-        XivChatType.Echo,
-        XivChatType.FreeCompany,
-        XivChatType.Ls1,
-        XivChatType.Ls2,
-        XivChatType.Ls3,
-        XivChatType.Ls4,
-        XivChatType.Ls5,
-        XivChatType.Ls6,
-        XivChatType.Ls7,
-        XivChatType.Ls8,
-        XivChatType.Notice,
-        XivChatType.NoviceNetwork,
-        XivChatType.Party,
-        XivChatType.PvPTeam,
-        XivChatType.Say,
-        XivChatType.Shout,
-        XivChatType.StandardEmote,
-        XivChatType.SystemError,
-        XivChatType.SystemMessage,
-        XivChatType.TellIncoming,
-        XivChatType.TellOutgoing,
-        XivChatType.Urgent,
-        XivChatType.Yell,
-    };
+    private static readonly List<XivChatType> AllSupportedChatTypes =
+    [
+        XivChatType.Alliance, XivChatType.CrossLinkShell1, XivChatType.CrossLinkShell2, XivChatType.CrossLinkShell3,
+        XivChatType.CrossLinkShell4, XivChatType.CrossLinkShell5, XivChatType.CrossLinkShell6,
+        XivChatType.CrossLinkShell7, XivChatType.CrossLinkShell8, XivChatType.CrossParty, XivChatType.CustomEmote,
+        XivChatType.Echo, XivChatType.FreeCompany, XivChatType.Ls1, XivChatType.Ls2, XivChatType.Ls3,
+        XivChatType.Ls4, XivChatType.Ls5, XivChatType.Ls6, XivChatType.Ls7, XivChatType.Ls8, XivChatType.Notice,
+        XivChatType.NoviceNetwork, XivChatType.Party, XivChatType.PvPTeam, XivChatType.Say, XivChatType.Shout,
+        XivChatType.StandardEmote, XivChatType.SystemError, XivChatType.SystemMessage, XivChatType.TellIncoming,
+        XivChatType.TellOutgoing, XivChatType.Urgent, XivChatType.Yell,
+    ];
 
     /// <summary>
-    ///     All of the other chat types that we have examined and determined we should ignore.
+    ///     All the other chat types that we have examined and determined we should ignore.
     /// </summary>
-    private static readonly List<XivChatType> IgnoredChatTypes = new()
-    {
+    private static readonly List<XivChatType> IgnoredChatTypes =
+    [
         (XivChatType) 72,   // Of the X parties currently recruiting, all match your search conditions.
         (XivChatType) 2091, // You use Teleport.
+        (XivChatType) 2092, // You use a venture coffer.
         (XivChatType) 2105, // You spent X gil.
+        (XivChatType) 2110, // You obtain XXX [from venture]
         (XivChatType) 2219, // You ready Teleport.
+        (XivChatType) 2220, // You ready a venture coffer.
+        (XivChatType) 2622, // You obtain 2 pots of general-purpose pastel blue dye.
+        (XivChatType) 3129, // You pay XXX 2 ventures.
+        (XivChatType) 8236, // Bob Smith uses an apricot.
+        (XivChatType) 8750, // Bob Smith gains the effect of Well Fed.
         XivChatType.RetainerSale,
-    };
+    ];
+
+    private static readonly List<XivChatType> AlertedChatTypes = [];
 
     private readonly IChatGui _chatGui;
     private readonly ChatTypeHelper _chatTypeHelper = new();
 
     private readonly Configuration _configuration;
     private readonly IDateHelper _dateHelper;
-    private readonly string _defaultHomeWorld;
+    private readonly Myself _myself;
     private readonly ILogger _logger;
     private readonly ChatLogManager _logManager;
 
@@ -105,20 +89,20 @@ internal sealed class ChatManager : IDisposable
     /// <param name="logManager">The manager that processes the formalized chat messages.</param>
     /// <param name="chatGui">The interface into the chat stream.</param>
     /// <param name="dateHelper">The manager of date/time objects.</param>
-    /// <param name="defaultHomeWorld">The user's home world.</param>
+    /// <param name="myself">The current user.</param>
     public ChatManager(Configuration configuration,
                        ILogger logger,
                        ChatLogManager logManager,
                        IChatGui chatGui,
                        IDateHelper dateHelper,
-                       string defaultHomeWorld)
+                       Myself myself)
     {
         _configuration = configuration;
         _logger = logger;
         _logManager = logManager;
         _chatGui = chatGui;
         _dateHelper = dateHelper;
-        _defaultHomeWorld = defaultHomeWorld;
+        _myself = myself;
 
         _chatGui.ChatMessage += HandleChatMessage;
     }
@@ -134,12 +118,12 @@ internal sealed class ChatManager : IDisposable
     /// <param name="xivType">The chat type.</param>
     /// <param name="senderId">The id of the sender.</param>
     /// <param name="seSender">
-    ///     The name of the sender. The will include the world name if the world is different from the user,
-    ///     but the world will not be separated from the user name.
+    ///     The name of the sender. This will include the world name if the world is different from the user,
+    ///     but the world will not be separated from the username.
     /// </param>
     /// <param name="seBody">
-    ///     The chat message text. User names will include the world name is the world is different from the user,
-    ///     but the world will not be separated from the user name.
+    ///     The chat message text. Usernames will include the world name is the world is different from the user,
+    ///     but the world will not be separated from the username.
     /// </param>
     /// <param name="isHandled">
     ///     Can be set to <c>true</c> to indicate that this handle handled the message and it should not be
@@ -154,8 +138,12 @@ internal sealed class ChatManager : IDisposable
         if (IgnoredChatTypes.Contains(xivType)) return;
         if (!AllSupportedChatTypes.Contains(xivType))
         {
-            if (_configuration.IsDebug) _logger.Debug($"Unsupported XivChatType: {xivType}: '{seBody.TextValue}'");
-            return;
+            if (!AlertedChatTypes.Contains(xivType))
+            {
+                AlertedChatTypes.Add(xivType);
+                if (_configuration.IsDebug) _logger.Debug($"Unsupported XivChatType: {xivType}: '{seBody.TextValue}'");
+                return;
+            }
         }
 
         var body = CleanUpBody(seBody);
@@ -166,7 +154,7 @@ internal sealed class ChatManager : IDisposable
     }
 
     /// <summary>
-    ///     Cleans up the chat message. The world names are separated from the user names by an at sign (@).
+    ///     Cleans up the chat message. The world names are separated from the usernames by an at sign (@).
     /// </summary>
     /// <param name="seBody">The body text to clean.</param>
     /// <returns>The cleaned message.</returns>
@@ -176,7 +164,7 @@ internal sealed class ChatManager : IDisposable
     }
 
     /// <summary>
-    ///     Cleans up the sender name. This removed any non-name characters and separated the world name from the user name by
+    ///     Cleans up the sender name. This removed any non-name characters and separated the world name from the username by
     ///     an at sign (@).
     /// </summary>
     /// <remarks>
@@ -192,7 +180,7 @@ internal sealed class ChatManager : IDisposable
     {
         var chatString = new ChatString(seSender);
         if (!chatString.HasInitialPlayer() && message.HasInitialPlayer())
-            chatString = new ChatString(message.GetInitialPlayerItem(chatString.ToString(), _defaultHomeWorld));
+            chatString = new ChatString(message.GetInitialPlayerItem(chatString.ToString(), _myself.HomeWorld.Name));
 
         return chatString;
     }

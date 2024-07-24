@@ -162,7 +162,7 @@ public sealed class ChatString
     }
 
     /// <summary>
-    ///     Returns the text representation of all of the items concatenated under control of the given configuration.
+    ///     Returns the text representation of all the items concatenated under control of the given configuration.
     /// </summary>
     /// <param name="includeServer"><c>true</c> if the server/world should be in the output.</param>
     /// <returns>The <c>string</c> value of this string.</returns>
@@ -185,7 +185,7 @@ public sealed class ChatString
 
         /// <summary>
         ///     We've seen a <see cref="PlayerPayload" /> which means we are waiting for the textual version of the name in the
-        ///     stream so we can remove it.
+        ///     stream, so we can remove it.
         /// </summary>
         LookingForName,
 
@@ -211,16 +211,10 @@ public sealed class ChatString
     /// <summary>
     ///     Represents a player's info in the stream which consists of their name and home world.
     /// </summary>
-    public class CsPlayerItem : CsItem
+    public class CsPlayerItem(string name, string world) : CsItem
     {
-        public CsPlayerItem(string name, string world)
-        {
-            Name = SeSpecialCharacters.Clean(name);
-            World = world;
-        }
-
-        public string Name { get; }
-        public string World { get; }
+        public string Name { get; } = SeSpecialCharacters.Clean(name);
+        public string World { get; } = world;
 
         public override string ToString()
         {
@@ -241,14 +235,9 @@ public sealed class ChatString
     /// <summary>
     ///     Represents a text sequence in the stream. FFXIV special characters will be handled.
     /// </summary>
-    public class CsTextItem : CsItem
+    public class CsTextItem(string text) : CsItem
     {
-        public CsTextItem(string text)
-        {
-            Text = SeSpecialCharacters.Replace(text);
-        }
-
-        private string Text { get; }
+        private string Text { get; } = SeSpecialCharacters.Replace(text);
 
         public override string ToString()
         {

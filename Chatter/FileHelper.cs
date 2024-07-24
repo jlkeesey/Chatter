@@ -30,7 +30,7 @@ namespace Chatter;
 /// <summary>
 ///     Basic file system helper functions.
 /// </summary>
-public sealed class FileHelper
+public sealed class FileHelper(IFileSystem fileSystem)
 {
     /// <summary>
     ///     Defines the possible results of the <see cref="FileHelper.EnsureDirectoryExists" /> method.
@@ -68,13 +68,6 @@ public sealed class FileHelper
     /// </summary>
     public const string DefaultDirectory = "FFXIV Chatter";
 
-    private readonly IFileSystem _fileSystem;
-
-    public FileHelper(IFileSystem fileSystem)
-    {
-        _fileSystem = fileSystem;
-    }
-
     /// <summary>
     ///     Returns a <see cref="TextWriter" /> into the given file.
     /// </summary>
@@ -83,7 +76,7 @@ public sealed class FileHelper
     /// <returns>The <see cref="TextWriter" />. If the file cannot be written to, <see cref="TextWriter.Null" /> is returned.</returns>
     public TextWriter OpenFile(string path, bool append)
     {
-        return _fileSystem.OpenFile(path, append);
+        return fileSystem.OpenFile(path, append);
     }
 
     /// <summary>
@@ -97,12 +90,12 @@ public sealed class FileHelper
     /// <returns>An <see cref="EnsureCode" /> describing the result of the operation.</returns>
     public EnsureCode EnsureDirectoryExists(string directory)
     {
-        if (_fileSystem.DirectoryExists(directory)) return EnsureCode.Success;
-        if (_fileSystem.FileExists(directory)) return EnsureCode.FileExists;
+        if (fileSystem.DirectoryExists(directory)) return EnsureCode.Success;
+        if (fileSystem.FileExists(directory)) return EnsureCode.FileExists;
 
-        var parent = _fileSystem.GetDirectoryName(directory);
-        if (!_fileSystem.DirectoryExists(parent)) return EnsureCode.ParentDoesNotExist;
-        return _fileSystem.CreateDirectory(directory) ? EnsureCode.Success : EnsureCode.SystemError;
+        var parent = fileSystem.GetDirectoryName(directory);
+        if (!fileSystem.DirectoryExists(parent)) return EnsureCode.ParentDoesNotExist;
+        return fileSystem.CreateDirectory(directory) ? EnsureCode.Success : EnsureCode.SystemError;
     }
 
     /// <summary>
@@ -116,14 +109,14 @@ public sealed class FileHelper
     /// <returns></returns>
     public string InitialLogDirectory()
     {
-        return _fileSystem.Join(_fileSystem.DocumentsPath, DefaultDirectory);
+        return fileSystem.Join(fileSystem.DocumentsPath, DefaultDirectory);
     }
 
     /// <summary>
     ///     Returns a non-existing, fully qualified file name with the current date and time appended.
     /// </summary>
     /// <remarks>
-    ///     This methods combines the parts and then appends the current date and time. This path is returned ff the
+    ///     This method combines the parts and then appends the current date and time. This path is returned ff the
     ///     resulting path does not exist. If it does exist, then a counter value is appended until a non-existing name is
     ///     created.
     /// </remarks>
@@ -136,13 +129,13 @@ public sealed class FileHelper
     /// </exception>
     public string FullFileName(string path, string filename, string extension)
     {
-        var fullName = _fileSystem.Combine(path, filename, extension);
-        if (!_fileSystem.Exists(fullName)) return fullName;
+        var fullName = fileSystem.Combine(path, filename, extension);
+        if (!fileSystem.Exists(fullName)) return fullName;
         for (var i = 1; i < int.MaxValue; i++)
         {
             var nameCounter = filename + "-" + i;
-            fullName = _fileSystem.Combine(path, nameCounter, extension);
-            if (!_fileSystem.Exists(fullName)) return fullName;
+            fullName = fileSystem.Combine(path, nameCounter, extension);
+            if (!fileSystem.Exists(fullName)) return fullName;
         }
 
         throw new IndexOutOfRangeException("More than 2G worth of file names for log files.");

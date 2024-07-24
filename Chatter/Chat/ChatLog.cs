@@ -36,31 +36,23 @@ namespace Chatter.Chat;
 /// <summary>
 ///     Defines the handler for a single log file.
 /// </summary>
-public abstract class ChatLog : IChatLog, IDisposable
+public abstract class ChatLog(
+    ChatLogConfiguration configuration,
+    LogFileInfo logFileInfo,
+    IDateHelper dateHelper,
+    FileHelper fileHelper,
+    IErrorWriter errorWriter) : IChatLog, IDisposable
 {
     private static readonly ChatLogConfiguration.ChatTypeFlag DefaultChatTypeFlag = new();
 
-    protected readonly IDateHelper DateHelper;
-    protected readonly FileHelper FileHelper;
-    protected readonly ChatLogConfiguration LogConfiguration;
-    protected readonly LogFileInfo LogFileInfo;
+    protected readonly IDateHelper DateHelper = dateHelper;
+    protected readonly FileHelper FileHelper = fileHelper;
+    protected readonly ChatLogConfiguration LogConfiguration = configuration;
+    protected readonly LogFileInfo LogFileInfo = logFileInfo;
 
     private LocalDate _lastWrite = LocalDate.MinIsoValue;
 
-    protected ChatLog(ChatLogConfiguration configuration,
-                      LogFileInfo logFileInfo,
-                      IDateHelper dateHelper,
-                      FileHelper fileHelper,
-                      IErrorWriter errorWriter)
-    {
-        LogConfiguration = configuration;
-        LogFileInfo = logFileInfo;
-        DateHelper = dateHelper;
-        FileHelper = fileHelper;
-        ErrorWriter = errorWriter;
-    }
-
-    private IErrorWriter ErrorWriter { get; }
+    private IErrorWriter ErrorWriter { get; } = errorWriter;
 
     /// <summary>
     ///     The <see cref="TextWriter" /> that we are writing to.
@@ -153,7 +145,7 @@ public abstract class ChatLog : IChatLog, IDisposable
     }
 
     /// <summary>
-    ///     Formats a single message text line using the setup format string and all of the various pieces that can
+    ///     Formats a single message text line using the setup format string and all the various pieces that can
     ///     go into a message. The format will take what it wants.
     /// </summary>
     /// <param name="chatMessage">The chat message info.</param>
@@ -161,7 +153,7 @@ public abstract class ChatLog : IChatLog, IDisposable
     /// <param name="format">The format string.</param>
     /// <param name="body">
     ///     The first part of the body text.  If the body has been wrapped, this is the first lien, otherwise it
-    ///     is all of the body.
+    ///     is all the body.
     /// </param>
     /// <param name="whenString">The formatted timestamp.</param>
     /// <returns></returns>

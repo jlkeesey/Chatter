@@ -28,6 +28,7 @@ using NodaTime;
 using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using Chatter.System;
 
 namespace Chatter;
 
@@ -87,7 +88,37 @@ public partial class Configuration : IPluginConfiguration
     /// <summary>
     ///     The configurations for the individual chat logs.
     /// </summary>
-    public Dictionary<string, ChatLogConfiguration> ChatLogs = new();
+    public SortedDictionary<string, ChatLogConfiguration> ChatLogs = new(new LogComparer());
+
+    private class LogComparer : IComparer<string>
+    {
+        private readonly IComparer<string> _comparer = StringComparer.CurrentCultureIgnoreCase;
+
+        public int Compare(string? lhs, string? rhs)
+        {
+            if (lhs == null)
+            {
+                if (rhs == null)
+                    return 0;
+                else
+                    return -1;
+            }
+
+            if (rhs == null) return 1;
+
+            var lhsAll = _comparer.Compare("all", lhs);
+            var rhsAll = _comparer.Compare("all", rhs);
+            if (lhsAll == 0)
+            {
+                if (rhsAll == 0)
+                    return 0;
+                else
+                    return -1;
+            }
+
+            return rhsAll == 0 ? 1 : _comparer.Compare(lhs, rhs);
+        }
+    }
 
 #if DEBUG
     public bool IsDebug = true;
@@ -95,7 +126,7 @@ public partial class Configuration : IPluginConfiguration
     public bool IsDebug = false;
 #endif
 
-    public int Version { get; set; } = 1;
+    public int Version { get; set; } = 2;
 
     /// <summary>
     ///     Adds a log configuration.
@@ -135,11 +166,17 @@ public partial class Configuration : IPluginConfiguration
     ///     Loads the most recently saved configuration or creates a new one.
     /// </summary>
     /// <returns>The configuration to use.</returns>
-    public static Configuration Load(IDalamudPluginInterface pluginInterface, FileHelper fileHelper)
+    public static Configuration Load(ILogger logger, IDalamudPluginInterface pluginInterface, FileHelper fileHelper)
     {
         // var config = new Configuration();
         // pluginInterface.SavePluginConfig(config);
-        if (pluginInterface.GetPluginConfig() is not Configuration config) config = new Configuration();
+        logger.Debug("@@@@ Loading config ...");
+        if (pluginInterface.GetPluginConfig() is not Configuration config)
+        {
+            logger.Debug("@@@@ Creating new config");
+            config = new Configuration();
+        }
+
         config._pluginInterface = pluginInterface;
 
 #if DEBUG
@@ -165,17 +202,24 @@ public partial class Configuration : IPluginConfiguration
     public void InitializeForDebug()
     {
         // ReSharper disable StringLiteralTypo
-        var logConfiguration = new ChatLogConfiguration("Frollo", true)
+        if (!ChatLogs.ContainsKey("Frollo"))
         {
-            Users =
+            var logConfiguration = new ChatLogConfiguration("Frollo", true)
             {
-                ["Pierre Gringoire@Zalera"] = string.Empty,
-                ["Phoebus Chateaupers@Zalera"] = "Stud Muffin",
-                ["Quasimodo Curveback@Zalera"] = "The Oppressed",
-            },
-        };
-        AddLog(logConfiguration);
-        AddLog(new ChatLogConfiguration("Pimpernel", true, wrapColumn: 60, wrapIndent: 54, includeAllUsers: true));
+                Users =
+                {
+                    ["Pierre Gringoire@Zalera"] = string.Empty,
+                    ["Phoebus Chateaupers@Zalera"] = "Stud Muffin",
+                    ["Quasimodo Curveback@Zalera"] = "The Oppressed",
+                },
+            };
+            AddLog(logConfiguration);
+        }
+
+        if (!ChatLogs.ContainsKey("Pimpernel"))
+        {
+            AddLog(new ChatLogConfiguration("Pimpernel", true, wrapColumn: 60, wrapIndent: 54, includeAllUsers: true));
+        }
         // ReSharper restore StringLiteralTypo
     }
 #endif

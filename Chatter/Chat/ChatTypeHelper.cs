@@ -40,7 +40,7 @@ public sealed class ChatTypeHelper
 
     /// <summary>
     ///     Converts the <see cref="XivChatType" /> to a string. We use the internal dictionary
-    ///     <see cref="_chatCodeToShortName" /> first so we can override the defaults, or get if
+    ///     <see cref="_chatCodeToShortName" /> first so we can override the defaults, or get
     ///     the enum if not.
     /// </summary>
     /// <param name="chatType">The chat type to examine.</param>
@@ -50,7 +50,7 @@ public sealed class ChatTypeHelper
     {
         if (_chatCodeToShortName.TryGetValue(chatType, out var name)) return name;
         var slug = chatType.GetAttribute<XivChatTypeInfoAttribute>()?.Slug ?? Empty;
-        var defaultValue = showUnknown ? $"?{(int)chatType}?" : Empty;
+        var defaultValue = showUnknown ? $"?{(int) chatType}?" : Empty;
         return IsNullOrWhiteSpace(slug) ? defaultValue : slug;
     }
 }

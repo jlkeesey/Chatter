@@ -29,9 +29,11 @@ namespace Chatter.Windows;
 public partial class ConfigWindow
 {
     private string MsgButtonAdd => _loc.Message("Button.Add");
+    private string MsgButtonAddGroup => _loc.Message("Button.AddGroup");
     private string MsgButtonAddUser => _loc.Message("Button.AddUser");
     private string MsgButtonCancel => _loc.Message("Button.Cancel");
     private string MsgButtonClearFilterHelp => _loc.Message("Button.ClearFilter.Help");
+    private string MsgButtonCreate => _loc.Message("Button.Create");
     private string MsgButtonFriendSelectorHelp => _loc.Message("Button.FriendSelector.Help");
     private string MsgButtonRemove => _loc.Message("Button.Remove");
     private string MsgColumnFullName => _loc.Message("ColumnHeader.FullName");
@@ -70,8 +72,11 @@ public partial class ConfigWindow
     private string MsgLabelSaveDirectory => _loc.Message("Label.SaveDirectory");
     private string MsgLabelSaveDirectoryHelp => _loc.Message("Label.SaveDirectory.Help");
     private string MsgPlayerAlreadyInList => _loc.Message("Message.PlayerAlreadyInList");
+    private string MsgGroupAlreadyInList => _loc.Message("Message.GroupAlreadyInList");
     private string MsgPlayerFullName => _loc.Message("Label.PlayerFullName");
     private string MsgPlayerFullNameHelp => _loc.Message("Label.PlayerFullName.Help");
+    private string MsgGroupName => _loc.Message("Label.GroupName");
+    private string MsgGroupNameHelp => _loc.Message("Label.GroupName.Help");
     private string MsgPlayerReplacement => _loc.Message("Label.PlayerReplacement");
     private string MsgPlayerReplacementHelp => _loc.Message("Label.PlayerReplacement.Help");
     private string MsgTabGeneral => _loc.Message("Tab.General");

@@ -28,26 +28,17 @@ namespace Chatter.Model;
 /// <summary>
 ///     Information about the player running this plugin.
 /// </summary>
-public class Myself : IPlayer
+public class Myself(IClientState clientState, WorldManager worldManager) : IPlayer
 {
-    private readonly IClientState _clientState;
-    private readonly WorldManager _worldManager;
-
     private World? _homeWorld;
     private string? _name;
-
-    public Myself(IClientState clientState, WorldManager worldManager)
-    {
-        _clientState = clientState;
-        _worldManager = worldManager;
-    }
 
     /// <summary>
     ///     The player character's name.
     /// </summary>
     public string Name
     {
-        get { return _name ??= _clientState.LocalPlayer?.Name.TextValue ?? "Who am I?"; }
+        get { return _name ??= clientState.LocalPlayer?.Name.TextValue ?? "Who am I?"; }
     }
 
     /// <summary>
@@ -57,7 +48,7 @@ public class Myself : IPlayer
     {
         get
         {
-            return _homeWorld ??= _worldManager.GetWorld(_clientState.LocalPlayer?.HomeWorld.GameData?.Name.ToString());
+            return _homeWorld ??= worldManager.GetWorld(clientState.LocalPlayer?.HomeWorld.GameData?.Name.ToString());
         }
     }
 

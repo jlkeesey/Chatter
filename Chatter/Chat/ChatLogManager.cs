@@ -40,30 +40,17 @@ namespace Chatter.Chat;
 ///     </para>
 /// </remarks>
 /// s
-public sealed class ChatLogManager : IDisposable
+public sealed class ChatLogManager(
+    Configuration configuration,
+    IDateHelper dateHelper,
+    FileHelper fileHelper,
+    IPlayer myself,
+    IChatLogGenerator chatLogGenerator) : IDisposable
 {
-    private readonly IChatLogGenerator _chatLogGenerator;
-    private readonly Configuration _configuration;
-    private readonly IDateHelper _dateHelper;
-    private readonly FileHelper _fileHelper;
     private readonly LogFileInfo _logFileInfo = new();
     private readonly Dictionary<string, IChatLog> _logs = new();
-    private readonly IPlayer _myself;
 
-    public ChatLogManager(Configuration configuration,
-                          IDateHelper dateHelper,
-                          FileHelper fileHelper,
-                          IPlayer myself,
-                          IChatLogGenerator chatLogGenerator)
-    {
-        _configuration = configuration;
-        _chatLogGenerator = chatLogGenerator;
-        _dateHelper = dateHelper;
-        _fileHelper = fileHelper;
-        _myself = myself;
-
-        //_logFileInfo.StartTime = dateHelper.ZonedNow;
-    }
+    //_logFileInfo.StartTime = dateHelper.ZonedNow;
 
     public void Dispose()
     {
@@ -79,7 +66,7 @@ public sealed class ChatLogManager : IDisposable
     {
         if (!_logs.ContainsKey(logConfiguration.Name))
             _logs[logConfiguration.Name] =
-                _chatLogGenerator.Create(logConfiguration, _logFileInfo, _dateHelper, _fileHelper, _myself);
+                chatLogGenerator.Create(logConfiguration, _logFileInfo, dateHelper, fileHelper, myself);
 
         return _logs[logConfiguration.Name];
     }
@@ -96,7 +83,7 @@ public sealed class ChatLogManager : IDisposable
     }
 
     /// <summary>
-    ///     Closes all of the open log files.
+    ///     Closes all the open log files.
     /// </summary>
     private void CloseLogs()
     {
@@ -105,16 +92,16 @@ public sealed class ChatLogManager : IDisposable
     }
 
     /// <summary>
-    ///     Sends the chat info to all of the currently defined logs. Each log decides what to do with the information.
+    ///     Sends the chat info to all the currently defined logs. Each log decides what to do with the information.
     /// </summary>
     /// <param name="chatMessage">The chat message information.</param>
     public void LogInfo(ChatMessage chatMessage)
     {
-        _logFileInfo.StartTime ??= _dateHelper.ZonedNow; // If this is the first log message, set the start time.
-        if (_logFileInfo.UpdateConfigValues(_configuration)) CloseLogs();
-        var now = _dateHelper.ZonedNow.LocalDateTime;
+        _logFileInfo.StartTime ??= dateHelper.ZonedNow; // If this is the first log message, set the start time.
+        if (_logFileInfo.UpdateConfigValues(configuration)) CloseLogs();
+        var now = dateHelper.ZonedNow.LocalDateTime;
         if (_logFileInfo.CloseCutoff < now) CloseLogs();
-        foreach (var (_, configurationChatLog) in _configuration.ChatLogs)
+        foreach (var (_, configurationChatLog) in configuration.ChatLogs)
             GetLog(configurationChatLog).LogInfo(chatMessage);
     }
 }

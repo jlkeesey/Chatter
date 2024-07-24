@@ -28,51 +28,47 @@ using System.Collections.Generic;
 namespace Chatter.Model;
 
 /// <summary>
-///     Represents a single FFXIV friend. FFXIV has it's own type but it's not easily consumable by C# so
+///     Represents a single FFXIV friend. FFXIV has its own type, but it's not easily consumable by C# so
 ///     when a friend is loaded from FFXIV it is converted to this object type.
 /// </summary>
 [PublicAPI]
-public sealed class Friend : IPlayer, IComparable<Friend>, IComparable
+public sealed class Friend(
+    ulong contentId,
+    string name,
+    string freeCompany,
+    World homeWorld,
+    World currentWorld,
+    bool isOnline) : IPlayer, IComparable<Friend>, IComparable
 {
     /// <summary>
     ///     This friend's content id.
     /// </summary>
-    public readonly ulong ContentId;
+    public readonly ulong ContentId = contentId;
 
     /// <summary>
     ///     The <see cref="World" /> this friend is currently on.
     /// </summary>
-    public readonly World CurrentWorld;
+    public readonly World CurrentWorld = currentWorld;
 
     /// <summary>
     ///     This friend's free company tag.
     /// </summary>
-    public readonly string FreeCompany;
+    public readonly string FreeCompany = freeCompany;
 
     /// <summary>
     ///     True if this friend is online.
     /// </summary>
-    public readonly bool IsOnline;
-
-    public Friend(ulong contentId, string name, string freeCompany, World homeWorld, World currentWorld, bool isOnline)
-    {
-        ContentId = contentId;
-        Name = name;
-        FreeCompany = freeCompany;
-        HomeWorld = homeWorld;
-        CurrentWorld = currentWorld;
-        IsOnline = isOnline;
-    }
+    public readonly bool IsOnline = isOnline;
 
     /// <summary>
     ///     This friend's home <see cref="World" />.
     /// </summary>
-    public World HomeWorld { get; }
+    public World HomeWorld { get; } = homeWorld;
 
     /// <summary>
     ///     This friend's name.
     /// </summary>
-    public string Name { get; }
+    public string Name { get; } = name;
 
     /// <summary>
     ///     This friend's full name which is the <see cref="Name" /> and <see cref="HomeWorld" /> combined.

@@ -38,8 +38,7 @@ public class Loc
 {
     private static readonly JsonSerializerOptions SerializeOptions = new()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        WriteIndented = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true,
     };
 
     private LocalizedMessageList _messages = new();
@@ -69,7 +68,7 @@ public class Loc
     private static string SystemLanguage => CultureInfo.CurrentCulture.TwoLetterISOLanguageName;
 
     /// <summary>
-    ///     Returns the short country tag e.g. US for United States of the current environment.
+    ///     Returns the short country tag e.g. US for the United States of the current environment.
     /// </summary>
     private static string SystemCountry => RegionInfo.CurrentRegion.TwoLetterISORegionName;
 
@@ -79,7 +78,7 @@ public class Loc
     private string Language { get; }
 
     /// <summary>
-    ///     Returns the short country tag e.g. US for United States.
+    ///     Returns the short country tag e.g. US for the United States.
     /// </summary>
     private string Country { get; }
 
@@ -93,13 +92,13 @@ public class Loc
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         The are up to 3 messages resources that are read. The first is messages which contains the fallback
+    ///         There are up to 3 messages resources that are read. The first is messages which contains the fallback
     ///         for all messages (it is in en-US as that is where the author is from). The second is the language specific
     ///         resource which is based on the current CultureInfo. The name of the resource is messages-LL where LL is
     ///         the two letter language code e.g. en for English. The third is the culture specific resource which is
     ///         based on the current <see cref="CultureInfo" /> and <see cref="RegionInfo" />. The name of the resource is
-    ///         messages-LL-CC where LL is the two letter language code as above and CC is the two letter country code e.g. US
-    ///         for United States.
+    ///         messages-LL-CC where LL is the two letter language code as above and CC is the two-letter country code e.g. US
+    ///         for the United States.
     ///     </para>
     /// </remarks>
     /// <param name="logger">Where to write debug and error messages.</param>

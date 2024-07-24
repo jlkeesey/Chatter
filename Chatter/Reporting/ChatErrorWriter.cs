@@ -28,18 +28,11 @@ namespace Chatter.Reporting;
 /// <summary>
 ///     An <see cref="IErrorWriter" /> that sends the messages to the chat box.
 /// </summary>
-internal class ChatErrorWriter : IErrorWriter
+internal class ChatErrorWriter(IChatGui chatGui) : IErrorWriter
 {
-    private readonly IChatGui _chatGui;
-
-    public ChatErrorWriter(IChatGui chatGui)
-    {
-        _chatGui = chatGui;
-    }
-
     /// <inheritdoc />
     public void PrintError(string message)
     {
-        _chatGui.PrintError(message);
+        chatGui.PrintError(message);
     }
 }

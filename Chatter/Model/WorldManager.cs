@@ -30,22 +30,16 @@ namespace Chatter.Model;
 /// <summary>
 ///     Utilities for manipulating <see cref="World" /> objects.
 /// </summary>
-public class WorldManager
+public class WorldManager(IDataManager gameData)
 {
-    private readonly IDataManager _gameData;
     private readonly Dictionary<uint, World> _worldById = new();
     private readonly Dictionary<string, World> _worldByName = new();
-
-    public WorldManager(IDataManager gameData)
-    {
-        _gameData = gameData;
-    }
 
     public World GetWorld(string? name)
     {
         if (name == null) return World.Null;
         if (_worldByName.TryGetValue(name, out var world)) return world;
-        using var worlds = _gameData.Excel.GetSheet<Lumina.Excel.GeneratedSheets.World>()?.GetEnumerator();
+        using var worlds = gameData.Excel.GetSheet<Lumina.Excel.GeneratedSheets.World>()?.GetEnumerator();
         if (worlds == null) return World.Null;
         var worldRow = new EnumerableWrapper<Lumina.Excel.GeneratedSheets.World>(worlds).Where(w => w.Name == name)
            .First();
@@ -62,7 +56,7 @@ public class WorldManager
     public World GetWorld(uint id)
     {
         if (_worldById.TryGetValue(id, out var world)) return world;
-        var worldRow = _gameData.Excel.GetSheet<Lumina.Excel.GeneratedSheets.World>()?.GetRow(id);
+        var worldRow = gameData.Excel.GetSheet<Lumina.Excel.GeneratedSheets.World>()?.GetRow(id);
         return worldRow == null ? World.Null : RegisterWorld(worldRow);
     }
 

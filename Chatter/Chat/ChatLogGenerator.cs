@@ -31,15 +31,8 @@ namespace Chatter.Chat;
 /// <summary>
 ///     Standard chat log generator for runtime.
 /// </summary>
-public class ChatLogGenerator : IChatLogGenerator
+public class ChatLogGenerator(IErrorWriter errorWriter) : IChatLogGenerator
 {
-    private readonly IErrorWriter _errorWriter;
-
-    public ChatLogGenerator(IErrorWriter errorWriter)
-    {
-        _errorWriter = errorWriter;
-    }
-
     /// <inheritdoc />
     public IChatLog Create(ChatLogConfiguration logConfiguration,
                            LogFileInfo logFileInfo,
@@ -48,7 +41,7 @@ public class ChatLogGenerator : IChatLogGenerator
                            IPlayer myself)
     {
         return logConfiguration.Name == AllLogName
-                   ? new AllChatLog(logConfiguration, logFileInfo, dateHelper, fileHelper, _errorWriter)
-                   : new GroupChatLog(logConfiguration, logFileInfo, dateHelper, fileHelper, myself, _errorWriter);
+                   ? new AllChatLog(logConfiguration, logFileInfo, dateHelper, fileHelper, errorWriter)
+                   : new GroupChatLog(logConfiguration, logFileInfo, dateHelper, fileHelper, myself, errorWriter);
     }
 }

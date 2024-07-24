@@ -30,7 +30,6 @@ using Chatter.Reporting;
 using Chatter.System;
 using Chatter.Windows;
 using Dalamud.Interface.Textures;
-using Dalamud.Interface.Textures.TextureWraps;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using ImGuiScene;
@@ -48,7 +47,6 @@ public sealed partial class Chatter : IDalamudPlugin
 
     private readonly ChatLogManager _chatLogManager;
     private readonly ChatManager _chatManager;
-    private readonly ISharedImmediateTexture _chatterImage;
     private readonly ICommandManager _commandManager;
     private readonly Configuration _configuration;
     private readonly ILogger _logger;
@@ -80,7 +78,7 @@ public sealed partial class Chatter : IDalamudPlugin
 
             var fileHelper = new FileHelper(new WindowsFileSystem());
 
-            _configuration = Configuration.Load(pluginInterface, fileHelper);
+            _configuration = Configuration.Load(_logger, pluginInterface, fileHelper);
 
             var dateManager = new DateHelper() as IDateHelper;
             var worldManager = new WorldManager(gameData);
@@ -90,20 +88,15 @@ public sealed partial class Chatter : IDalamudPlugin
             var chatLogGenerator = new ChatLogGenerator(errorWriter);
 
             _chatLogManager = new ChatLogManager(_configuration, dateManager, fileHelper, myself, chatLogGenerator);
-            _chatManager = new ChatManager(_configuration,
-                                           _logger,
-                                           _chatLogManager,
-                                           chatGui,
-                                           dateManager,
-                                           myself.HomeWorld.Name);
+            _chatManager = new ChatManager(_configuration, _logger, _chatLogManager, chatGui, dateManager, myself);
 
-            _chatterImage = LoadImage(pluginInterface, textureProvider, "chatter.png");
+            var chatterImage = LoadImage(pluginInterface, textureProvider, "chatter.png");
             _windowManager = new JlkWindowManager(pluginInterface,
                                                   _configuration,
                                                   dateManager,
                                                   friendManager,
                                                   Name,
-                                                  _chatterImage,
+                                                  chatterImage,
                                                   loc);
             RegisterCommands();
         }
@@ -120,9 +113,9 @@ public sealed partial class Chatter : IDalamudPlugin
     ///     Disposes all the resources created by the plugin.
     /// </summary>
     /// <remarks>
-    ///     In theory all of these objects are non-null so they all exist by this point in code, however, there is
+    ///     In theory all of these objects are non-null, so they all exist by this point in code, however, there is
     ///     a try/catch block around the initialization code which means that the constructor can fail before
-    ///     reaching this point. That means that some of these objects are actually null at this point so we
+    ///     reaching this point. That means that some of these objects are actually null at this point, so we
     ///     add a null check to all of them just in case. If this were an application we could ignore them as the
     ///     system would clean up regardless, but as we are a DLL that is loaded into an application, the cleanup
     ///     will not occur until that application (Dalamud) exits.

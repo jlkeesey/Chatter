@@ -27,18 +27,11 @@ using System.Collections.Generic;
 // ReSharper disable once CheckNamespace
 namespace System.Linq;
 
-public class EnumerableWrapper<T> : IEnumerable<T>
+public class EnumerableWrapper<T>(IEnumerator<T> enumerator) : IEnumerable<T>
 {
-    private readonly IEnumerator<T> _enumerator;
-
-    public EnumerableWrapper(IEnumerator<T> enumerator)
-    {
-        _enumerator = enumerator;
-    }
-
     public IEnumerator<T> GetEnumerator()
     {
-        return _enumerator;
+        return enumerator;
     }
 
     IEnumerator IEnumerable.GetEnumerator()

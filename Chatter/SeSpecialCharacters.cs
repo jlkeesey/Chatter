@@ -34,7 +34,7 @@ namespace Chatter;
 /// <remarks>
 ///     The Unicode block from U+E000..U+F8FF is a private user area where applications can install their
 ///     own characters. FFXIV uses this area for special characters. As such none of these characters
-///     will display properly in any situation other than inside of FFXIV.
+///     will display properly in any situation other than inside FFXIV.
 /// </remarks>
 public static class SeSpecialCharacters
 {
@@ -122,7 +122,7 @@ public static class SeSpecialCharacters
 #endif
 
     /// <summary>
-    ///     Set up for DEBUG mode so we have somewhere to send the "unknown" character messages.
+    ///     Set up for DEBUG mode, so we have somewhere to send the "unknown" character messages.
     /// </summary>
     /// <param name="logger">The target of the messages.</param>
     public static void InitializeDebug(ILogger logger)

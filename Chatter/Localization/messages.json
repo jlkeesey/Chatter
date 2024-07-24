@@ -547,22 +547,52 @@
     },
     {
       "key": "Input.WrapWidth.Label",
-      "message": "Wrap Width",
+      "message": "Wrap Width (chars)",
       "description": ""
     },
     {
       "key": "Input.WrapWidth.Help",
-      "message": "The maximum width of each line of the message. Lines longer than this will be wrapped. Set to 0 to not wrap.",
+      "message": "The maximum width of each line of the message in characters. Lines longer than this will be broken into multiple lines. Set to 0 to not wrap.",
       "description": ""
     },
     {
       "key": "Input.WrapIndent.Label",
-      "message": "Wrap Indent",
+      "message": "Wrap Indent (chars)",
       "description": ""
     },
     {
       "key": "Input.WrapIndent.Help",
-      "message": "The indentation for each wrapped message line. Be sure to account for an spaces between fields. Set to 0 to have no indentation. Set to -1 to have the indentation calculated.",
+      "message": "The indentation for each wrapped message line in characters. Set to 0 to have no indentation. Set to -1 to have the indentation calculated.",
+      "description": ""
+    },
+    {
+      "key": "Button.AddGroup",
+      "message": "New group",
+      "description": ""
+    },
+    {
+      "key": "Message.GroupAlreadyInList",
+      "message": "That group is already in the group list.",
+      "description": ""
+    },
+    {
+      "key": "Label.GroupName",
+      "message": "Group name",
+      "description": ""
+    },
+    {
+      "key": "Label.GroupName.Help",
+      "message": "The name of the group. This will be used as part of the log file name, so it should be short, but understandable.",
+      "description": ""
+    },
+    {
+      "key": "Button.Create",
+      "message": "Create",
+      "description": ""
+    },
+    {
+      "key": "Label.Remove.Group",
+      "message": "Do you want to remove group {0}?",
       "description": ""
     }
   ]
