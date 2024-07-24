@@ -238,6 +238,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
                                ImGui.LogToClipboard();
                                ImGui.LogText(_configuration.LogDirectory);
                                ImGui.LogFinish();
+                               Dalamud.Utility.Util.OpenLink(_configuration.LogDirectory);
                            }
                        });
 
