@@ -158,6 +158,7 @@ public partial class Configuration
             MessageWrapWidth = wrapColumn;
             MessageWrapIndentation = wrapIndent;
             Format = format;
+            InitializeTypeFlags();
         }
 
         /// <summary>

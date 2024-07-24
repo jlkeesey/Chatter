@@ -37,6 +37,7 @@ using static Chatter.Configuration;
 using static Chatter.Configuration.FileNameOrder;
 using static System.String;
 using Dalamud.Interface.Textures;
+using JetBrains.Annotations;
 
 // ReSharper disable InvertIf
 
@@ -111,6 +112,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
     private static int _timeStampSelected = -1;
     private readonly ISharedImmediateTexture _chatterImage;
     private readonly Configuration _configuration;
+    [UsedImplicitly] private readonly ILogger _logger;
 
     private readonly List<ComboOption<string>> _dateOptions;
     private readonly List<ComboOption<FileNameOrder>> _fileOrderOptions;
@@ -138,17 +140,20 @@ public sealed partial class ConfigWindow : Window, IDisposable
     ///     Constructs the configuration editing window.
     /// </summary>
     /// <param name="config"></param>
+    /// <param name="logger"></param>
     /// <param name="dateHelper"></param>
     /// <param name="friendManager"></param>
     /// <param name="chatterImage">The Chatter plugin icon.</param>
     /// <param name="loc"></param>
     public ConfigWindow(Configuration config,
+                        ILogger logger,
                         IDateHelper dateHelper,
                         FriendManager friendManager,
                         ISharedImmediateTexture chatterImage,
                         Loc loc) : base(Title)
     {
         _configuration = config;
+        _logger = logger;
         _friendManager = friendManager;
         _chatterImage = chatterImage;
         _loc = loc;
@@ -220,12 +225,21 @@ public sealed partial class ConfigWindow : Window, IDisposable
                        MsgLabelFileNamePrefixHelp);
 
         VerticalSpace();
-
         LongInputField(MsgLabelSaveDirectory,
                        ref _configuration.LogDirectory,
                        1024,
                        "##saveDirectory",
-                       MsgLabelSaveDirectoryHelp);
+                       MsgLabelSaveDirectoryHelp,
+                       extraWidth: 30,
+                       extra: () =>
+                       {
+                           if (DrawCopyButton("savePathCopy"))
+                           {
+                               ImGui.LogToClipboard();
+                               ImGui.LogText(_configuration.LogDirectory);
+                               ImGui.LogFinish();
+                           }
+                       });
 
         VerticalSpace();
 
@@ -297,7 +311,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
             {
                 if (!_configuration.ChatLogs.ContainsKey(chatLog.Name)) return;
                 _removeDialogGroup = chatLog.Name;
-                ImGui.OpenPopup("removeGroup");
+                ImGui.OpenPopup("Delete?");
             }
 
             DrawRemoveGroupDialog();
@@ -413,7 +427,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
                     {
                         if (!chatLog.Users.ContainsKey(userFrom)) return;
                         _removeDialogUser = userFrom;
-                        ImGui.OpenPopup("removeUser");
+                        ImGui.OpenPopup("Remove?");
                     }
 
                     DrawRemoveUserDialog();
@@ -435,7 +449,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
         {
             _selectedGroup = AllLogName;
             _configuration.ChatLogs.Remove(_removeGroup);
-            _removeUser = Empty;
+            _removeGroup = Empty;
         }
 
         if (ImGui.CollapsingHeader(MsgHeaderIncludedChatTypes))
@@ -660,11 +674,28 @@ public sealed partial class ConfigWindow : Window, IDisposable
     }
 
     /// <summary>
+    ///     Draws a copy to clipboard icon button.
+    /// </summary>
+    /// <param name="id">The unique id of this object being deleted.</param>
+    /// <param name="disabled">True if this button should be disabled.</param>
+    /// <returns><c>true</c> if the button was pressed.</returns>
+    private static bool DrawCopyButton(string id, bool disabled = false)
+    {
+        ImGui.PushFont(UiBuilder.IconFont);
+        if (disabled) ImGui.BeginDisabled();
+        var buttonPressed = ImGui.Button($"{(char) FontAwesomeIcon.Copy}##{id}Copy");
+        if (disabled) ImGui.EndDisabled();
+        ImGui.PopFont();
+        if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled)) DrawTooltip("Copy to clipboard");
+        return buttonPressed;
+    }
+
+    /// <summary>
     ///     Draws the remove user dialog.
     /// </summary>
     private void DrawRemoveUserDialog()
     {
-        if (ImGui.BeginPopupModal("removeUser", ref _removeDialogIsOpen, ImGuiWindowFlags.AlwaysAutoResize))
+        if (ImGui.BeginPopupModal("Remove?", ref _removeDialogIsOpen, ImGuiWindowFlags.AlwaysAutoResize))
         {
             ImGui.TextWrapped(_loc.Message("Text.RemoveUser", _removeDialogUser));
             ImGui.Separator();
@@ -687,7 +718,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
     /// </summary>
     private void DrawRemoveGroupDialog()
     {
-        if (ImGui.BeginPopupModal("removeGroup", ref _removeGroupDialogIsOpen, ImGuiWindowFlags.AlwaysAutoResize))
+        if (ImGui.BeginPopupModal("Delete?", ref _removeGroupDialogIsOpen, ImGuiWindowFlags.AlwaysAutoResize))
         {
             ImGui.TextWrapped(_loc.Message("Label.Remove.Group", _removeDialogGroup));
             ImGui.Separator();
@@ -770,8 +801,9 @@ public sealed partial class ConfigWindow : Window, IDisposable
         if (ImGui.BeginTable(id, 4))
         {
             foreach (var flag in flagList)
-                if (flags.TryGetValue(flag.Type, out var flagValue))
-                    DrawFlag(flag, chatLog, ref flagValue.Value);
+            {
+                if (flags.TryGetValue(flag.Type, out var flagValue)) DrawFlag(flag, chatLog, ref flagValue.Value);
+            }
 
             ImGui.EndTable();
         }

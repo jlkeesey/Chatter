@@ -93,6 +93,7 @@ public sealed partial class Chatter : IDalamudPlugin
             var chatterImage = LoadImage(pluginInterface, textureProvider, "chatter.png");
             _windowManager = new JlkWindowManager(pluginInterface,
                                                   _configuration,
+                                                  _logger,
                                                   dateManager,
                                                   friendManager,
                                                   Name,

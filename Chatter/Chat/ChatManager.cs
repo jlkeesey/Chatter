@@ -46,9 +46,9 @@ internal sealed class ChatManager : IDisposable
         XivChatType.CrossLinkShell7, XivChatType.CrossLinkShell8, XivChatType.CrossParty, XivChatType.CustomEmote,
         XivChatType.Echo, XivChatType.FreeCompany, XivChatType.Ls1, XivChatType.Ls2, XivChatType.Ls3,
         XivChatType.Ls4, XivChatType.Ls5, XivChatType.Ls6, XivChatType.Ls7, XivChatType.Ls8, XivChatType.Notice,
-        XivChatType.NoviceNetwork, XivChatType.Party, XivChatType.PvPTeam, XivChatType.Say, XivChatType.Shout,
-        XivChatType.StandardEmote, XivChatType.SystemError, XivChatType.SystemMessage, XivChatType.TellIncoming,
-        XivChatType.TellOutgoing, XivChatType.Urgent, XivChatType.Yell,
+        XivChatType.NoviceNetwork, XivChatType.NPCDialogue, XivChatType.Party, XivChatType.PvPTeam, XivChatType.Say,
+        XivChatType.Shout, XivChatType.StandardEmote, XivChatType.SystemError, XivChatType.SystemMessage,
+        XivChatType.TellIncoming, XivChatType.TellOutgoing, XivChatType.Urgent, XivChatType.Yell,
     ];
 
     /// <summary>
@@ -65,9 +65,19 @@ internal sealed class ChatManager : IDisposable
         (XivChatType) 2220, // You ready a venture coffer.
         (XivChatType) 2622, // You obtain 2 pots of general-purpose pastel blue dye.
         (XivChatType) 3129, // You pay XXX 2 ventures.
+        (XivChatType) 8235, // Bob Smith uses sprint.
         (XivChatType) 8236, // Bob Smith uses an apricot.
+        (XivChatType) 8250, // Bob Smith is revived.
+        (XivChatType) 8256, // Bob Smith attains level YY.
+        (XivChatType) 8746, // The attack misses.
+        (XivChatType) 8749, // Bob Smith recovers X MP.
         (XivChatType) 8750, // Bob Smith gains the effect of Well Fed.
-        XivChatType.RetainerSale,
+        (XivChatType) 8751, // Bob Smith gains the effects of XXX.
+        (XivChatType) 8752, // Bob Smith loses effects of XXX.
+        (XivChatType) 8753, // Bob Smith recovers from the effects of XXX.
+        (XivChatType) 16488, // Retainer XX gain YY experience.
+        XivChatType.NPCDialogueAnnouncements, XivChatType.Debug, XivChatType.RetainerSale,
+        XivChatType.GatheringSystemMessage,
     ];
 
     private static readonly List<XivChatType> AlertedChatTypes = [];
