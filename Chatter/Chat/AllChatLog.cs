@@ -32,16 +32,13 @@ namespace Chatter.Chat;
 /// <summary>
 ///     Chat log for the log that record everything.
 /// </summary>
-public class AllChatLog : ChatLog
+public class AllChatLog(
+    ChatLogConfiguration configuration,
+    LogFileInfo logFileInfo,
+    IDateHelper dateHelper,
+    FileHelper fileHelper,
+    IErrorWriter errorWriter) : ChatLog(configuration, logFileInfo, dateHelper, fileHelper, errorWriter)
 {
-    public AllChatLog(ChatLogConfiguration configuration,
-                      LogFileInfo logFileInfo,
-                      IDateHelper dateHelper,
-                      FileHelper fileHelper,
-                      IErrorWriter errorWriter) : base(configuration, logFileInfo, dateHelper, fileHelper, errorWriter)
-    {
-    }
-
     protected override string DefaultFormat => "{6}:{2}:{0}:{5}";
 
     protected override string FormatWhen(ZonedDateTime when)

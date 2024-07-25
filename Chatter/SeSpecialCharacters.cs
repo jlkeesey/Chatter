@@ -34,7 +34,7 @@ namespace Chatter;
 /// <remarks>
 ///     The Unicode block from U+E000..U+F8FF is a private user area where applications can install their
 ///     own characters. FFXIV uses this area for special characters. As such none of these characters
-///     will display properly in any situation other than inside of FFXIV.
+///     will display properly in any situation other than inside FFXIV.
 /// </remarks>
 public static class SeSpecialCharacters
 {
@@ -52,9 +52,12 @@ public static class SeSpecialCharacters
         {'\uE04B', "\u2716"}, // D-controller x button
         {'\uE04C', "\u2795"}, // D-controller triangle button
         {'\uE04D', "\u25B3"}, // D-controller + button
+        {'\uE05C', "\u2302"}, // House
         {'\uE05D', "\u273F"}, // Flower
+        {'\uE05E', "\U0001F441"}, // Eye
         {'\uE06D', "\u33C2"}, // AM
         {'\uE06E', "\u33D8"}, // PM
+        {'\uE06F', "\U0001F816"}, // Arrow right
         {'\uE071', "\u24B6"}, // Letter A
         {'\uE072', "\u24B7"}, // Letter B
         {'\uE073', "\u24B8"}, // Letter C
@@ -122,7 +125,7 @@ public static class SeSpecialCharacters
 #endif
 
     /// <summary>
-    ///     Set up for DEBUG mode so we have somewhere to send the "unknown" character messages.
+    ///     Set up for DEBUG mode, so we have somewhere to send the "unknown" character messages.
     /// </summary>
     /// <param name="logger">The target of the messages.</param>
     public static void InitializeDebug(ILogger logger)
@@ -184,7 +187,7 @@ public static class SeSpecialCharacters
     {
         if (SpecialCharacterMap.TryGetValue(ch, out var value)) return value;
 #if DEBUG
-        if (IsSpecial(ch)) _logger?.Debug("Unhandled FFXIV character: (\\u{0:X4})", (int)ch);
+        if (IsSpecial(ch)) _logger?.Debug("Unhandled FFXIV character: (\\u{0:X4}) [{1}]", (int)ch, ch.ToString());
 #endif
         return ch.ToString();
     }

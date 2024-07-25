@@ -44,7 +44,7 @@ public struct LocalizedMessage
     }
 
     /// <summary>
-    ///     The key used to lookup this value. This key will be the same for all localized variations of this message.
+    ///     The key used to look up this value. This key will be the same for all localized variations of this message.
     /// </summary>
     public string Key { get; set; }
 

@@ -31,24 +31,14 @@ namespace Chatter.Chat;
 /// <summary>
 ///     Chat log for group based logs.
 /// </summary>
-public class GroupChatLog : ChatLog
+public class GroupChatLog(
+    ChatLogConfiguration configuration,
+    LogFileInfo logFileInfo,
+    IDateHelper dateHelper,
+    FileHelper fileHelper,
+    IPlayer myself,
+    IErrorWriter errorWriter) : ChatLog(configuration, logFileInfo, dateHelper, fileHelper, errorWriter)
 {
-    private readonly IPlayer _myself;
-
-    public GroupChatLog(ChatLogConfiguration configuration,
-                        LogFileInfo logFileInfo,
-                        IDateHelper dateHelper,
-                        FileHelper fileHelper,
-                        IPlayer myself,
-                        IErrorWriter errorWriter) : base(configuration,
-                                                         logFileInfo,
-                                                         dateHelper,
-                                                         fileHelper,
-                                                         errorWriter)
-    {
-        _myself = myself;
-    }
-
     protected override string DefaultFormat => "{6,22} {4,-30} {5}";
 
     /// <inheritdoc />
@@ -58,6 +48,6 @@ public class GroupChatLog : ChatLog
         if (LogConfiguration.IncludeAllUsers) return true;
         var fullSender = chatMessage.Sender.AsText(true);
         if (LogConfiguration.Users.ContainsKey(fullSender)) return true;
-        return LogConfiguration.IncludeMe && fullSender == _myself.FullName;
+        return LogConfiguration.IncludeMe && fullSender == myself.FullName;
     }
 }

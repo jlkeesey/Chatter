@@ -47,7 +47,7 @@ internal class LocalizedMessageList
     public ICollection<LocalizedMessage> Messages
     {
         get => _dictionary.Values;
-        set
+        init
         {
             _dictionary.Clear();
             foreach (var localizedMessage in value) _dictionary.Add(localizedMessage.Key, localizedMessage);

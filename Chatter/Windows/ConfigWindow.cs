@@ -37,6 +37,7 @@ using static Chatter.Configuration;
 using static Chatter.Configuration.FileNameOrder;
 using static System.String;
 using Dalamud.Interface.Textures;
+using JetBrains.Annotations;
 
 // ReSharper disable InvertIf
 
@@ -111,12 +112,15 @@ public sealed partial class ConfigWindow : Window, IDisposable
     private static int _timeStampSelected = -1;
     private readonly ISharedImmediateTexture _chatterImage;
     private readonly Configuration _configuration;
+    [UsedImplicitly] private readonly ILogger _logger;
 
     private readonly List<ComboOption<string>> _dateOptions;
     private readonly List<ComboOption<FileNameOrder>> _fileOrderOptions;
     private readonly FriendManager _friendManager;
     private readonly Loc _loc;
     private bool _addUserAlreadyExists;
+    private bool _addGroupAlreadyExists;
+    private string _addGroupName = Empty;
     private string _addUserFullName = Empty;
     private string _addUserReplacementName = Empty;
     private IEnumerable<Friend> _filteredFriends = new List<Friend>();
@@ -125,7 +129,10 @@ public sealed partial class ConfigWindow : Window, IDisposable
     private int _logOrderSelected = -1;
     private bool _removeDialogIsOpen = true;
     private string _removeDialogUser = Empty;
+    private bool _removeGroupDialogIsOpen = true;
+    private string _removeDialogGroup = Empty;
     private string _removeUser = Empty;
+    private string _removeGroup = Empty;
     private string _selectedFriend = Empty;
     private string _selectedGroup = AllLogName;
 
@@ -133,25 +140,27 @@ public sealed partial class ConfigWindow : Window, IDisposable
     ///     Constructs the configuration editing window.
     /// </summary>
     /// <param name="config"></param>
+    /// <param name="logger"></param>
     /// <param name="dateHelper"></param>
     /// <param name="friendManager"></param>
     /// <param name="chatterImage">The Chatter plugin icon.</param>
     /// <param name="loc"></param>
     public ConfigWindow(Configuration config,
+                        ILogger logger,
                         IDateHelper dateHelper,
                         FriendManager friendManager,
                         ISharedImmediateTexture chatterImage,
                         Loc loc) : base(Title)
     {
         _configuration = config;
+        _logger = logger;
         _friendManager = friendManager;
         _chatterImage = chatterImage;
         _loc = loc;
 
         SizeConstraints = new WindowSizeConstraints
         {
-            MinimumSize = new Vector2(450, 520),
-            MaximumSize = new Vector2(float.MaxValue, float.MaxValue),
+            MinimumSize = new Vector2(450, 520), MaximumSize = new Vector2(float.MaxValue, float.MaxValue),
         };
 
         Size = new Vector2(800, 520);
@@ -216,12 +225,22 @@ public sealed partial class ConfigWindow : Window, IDisposable
                        MsgLabelFileNamePrefixHelp);
 
         VerticalSpace();
-
         LongInputField(MsgLabelSaveDirectory,
                        ref _configuration.LogDirectory,
                        1024,
                        "##saveDirectory",
-                       MsgLabelSaveDirectoryHelp);
+                       MsgLabelSaveDirectoryHelp,
+                       extraWidth: 30,
+                       extra: () =>
+                       {
+                           if (DrawCopyButton("savePathCopy"))
+                           {
+                               ImGui.LogToClipboard();
+                               ImGui.LogText(_configuration.LogDirectory);
+                               ImGui.LogFinish();
+                               Dalamud.Utility.Util.OpenLink(_configuration.LogDirectory);
+                           }
+                       });
 
         VerticalSpace();
 
@@ -280,19 +299,39 @@ public sealed partial class ConfigWindow : Window, IDisposable
                          new Vector2(ImGui.GetContentRegionAvail().X, ImGui.GetContentRegionAvail().Y),
                          true);
         var chatLog = _configuration.ChatLogs[_selectedGroup];
-        ImGui.TextColored(new Vector4(0.0f, 1.0f, 0.0f, 1.0f), chatLog.Name);
+        if (ImGui.BeginTable("groupTitleTable", 2, ImGuiTableFlags.SizingFixedFit))
+        {
+            ImGui.TableSetupColumn(Empty, ImGuiTableColumnFlags.WidthStretch);
+            ImGui.TableSetupColumn(Empty, ImGuiTableColumnFlags.WidthFixed, 22.0f);
+
+            ImGui.TableNextRow();
+            ImGui.TableSetColumnIndex(0);
+            ImGui.TextColored(new Vector4(0.0f, 1.0f, 0.0f, 1.0f), chatLog.Name);
+            ImGui.TableSetColumnIndex(1);
+            if (DrawRemoveButton(chatLog.Name, chatLog.IsAll))
+            {
+                if (!_configuration.ChatLogs.ContainsKey(chatLog.Name)) return;
+                _removeDialogGroup = chatLog.Name;
+                ImGui.OpenPopup("Delete?");
+            }
+
+            DrawRemoveGroupDialog();
+
+            ImGui.EndTable();
+        }
+
         ImGui.Separator();
         ImGui.Spacing();
 
         if (ImGui.BeginTable("general", 2))
         {
             ImGui.TableNextColumn();
-            DrawCheckbox(MsgLabelIsActive, ref chatLog.IsActive, MsgLabelIsActiveHelp, chatLog.Name == AllLogName);
+            DrawCheckbox(MsgLabelIsActive, ref chatLog.IsActive, MsgLabelIsActiveHelp, chatLog.IsAll);
             ImGui.TableNextColumn();
             DrawCheckbox(MsgLabelIncludeAllUsers,
                          ref chatLog.IncludeAllUsers,
                          MsgLabelIncludeAllUsersHelp,
-                         chatLog.Name == AllLogName);
+                         chatLog.IsAll);
             ImGui.TableNextColumn();
             DrawCheckbox(MsgLabelIncludeServerName, ref chatLog.IncludeServer, MsgLabelIncludeServerNameHelp);
             ImGui.TableNextColumn();
@@ -385,11 +424,11 @@ public sealed partial class ConfigWindow : Window, IDisposable
                     ImGui.TextColored(new Vector4(0.7f, 0.9f, 0.6f, 1.0f), IsNullOrWhiteSpace(userTo) ? "-" : userTo);
 
                     ImGui.TableSetColumnIndex(2);
-                    if (DrawUserRemoveButton(userFrom))
+                    if (DrawRemoveButton(userFrom))
                     {
                         if (!chatLog.Users.ContainsKey(userFrom)) return;
                         _removeDialogUser = userFrom;
-                        ImGui.OpenPopup("removeUser");
+                        ImGui.OpenPopup("Remove?");
                     }
 
                     DrawRemoveUserDialog();
@@ -405,6 +444,13 @@ public sealed partial class ConfigWindow : Window, IDisposable
         {
             chatLog.Users.Remove(_removeUser);
             _removeUser = Empty;
+        }
+
+        if (_removeGroup != Empty)
+        {
+            _selectedGroup = AllLogName;
+            _configuration.ChatLogs.Remove(_removeGroup);
+            _removeGroup = Empty;
         }
 
         if (ImGui.CollapsingHeader(MsgHeaderIncludedChatTypes))
@@ -435,7 +481,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
     private void DrawAddUserPopup(ChatLogConfiguration chatLog)
     {
         ImGui.SetNextWindowSizeConstraints(new Vector2(350.0f, 100.0f), new Vector2(350.0f, 200.0f));
-        if (ImGui.BeginPopup("addUser", ImGuiWindowFlags.ChildWindow))
+        if (ImGui.BeginPopup("addUser", ImGuiWindowFlags.AlwaysAutoResize))
         {
             if (_addUserAlreadyExists)
             {
@@ -501,6 +547,52 @@ public sealed partial class ConfigWindow : Window, IDisposable
     }
 
     /// <summary>
+    ///     Draws the popup to add a new group to the group list.
+    /// </summary>
+    private void DrawAddGroupPopup()
+    {
+        ImGui.SetNextWindowSizeConstraints(new Vector2(350.0f, 100.0f), new Vector2(350.0f, 200.0f));
+        if (ImGui.BeginPopup("addGroup", ImGuiWindowFlags.AlwaysAutoResize))
+        {
+            if (_addGroupAlreadyExists)
+            {
+                VerticalSpace();
+                ImGui.TextColored(new Vector4(1.0f, 0.0f, 0.0f, 1.0f), MsgGroupAlreadyInList);
+                VerticalSpace();
+            }
+
+            LongInputField(MsgGroupName, ref _addGroupName, 128, "##groupName", MsgGroupNameHelp);
+
+            VerticalSpace();
+            ImGui.Separator();
+            VerticalSpace();
+
+            if (ImGui.Button(MsgButtonCreate, new Vector2(120, 0)))
+            {
+                _addGroupAlreadyExists = false;
+                var groupName = _addGroupName.Trim();
+                if (!IsNullOrWhiteSpace(groupName))
+                {
+                    if (_configuration.ChatLogs.TryAdd(groupName, new ChatLogConfiguration(groupName)))
+                        ImGui.CloseCurrentPopup();
+                    else
+                        _addGroupAlreadyExists = true;
+                }
+            }
+
+            ImGui.SetItemDefaultFocus();
+            ImGui.SameLine();
+            if (ImGui.Button(MsgButtonCancel, new Vector2(120, 0)))
+            {
+                _addGroupAlreadyExists = false;
+                ImGui.CloseCurrentPopup();
+            }
+
+            ImGui.EndPopup();
+        }
+    }
+
+    /// <summary>
     ///     Draws the popup that lists all the users friends for selection.
     /// </summary>
     /// <param name="targetUserFullName">Where to put the chosen friend name.</param>
@@ -547,7 +639,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
     private bool DrawClearFilterButton()
     {
         ImGui.PushFont(UiBuilder.IconFont);
-        var buttonPressed = ImGui.Button($"{(char)FontAwesomeIcon.SquareXmark}##findFriend");
+        var buttonPressed = ImGui.Button($"{(char) FontAwesomeIcon.SquareXmark}##findFriend");
         ImGui.PopFont();
         if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled)) DrawTooltip(MsgButtonClearFilterHelp);
         return buttonPressed;
@@ -560,7 +652,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
     private bool DrawFindFriendButton()
     {
         ImGui.PushFont(UiBuilder.IconFont);
-        var buttonPressed = ImGui.Button($"{(char)FontAwesomeIcon.PersonCirclePlus}##findFriend");
+        var buttonPressed = ImGui.Button($"{(char) FontAwesomeIcon.PersonCirclePlus}##findFriend");
         ImGui.PopFont();
         if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled)) DrawTooltip(MsgButtonFriendSelectorHelp);
         return buttonPressed;
@@ -569,13 +661,33 @@ public sealed partial class ConfigWindow : Window, IDisposable
     /// <summary>
     ///     Draws the button that brings up the remove user dialog.
     /// </summary>
-    /// <param name="user">Which user is being removed.</param>
+    /// <param name="id">The unique id of this object being deleted.</param>
+    /// <param name="disabled">True if this button should be disabled.</param>
     /// <returns><c>true</c> if the button was pressed.</returns>
-    private static bool DrawUserRemoveButton(string user)
+    private static bool DrawRemoveButton(string id, bool disabled = false)
     {
         ImGui.PushFont(UiBuilder.IconFont);
-        var buttonPressed = ImGui.Button($"{(char)FontAwesomeIcon.Trash}##{user}Trash");
+        if (disabled) ImGui.BeginDisabled();
+        var buttonPressed = ImGui.Button($"{(char) FontAwesomeIcon.Trash}##{id}Trash");
+        if (disabled) ImGui.EndDisabled();
         ImGui.PopFont();
+        return buttonPressed;
+    }
+
+    /// <summary>
+    ///     Draws a copy to clipboard icon button.
+    /// </summary>
+    /// <param name="id">The unique id of this object being deleted.</param>
+    /// <param name="disabled">True if this button should be disabled.</param>
+    /// <returns><c>true</c> if the button was pressed.</returns>
+    private static bool DrawCopyButton(string id, bool disabled = false)
+    {
+        ImGui.PushFont(UiBuilder.IconFont);
+        if (disabled) ImGui.BeginDisabled();
+        var buttonPressed = ImGui.Button($"{(char) FontAwesomeIcon.Copy}##{id}Copy");
+        if (disabled) ImGui.EndDisabled();
+        ImGui.PopFont();
+        if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled)) DrawTooltip("Copy to clipboard");
         return buttonPressed;
     }
 
@@ -584,7 +696,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
     /// </summary>
     private void DrawRemoveUserDialog()
     {
-        if (ImGui.BeginPopupModal("removeUser", ref _removeDialogIsOpen, ImGuiWindowFlags.AlwaysAutoResize))
+        if (ImGui.BeginPopupModal("Remove?", ref _removeDialogIsOpen, ImGuiWindowFlags.AlwaysAutoResize))
         {
             ImGui.TextWrapped(_loc.Message("Text.RemoveUser", _removeDialogUser));
             ImGui.Separator();
@@ -603,7 +715,30 @@ public sealed partial class ConfigWindow : Window, IDisposable
     }
 
     /// <summary>
-    ///     Draws a check box control with the optional help text.
+    ///     Draws the remove group dialog.
+    /// </summary>
+    private void DrawRemoveGroupDialog()
+    {
+        if (ImGui.BeginPopupModal("Delete?", ref _removeGroupDialogIsOpen, ImGuiWindowFlags.AlwaysAutoResize))
+        {
+            ImGui.TextWrapped(_loc.Message("Label.Remove.Group", _removeDialogGroup));
+            ImGui.Separator();
+
+            if (ImGui.Button(MsgButtonRemove, new Vector2(120, 0)))
+            {
+                _removeGroup = _removeDialogGroup;
+                ImGui.CloseCurrentPopup();
+            }
+
+            ImGui.SameLine();
+            if (ImGui.Button(MsgButtonCancel, new Vector2(120, 0))) ImGui.CloseCurrentPopup();
+
+            ImGui.EndPopup();
+        }
+    }
+
+    /// <summary>
+    ///     Draws a checkbox control with the optional help text.
     /// </summary>
     /// <param name="label">The label for the checkbox.</param>
     /// <param name="itemChecked"><c>true</c> if this check box is checked.</param>
@@ -623,29 +758,39 @@ public sealed partial class ConfigWindow : Window, IDisposable
     private void DrawGroupsList()
     {
         ImGui.PushStyleVar(ImGuiStyleVar.ChildRounding, 5.0f);
-        ImGui.BeginChild("groupsChild",
-                         new Vector2(ImGui.GetContentRegionAvail().X * 0.25f, ImGui.GetContentRegionAvail().Y),
-                         true);
-        if (ImGui.BeginListBox("##groups",
-                               new Vector2(ImGui.GetContentRegionAvail().X, ImGui.GetContentRegionAvail().Y)))
+        try
         {
-            foreach (var (_, cl) in _configuration.ChatLogs)
+            ImGui.BeginChild("groupsChild",
+                             new Vector2(ImGui.GetContentRegionAvail().X * 0.25f, ImGui.GetContentRegionAvail().Y),
+                             true);
+            if (ImGui.Button(MsgButtonAddGroup)) ImGui.OpenPopup("addGroup");
+
+            DrawAddGroupPopup();
+
+            if (ImGui.BeginListBox("##groups",
+                                   new Vector2(ImGui.GetContentRegionAvail().X, ImGui.GetContentRegionAvail().Y)))
             {
-                var isSelected = _selectedGroup == cl.Name;
-                if (ImGui.Selectable(cl.Name, isSelected)) _selectedGroup = cl.Name;
-                if (ImGui.IsItemHovered()) DrawTooltip(cl.Name);
-                if (isSelected) ImGui.SetItemDefaultFocus();
+                foreach (var (_, cl) in _configuration.ChatLogs)
+                {
+                    var isSelected = _selectedGroup == cl.Name;
+                    if (ImGui.Selectable(cl.Name, isSelected)) _selectedGroup = cl.Name;
+                    if (ImGui.IsItemHovered()) DrawTooltip(cl.Name);
+                    if (isSelected) ImGui.SetItemDefaultFocus();
+                }
+
+                ImGui.EndListBox();
             }
 
-            ImGui.EndListBox();
+            ImGui.EndChild();
         }
-
-        ImGui.EndChild();
-        ImGui.PopStyleVar();
+        finally
+        {
+            ImGui.PopStyleVar();
+        }
     }
 
     /// <summary>
-    ///     Draws all of the chat flags in a given list.
+    ///     Draws all the chat flags in a given list.
     /// </summary>
     /// <param name="id">The id for the list of items.</param>
     /// <param name="chatLog">The chat log configuration.</param>
@@ -657,8 +802,9 @@ public sealed partial class ConfigWindow : Window, IDisposable
         if (ImGui.BeginTable(id, 4))
         {
             foreach (var flag in flagList)
-                if (flags.TryGetValue(flag.Type, out var flagValue))
-                    DrawFlag(flag, chatLog, ref flagValue.Value);
+            {
+                if (flags.TryGetValue(flag.Type, out var flagValue)) DrawFlag(flag, chatLog, ref flagValue.Value);
+            }
 
             ImGui.EndTable();
         }
@@ -725,7 +871,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
         if (sameLine) ImGui.SameLine();
         ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0.4f, 0.4f, 0.55f, 1.0f));
         ImGui.PushFont(UiBuilder.IconFont);
-        ImGui.Text($"{(char)FontAwesomeIcon.QuestionCircle}");
+        ImGui.Text($"{(char) FontAwesomeIcon.QuestionCircle}");
         ImGui.PopFont();
         ImGui.PopStyleColor();
         if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled)) DrawTooltip(text);
@@ -748,40 +894,26 @@ public sealed partial class ConfigWindow : Window, IDisposable
         ImGui.EndTooltip();
     }
 
-    public class ComboOption<T>
+    public class ComboOption<T>(string label, T value, string? help = null)
     {
-        public readonly string? Help;
-        public readonly string Label;
-        public readonly T Value;
-
-        public ComboOption(string label, T value, string? help = null)
-        {
-            Label = label;
-            Value = value;
-            Help = help;
-        }
+        public readonly string? Help = help;
+        public readonly string Label = label;
+        public readonly T Value = value;
     }
 
     /// <summary>
     ///     Defines the display information for a chat type flag.
     /// </summary>
-    private class ChatTypeFlagInfo
+    private class ChatTypeFlagInfo(
+        XivChatType type,
+        string label,
+        string help,
+        Action<ChatLogConfiguration>? onChange = null)
     {
-        public ChatTypeFlagInfo(XivChatType type,
-                                string label,
-                                string help,
-                                Action<ChatLogConfiguration>? onChange = null)
-        {
-            Type = type;
-            Label = label;
-            Help = help;
-            OnChange = onChange;
-        }
-
-        public XivChatType Type { get; }
-        public string Label { get; }
-        public string Help { get; }
-        public Action<ChatLogConfiguration>? OnChange { get; }
+        public XivChatType Type { get; } = type;
+        public string Label { get; } = label;
+        public string Help { get; } = help;
+        public Action<ChatLogConfiguration>? OnChange { get; } = onChange;
     }
 
     /// <summary>

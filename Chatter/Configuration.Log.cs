@@ -28,7 +28,7 @@ using System.Collections.Generic;
 namespace Chatter;
 
 /// <summary>
-///     Contains all of the user configuration settings.
+///     Contains all the user configuration settings.
 /// </summary>
 public partial class Configuration
 {
@@ -37,6 +37,8 @@ public partial class Configuration
     /// </summary>
     public sealed class ChatLogConfiguration
     {
+        public bool IsAll => Name == AllLogName;
+
         /// <summary>
         ///     The include/exclude flags for each <see cref="XivChatType" />.
         /// </summary>
@@ -156,6 +158,7 @@ public partial class Configuration
             MessageWrapWidth = wrapColumn;
             MessageWrapIndentation = wrapIndent;
             Format = format;
+            InitializeTypeFlags();
         }
 
         /// <summary>
