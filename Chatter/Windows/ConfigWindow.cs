@@ -33,6 +33,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Numerics;
+using Chatter.Utilities;
 using static Chatter.Configuration;
 using static Chatter.Configuration.FileNameOrder;
 using static System.String;
@@ -294,175 +295,177 @@ public sealed partial class ConfigWindow : Window, IDisposable
     /// </summary>
     private void DrawGroupEdit()
     {
-        ImGui.PushStyleVar(ImGuiStyleVar.ChildRounding, 5.0f);
-        ImGui.BeginChild("groupData",
-                         new Vector2(ImGui.GetContentRegionAvail().X, ImGui.GetContentRegionAvail().Y),
-                         true);
-        var chatLog = _configuration.ChatLogs[_selectedGroup];
-        if (ImGui.BeginTable("groupTitleTable", 2, ImGuiTableFlags.SizingFixedFit))
+        using (ImGuiWith.Style(ImGuiStyleVar.ChildRounding, 5.0f))
         {
-            ImGui.TableSetupColumn(Empty, ImGuiTableColumnFlags.WidthStretch);
-            ImGui.TableSetupColumn(Empty, ImGuiTableColumnFlags.WidthFixed, 22.0f);
-
-            ImGui.TableNextRow();
-            ImGui.TableSetColumnIndex(0);
-            ImGui.TextColored(new Vector4(0.0f, 1.0f, 0.0f, 1.0f), chatLog.Name);
-            ImGui.TableSetColumnIndex(1);
-            if (DrawRemoveButton(chatLog.Name, chatLog.IsAll))
+            ImGui.BeginChild("groupData",
+                             new Vector2(ImGui.GetContentRegionAvail().X, ImGui.GetContentRegionAvail().Y),
+                             true);
+            var chatLog = _configuration.ChatLogs[_selectedGroup];
+            if (ImGui.BeginTable("groupTitleTable", 2, ImGuiTableFlags.SizingFixedFit))
             {
-                if (!_configuration.ChatLogs.ContainsKey(chatLog.Name)) return;
-                _removeDialogGroup = chatLog.Name;
-                ImGui.OpenPopup("Delete?");
-            }
-
-            DrawRemoveGroupDialog();
-
-            ImGui.EndTable();
-        }
-
-        ImGui.Separator();
-        ImGui.Spacing();
-
-        if (ImGui.BeginTable("general", 2))
-        {
-            ImGui.TableNextColumn();
-            DrawCheckbox(MsgLabelIsActive, ref chatLog.IsActive, MsgLabelIsActiveHelp, chatLog.IsAll);
-            ImGui.TableNextColumn();
-            DrawCheckbox(MsgLabelIncludeAllUsers,
-                         ref chatLog.IncludeAllUsers,
-                         MsgLabelIncludeAllUsersHelp,
-                         chatLog.IsAll);
-            ImGui.TableNextColumn();
-            DrawCheckbox(MsgLabelIncludeServerName, ref chatLog.IncludeServer, MsgLabelIncludeServerNameHelp);
-            ImGui.TableNextColumn();
-            DrawCheckbox(MsgLabelIncludeSelf, ref chatLog.IncludeMe, MsgLabelIncludeSelfHelp);
-
-#if DEBUG
-            ImGui.TableNextColumn();
-            DrawCheckbox(MsgLabelIncludeAll, ref chatLog.DebugIncludeAllMessages, MsgLabelIncludeAllHelp);
-#endif
-            ImGui.EndTable();
-        }
-
-        VerticalSpace();
-
-        ImGui.PushItemWidth(150.0f);
-        ImGui.InputInt(MsgInputWrapWidthLabel, ref chatLog.MessageWrapWidth);
-        HelpMarker(MsgInputWrapWidthHelp);
-
-        ImGui.InputInt(MsgInputWrapIndentLabel, ref chatLog.MessageWrapIndentation);
-        HelpMarker(MsgInputWrapIndentHelp);
-
-        if (_timeStampSelected < 0)
-        {
-            _timeStampSelected = 0; // Default in case we don't find it
-            for (var i = 0; i < _dateOptions.Count; i++)
-                if (_dateOptions[i].Value == chatLog.Format)
-                {
-                    _timeStampSelected = i;
-                    break;
-                }
-        }
-
-        if (ImGui.BeginCombo(MsgComboTimestampLabel, _dateOptions[_timeStampSelected].Label))
-        {
-            for (var i = 0; i < _dateOptions.Count; i++)
-            {
-                var isSelected = i == _timeStampSelected;
-                if (ImGui.Selectable(_dateOptions[i].Label, isSelected))
-                {
-                    _timeStampSelected = i;
-                    chatLog.DateTimeFormat = _dateOptions[i].Value;
-                }
-
-                if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled)) DrawTooltip(_dateOptions[i].Help);
-                if (isSelected) ImGui.SetItemDefaultFocus();
-            }
-
-            ImGui.EndCombo();
-        }
-
-        HelpMarker(MsgComboTimestampHelp);
-
-        ImGui.PopItemWidth();
-
-        VerticalSpace();
-
-        if (ImGui.CollapsingHeader(MsgHeaderIncludedUsers))
-        {
-            VerticalSpace(5.0f);
-            ImGui.TextWrapped(MsgDescriptionIncludedUsers);
-            VerticalSpace();
-            if (ImGui.Button(MsgButtonAddUser)) ImGui.OpenPopup("addUser");
-
-            DrawAddUserPopup(chatLog);
-
-            const ImGuiTableFlags tableFlags = ImGuiTableFlags.ScrollY
-                                             | ImGuiTableFlags.RowBg
-                                             | ImGuiTableFlags.BordersOuter
-                                             | ImGuiTableFlags.SizingFixedFit
-                                             | ImGuiTableFlags.BordersV;
-            var textBaseHeight = ImGui.GetTextLineHeightWithSpacing();
-            var outerSize = new Vector2(0.0f, textBaseHeight * 8);
-            if (ImGui.BeginTable("userTable", 3, tableFlags, outerSize))
-            {
-                ImGui.TableSetupScrollFreeze(0, 1); // Make top row always visible
-                ImGui.TableSetupColumn(MsgColumnFullName, ImGuiTableColumnFlags.WidthStretch);
-                ImGui.TableSetupColumn(MsgColumnReplacement, ImGuiTableColumnFlags.WidthStretch);
+                ImGui.TableSetupColumn(Empty, ImGuiTableColumnFlags.WidthStretch);
                 ImGui.TableSetupColumn(Empty, ImGuiTableColumnFlags.WidthFixed, 22.0f);
-                ImGui.TableHeadersRow();
 
-                foreach (var (userFrom, userTo) in chatLog.Users)
+                ImGui.TableNextRow();
+                ImGui.TableSetColumnIndex(0);
+                ImGuiUse.ColoredText(chatLog.Name, 0xff00ff00);
+                ImGui.TableSetColumnIndex(1);
+                if (DrawRemoveButton(chatLog.Name, chatLog.IsAll))
                 {
-                    ImGui.PushID(userFrom);
-                    ImGui.TableNextRow();
-
-                    ImGui.TableSetColumnIndex(0);
-                    ImGui.TextColored(new Vector4(0.6f, 0.7f, 1.0f, 1.0f), userFrom);
-
-                    ImGui.TableSetColumnIndex(1);
-                    ImGui.TextColored(new Vector4(0.7f, 0.9f, 0.6f, 1.0f), IsNullOrWhiteSpace(userTo) ? "-" : userTo);
-
-                    ImGui.TableSetColumnIndex(2);
-                    if (DrawRemoveButton(userFrom))
-                    {
-                        if (!chatLog.Users.ContainsKey(userFrom)) return;
-                        _removeDialogUser = userFrom;
-                        ImGui.OpenPopup("Remove?");
-                    }
-
-                    DrawRemoveUserDialog();
-                    ImGui.PopID();
+                    if (!_configuration.ChatLogs.ContainsKey(chatLog.Name)) return;
+                    _removeDialogGroup = chatLog.Name;
+                    ImGui.OpenPopup("Delete?");
                 }
+
+                DrawRemoveGroupDialog();
 
                 ImGui.EndTable();
-                VerticalSpace();
             }
-        }
 
-        if (_removeUser != Empty)
-        {
-            chatLog.Users.Remove(_removeUser);
-            _removeUser = Empty;
-        }
+            ImGui.Separator();
+            ImGui.Spacing();
 
-        if (_removeGroup != Empty)
-        {
-            _selectedGroup = AllLogName;
-            _configuration.ChatLogs.Remove(_removeGroup);
-            _removeGroup = Empty;
-        }
+            if (ImGui.BeginTable("general", 2))
+            {
+                ImGui.TableNextColumn();
+                DrawCheckbox(MsgLabelIsActive, ref chatLog.IsActive, MsgLabelIsActiveHelp, chatLog.IsAll);
+                ImGui.TableNextColumn();
+                DrawCheckbox(MsgLabelIncludeAllUsers,
+                             ref chatLog.IncludeAllUsers,
+                             MsgLabelIncludeAllUsersHelp,
+                             chatLog.IsAll);
+                ImGui.TableNextColumn();
+                DrawCheckbox(MsgLabelIncludeServerName, ref chatLog.IncludeServer, MsgLabelIncludeServerNameHelp);
+                ImGui.TableNextColumn();
+                DrawCheckbox(MsgLabelIncludeSelf, ref chatLog.IncludeMe, MsgLabelIncludeSelfHelp);
 
-        if (ImGui.CollapsingHeader(MsgHeaderIncludedChatTypes))
-        {
-            DrawChatTypeFlags("flagGeneral", chatLog, GeneralChatTypeFlags);
-            DrawChatTypeFlags("flagLs", chatLog, LinkShellChatTypeFlags);
-            DrawChatTypeFlags("flagCwls", chatLog, CrossWorldLinkShellChatTypeFlags);
-            DrawChatTypeFlags("flagOther", chatLog, OtherChatTypeFlags);
-        }
+#if DEBUG
+                ImGui.TableNextColumn();
+                DrawCheckbox(MsgLabelIncludeAll, ref chatLog.DebugIncludeAllMessages, MsgLabelIncludeAllHelp);
+#endif
+                ImGui.EndTable();
+            }
 
-        ImGui.EndChild();
-        ImGui.PopStyleVar();
+            VerticalSpace();
+
+            using (ImGuiWith.ItemWidth(150.0f))
+            {
+                ImGui.InputInt(MsgInputWrapWidthLabel, ref chatLog.MessageWrapWidth);
+                HelpMarker(MsgInputWrapWidthHelp);
+
+                ImGui.InputInt(MsgInputWrapIndentLabel, ref chatLog.MessageWrapIndentation);
+                HelpMarker(MsgInputWrapIndentHelp);
+
+                if (_timeStampSelected < 0)
+                {
+                    _timeStampSelected = 0; // Default in case we don't find it
+                    for (var i = 0; i < _dateOptions.Count; i++)
+                        if (_dateOptions[i].Value == chatLog.Format)
+                        {
+                            _timeStampSelected = i;
+                            break;
+                        }
+                }
+
+                if (ImGui.BeginCombo(MsgComboTimestampLabel, _dateOptions[_timeStampSelected].Label))
+                {
+                    for (var i = 0; i < _dateOptions.Count; i++)
+                    {
+                        var isSelected = i == _timeStampSelected;
+                        if (ImGui.Selectable(_dateOptions[i].Label, isSelected))
+                        {
+                            _timeStampSelected = i;
+                            chatLog.DateTimeFormat = _dateOptions[i].Value;
+                        }
+
+                        if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled)) DrawTooltip(_dateOptions[i].Help);
+                        if (isSelected) ImGui.SetItemDefaultFocus();
+                    }
+
+                    ImGui.EndCombo();
+                }
+
+                HelpMarker(MsgComboTimestampHelp);
+            }
+
+            VerticalSpace();
+
+            if (ImGui.CollapsingHeader(MsgHeaderIncludedUsers))
+            {
+                VerticalSpace(5.0f);
+                ImGui.TextUnformatted(MsgDescriptionIncludedUsers);
+                VerticalSpace();
+                if (ImGui.Button(MsgButtonAddUser)) ImGui.OpenPopup("addUser");
+
+                DrawAddUserPopup(chatLog);
+
+                const ImGuiTableFlags tableFlags = ImGuiTableFlags.ScrollY
+                                                 | ImGuiTableFlags.RowBg
+                                                 | ImGuiTableFlags.BordersOuter
+                                                 | ImGuiTableFlags.SizingFixedFit
+                                                 | ImGuiTableFlags.BordersV;
+                var textBaseHeight = ImGui.GetTextLineHeightWithSpacing();
+                var outerSize = new Vector2(0.0f, textBaseHeight * 8);
+                if (ImGui.BeginTable("userTable", 3, tableFlags, outerSize))
+                {
+                    ImGui.TableSetupScrollFreeze(0, 1); // Make top row always visible
+                    ImGui.TableSetupColumn(MsgColumnFullName, ImGuiTableColumnFlags.WidthStretch);
+                    ImGui.TableSetupColumn(MsgColumnReplacement, ImGuiTableColumnFlags.WidthStretch);
+                    ImGui.TableSetupColumn(Empty, ImGuiTableColumnFlags.WidthFixed, 22.0f);
+                    ImGui.TableHeadersRow();
+
+                    foreach (var (userFrom, userTo) in chatLog.Users)
+                    {
+                        using (ImGuiWith.ID(userFrom))
+                        {
+                            ImGui.TableNextRow();
+
+                            ImGui.TableSetColumnIndex(0);
+                            ImGuiUse.ColoredText(userFrom, 0xffFFB299);
+
+                            ImGui.TableSetColumnIndex(1);
+                            ImGuiUse.ColoredText(IsNullOrWhiteSpace(userTo) ? "-" : userTo, 0xff99E5B2);
+
+                            ImGui.TableSetColumnIndex(2);
+                            if (DrawRemoveButton(userFrom))
+                            {
+                                if (!chatLog.Users.ContainsKey(userFrom)) return;
+                                _removeDialogUser = userFrom;
+                                ImGui.OpenPopup("Remove?");
+                            }
+
+                            DrawRemoveUserDialog();
+                        }
+                    }
+
+                    ImGui.EndTable();
+                    VerticalSpace();
+                }
+            }
+
+            if (_removeUser != Empty)
+            {
+                chatLog.Users.Remove(_removeUser);
+                _removeUser = Empty;
+            }
+
+            if (_removeGroup != Empty)
+            {
+                _selectedGroup = AllLogName;
+                _configuration.ChatLogs.Remove(_removeGroup);
+                _removeGroup = Empty;
+            }
+
+            if (ImGui.CollapsingHeader(MsgHeaderIncludedChatTypes))
+            {
+                DrawChatTypeFlags("flagGeneral", chatLog, GeneralChatTypeFlags);
+                DrawChatTypeFlags("flagLs", chatLog, LinkShellChatTypeFlags);
+                DrawChatTypeFlags("flagCwls", chatLog, CrossWorldLinkShellChatTypeFlags);
+                DrawChatTypeFlags("flagOther", chatLog, OtherChatTypeFlags);
+            }
+
+            ImGui.EndChild();
+        }
     }
 
     /// <summary>
@@ -486,7 +489,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
             if (_addUserAlreadyExists)
             {
                 VerticalSpace();
-                ImGui.TextColored(new Vector4(1.0f, 0.0f, 0.0f, 1.0f), MsgPlayerAlreadyInList);
+                ImGuiUse.ColoredText(MsgPlayerAlreadyInList, 0xff0000FF);
                 VerticalSpace();
             }
 
@@ -557,7 +560,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
             if (_addGroupAlreadyExists)
             {
                 VerticalSpace();
-                ImGui.TextColored(new Vector4(1.0f, 0.0f, 0.0f, 1.0f), MsgGroupAlreadyInList);
+                ImGuiUse.ColoredText(MsgGroupAlreadyInList, 0xff0000ff);
                 VerticalSpace();
             }
 
@@ -638,11 +641,12 @@ public sealed partial class ConfigWindow : Window, IDisposable
     /// <returns><c>true</c> if the button was pressed.</returns>
     private bool DrawClearFilterButton()
     {
-        ImGui.PushFont(UiBuilder.IconFont);
-        var buttonPressed = ImGui.Button($"{(char) FontAwesomeIcon.SquareXmark}##findFriend");
-        ImGui.PopFont();
-        if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled)) DrawTooltip(MsgButtonClearFilterHelp);
-        return buttonPressed;
+        using (ImGuiWith.Font(UiBuilder.IconFont))
+        {
+            var buttonPressed = ImGui.Button($"{(char) FontAwesomeIcon.SquareXmark}##clearFilter");
+            if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled)) DrawTooltip(MsgButtonClearFilterHelp);
+            return buttonPressed;
+        }
     }
 
     /// <summary>
@@ -651,11 +655,12 @@ public sealed partial class ConfigWindow : Window, IDisposable
     /// <returns><c>true</c> if the button was pressed.</returns>
     private bool DrawFindFriendButton()
     {
-        ImGui.PushFont(UiBuilder.IconFont);
-        var buttonPressed = ImGui.Button($"{(char) FontAwesomeIcon.PersonCirclePlus}##findFriend");
-        ImGui.PopFont();
-        if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled)) DrawTooltip(MsgButtonFriendSelectorHelp);
-        return buttonPressed;
+        using (ImGuiWith.Font(UiBuilder.IconFont))
+        {
+            var buttonPressed = ImGui.Button($"{(char) FontAwesomeIcon.PersonCirclePlus}##findFriend");
+            if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled)) DrawTooltip(MsgButtonFriendSelectorHelp);
+            return buttonPressed;
+        }
     }
 
     /// <summary>
@@ -666,12 +671,13 @@ public sealed partial class ConfigWindow : Window, IDisposable
     /// <returns><c>true</c> if the button was pressed.</returns>
     private static bool DrawRemoveButton(string id, bool disabled = false)
     {
-        ImGui.PushFont(UiBuilder.IconFont);
-        if (disabled) ImGui.BeginDisabled();
-        var buttonPressed = ImGui.Button($"{(char) FontAwesomeIcon.Trash}##{id}Trash");
-        if (disabled) ImGui.EndDisabled();
-        ImGui.PopFont();
-        return buttonPressed;
+        using (ImGuiWith.Font(UiBuilder.IconFont))
+        {
+            if (disabled) ImGui.BeginDisabled();
+            var buttonPressed = ImGui.Button($"{(char) FontAwesomeIcon.Trash}##{id}Trash");
+            if (disabled) ImGui.EndDisabled();
+            return buttonPressed;
+        }
     }
 
     /// <summary>
@@ -682,13 +688,14 @@ public sealed partial class ConfigWindow : Window, IDisposable
     /// <returns><c>true</c> if the button was pressed.</returns>
     private static bool DrawCopyButton(string id, bool disabled = false)
     {
-        ImGui.PushFont(UiBuilder.IconFont);
-        if (disabled) ImGui.BeginDisabled();
-        var buttonPressed = ImGui.Button($"{(char) FontAwesomeIcon.Copy}##{id}Copy");
-        if (disabled) ImGui.EndDisabled();
-        ImGui.PopFont();
-        if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled)) DrawTooltip("Copy to clipboard");
-        return buttonPressed;
+        using (ImGuiWith.Font(UiBuilder.IconFont))
+        {
+            if (disabled) ImGui.BeginDisabled();
+            var buttonPressed = ImGui.Button($"{(char) FontAwesomeIcon.Copy}##{id}Copy");
+            if (disabled) ImGui.EndDisabled();
+            if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled)) DrawTooltip("Copy to clipboard");
+            return buttonPressed;
+        }
     }
 
     /// <summary>
@@ -698,7 +705,8 @@ public sealed partial class ConfigWindow : Window, IDisposable
     {
         if (ImGui.BeginPopupModal("Remove?", ref _removeDialogIsOpen, ImGuiWindowFlags.AlwaysAutoResize))
         {
-            ImGui.TextWrapped(_loc.Message("Text.RemoveUser", _removeDialogUser));
+            using (ImGuiWith.TextWrapPos(300.0f))
+                ImGui.TextUnformatted(Format(_loc.Message("Text.RemoveUser", _removeDialogUser)));
             ImGui.Separator();
 
             if (ImGui.Button(MsgButtonRemove, new Vector2(120, 0)))
@@ -721,7 +729,8 @@ public sealed partial class ConfigWindow : Window, IDisposable
     {
         if (ImGui.BeginPopupModal("Delete?", ref _removeGroupDialogIsOpen, ImGuiWindowFlags.AlwaysAutoResize))
         {
-            ImGui.TextWrapped(_loc.Message("Label.Remove.Group", _removeDialogGroup));
+            using (ImGuiWith.TextWrapPos(300.0f))
+                ImGui.TextUnformatted(Format(_loc.Message("Label.Remove.Group", _removeDialogGroup)));
             ImGui.Separator();
 
             if (ImGui.Button(MsgButtonRemove, new Vector2(120, 0)))
@@ -757,8 +766,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
     /// </summary>
     private void DrawGroupsList()
     {
-        ImGui.PushStyleVar(ImGuiStyleVar.ChildRounding, 5.0f);
-        try
+        using (ImGuiWith.Style(ImGuiStyleVar.ChildRounding, 5.0f))
         {
             ImGui.BeginChild("groupsChild",
                              new Vector2(ImGui.GetContentRegionAvail().X * 0.25f, ImGui.GetContentRegionAvail().Y),
@@ -782,10 +790,6 @@ public sealed partial class ConfigWindow : Window, IDisposable
             }
 
             ImGui.EndChild();
-        }
-        finally
-        {
-            ImGui.PopStyleVar();
         }
     }
 
@@ -844,7 +848,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
                                        Action? extra = null,
                                        int extraWidth = 0)
     {
-        ImGui.Text(label);
+        ImGui.TextUnformatted(label);
         HelpMarker(help);
 
         ImGui.SetNextItemWidth(extraWidth == 0 ? -1 : -extraWidth);
@@ -869,11 +873,10 @@ public sealed partial class ConfigWindow : Window, IDisposable
         var text = description?.Trim() ?? Empty;
         if (IsNullOrWhiteSpace(text)) return;
         if (sameLine) ImGui.SameLine();
-        ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0.4f, 0.4f, 0.55f, 1.0f));
-        ImGui.PushFont(UiBuilder.IconFont);
-        ImGui.Text($"{(char) FontAwesomeIcon.QuestionCircle}");
-        ImGui.PopFont();
-        ImGui.PopStyleColor();
+        using (ImGuiWith.Color(ImGuiCol.Text, 0xff8c4c4c))
+        using (ImGuiWith.Font(UiBuilder.IconFont))
+            ImGui.TextUnformatted($"{(char) FontAwesomeIcon.QuestionCircle}");
+
         if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled)) DrawTooltip(text);
     }
 
@@ -886,11 +889,9 @@ public sealed partial class ConfigWindow : Window, IDisposable
         var text = description?.Trim() ?? Empty;
         if (IsNullOrWhiteSpace(text)) return;
         ImGui.BeginTooltip();
-        ImGui.PushTextWrapPos(ImGui.GetFontSize() * 20.0f);
-        ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0.9f, 0.9f, 0.3f, 1.0f));
-        ImGui.TextUnformatted(text);
-        ImGui.PopStyleColor();
-        ImGui.PopTextWrapPos();
+        using (ImGuiWith.TextWrapPos(ImGui.GetFontSize() * 20.0f))
+        using (ImGuiWith.Color(ImGuiCol.Text, 0xff4ce5e5))
+            ImGui.TextUnformatted(text);
         ImGui.EndTooltip();
     }
 
