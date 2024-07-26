@@ -29,6 +29,11 @@ namespace Chatter.Utilities;
 
 public static class ImGuiWith
 {
+    public static IDisposable Disabled(bool flag)
+    {
+        return new WithDisabledDisposable(flag);
+    }
+
     public static IDisposable Color(ImGuiCol idx, Vector4 value)
     {
         return new WithColorDisposable(idx, value);
@@ -72,6 +77,22 @@ public static class ImGuiWith
     public static IDisposable ID(string value)
     {
         return new WithIDDisposable(value);
+    }
+
+    private sealed class WithDisabledDisposable : IDisposable
+    {
+        private readonly bool _flag;
+
+        public WithDisabledDisposable(bool flag)
+        {
+            _flag = flag;
+            if (_flag) ImGui.BeginDisabled();
+        }
+
+        public void Dispose()
+        {
+            if (_flag) ImGui.EndDisabled();
+        }
     }
 
     private sealed class WithColorDisposable : IDisposable

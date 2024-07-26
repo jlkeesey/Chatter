@@ -32,12 +32,14 @@ namespace Chatter.Chat;
 ///     Chat log for group based logs.
 /// </summary>
 public class GroupChatLog(
-    ChatLogConfiguration configuration,
+    Configuration configuration,
+    ChatLogConfiguration logConfiguration,
     LogFileInfo logFileInfo,
     IDateHelper dateHelper,
     FileHelper fileHelper,
     IPlayer myself,
-    IErrorWriter errorWriter) : ChatLog(configuration, logFileInfo, dateHelper, fileHelper, errorWriter)
+    IErrorWriter errorWriter)
+    : ChatLog(configuration, logConfiguration, logFileInfo, dateHelper, fileHelper, errorWriter)
 {
     protected override string DefaultFormat => "{6,22} {4,-30} {5}";
 

@@ -34,7 +34,7 @@ namespace Chatter.Chat;
 /// <summary>
 ///     Handles capturing chat messages and passing them on the to chat log manager for processing.
 /// </summary>
-internal sealed class ChatManager : IDisposable
+public sealed class ChatManager : IDisposable
 {
     /// <summary>
     ///     Lists of all the chat types that we support. Not all of these are currently exposed to the user.

@@ -37,7 +37,7 @@ public class ChatLogTests
         public void ShouldLog_Defaults()
         {
             var logConfig = new Configuration.ChatLogConfiguration("test");
-            var chatLog = new TestChatLog(logConfig);
+            var chatLog = new TestChatLog(new Configuration(), logConfig);
             var message = ChatMessageUtils.CreateMessage(chatLog.DateHelper.ZonedNow);
 
             var result = chatLog.ShouldLog(message);

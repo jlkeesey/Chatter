@@ -129,6 +129,47 @@ public partial class Configuration : IPluginConfiguration
     public int Version { get; set; } = 2;
 
     /// <summary>
+    ///     Specifies the order of the parts in a log file name.
+    /// </summary>
+    public enum DirectoryFormat
+    {
+        /// <summary>
+        ///     Placeholder for not set, will be interpreted the same as <see cref="DirectoryFormat.Unified" />.
+        /// </summary>
+        None = 0,
+
+        /// <summary>
+        ///     All logs will be written to the same directory.
+        /// </summary>
+        Unified,
+
+        /// <summary>
+        ///     Log files will be written to subdirectories in the form Group/.
+        /// </summary>
+        Group,
+
+        /// <summary>
+        ///     Log files will be written to subdirectories in the form Year/Month e.g. 2024/July.
+        /// </summary>
+        YearMonth,
+
+        /// <summary>
+        ///     Log files will be written to subdirectories in the form Year/Month/Group e.g. 2024/July/all.
+        /// </summary>
+        YearMonthGroup,
+
+        /// <summary>
+        ///     Log files will be written to subdirectories in the form Group/Year/Month e.g. all/2024/July.
+        /// </summary>
+        GroupYearMonth,
+    }
+
+    /// <summary>
+    ///     Controls the order of the parts in a log file name.
+    /// </summary>
+    public DirectoryFormat DirectoryForm { get; set; } = DirectoryFormat.Unified;
+
+    /// <summary>
     ///     Adds a log configuration.
     /// </summary>
     /// <param name="logConfiguration">The <see cref="Configuration.ChatLogConfiguration" /> to add.</param>

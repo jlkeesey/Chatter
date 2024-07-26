@@ -99,6 +99,28 @@ public sealed class FileHelper(IFileSystem fileSystem)
     }
 
     /// <summary>
+    ///     Creates the given directory if it doesn't exist.
+    /// </summary>
+    /// <remarks>
+    ///     This will create all the directories in the path if they do not exist.
+    /// </remarks>
+    /// <param name="directory">The directory to ensure exists.</param>
+    /// <returns>An <see cref="EnsureCode" /> describing the result of the operation.</returns>
+    public EnsureCode EnsureDirectoriesExists(string directory)
+    {
+        if (fileSystem.DirectoryExists(directory)) return EnsureCode.Success;
+        if (fileSystem.FileExists(directory)) return EnsureCode.FileExists;
+
+        return fileSystem.CreateDirectory(directory) ? EnsureCode.Success : EnsureCode.SystemError;
+    }
+
+    public string Join(string path1, string path2)
+    {
+        if (path1 == string.Empty) return path2;
+        return path2 == string.Empty ? path1 : fileSystem.Join(path1, path2);
+    }
+
+    /// <summary>
     ///     Returns the directory to use for logging before the user has changed it.
     /// </summary>
     /// <remarks>

@@ -34,14 +34,21 @@ namespace Chatter.Chat;
 public class ChatLogGenerator(IErrorWriter errorWriter) : IChatLogGenerator
 {
     /// <inheritdoc />
-    public IChatLog Create(ChatLogConfiguration logConfiguration,
+    public IChatLog Create(Configuration configuration,
+                           ChatLogConfiguration logConfiguration,
                            LogFileInfo logFileInfo,
                            IDateHelper dateHelper,
                            FileHelper fileHelper,
                            IPlayer myself)
     {
         return logConfiguration.Name == AllLogName
-                   ? new AllChatLog(logConfiguration, logFileInfo, dateHelper, fileHelper, errorWriter)
-                   : new GroupChatLog(logConfiguration, logFileInfo, dateHelper, fileHelper, myself, errorWriter);
+                   ? new AllChatLog(configuration, logConfiguration, logFileInfo, dateHelper, fileHelper, errorWriter)
+                   : new GroupChatLog(configuration,
+                                      logConfiguration,
+                                      logFileInfo,
+                                      dateHelper,
+                                      fileHelper,
+                                      myself,
+                                      errorWriter);
     }
 }

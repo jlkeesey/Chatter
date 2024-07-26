@@ -37,7 +37,8 @@ namespace Chatter.Chat;
 ///     Defines the handler for a single log file.
 /// </summary>
 public abstract class ChatLog(
-    ChatLogConfiguration configuration,
+    Configuration configuration,
+    ChatLogConfiguration logConfiguration,
     LogFileInfo logFileInfo,
     IDateHelper dateHelper,
     FileHelper fileHelper,
@@ -45,9 +46,10 @@ public abstract class ChatLog(
 {
     private static readonly ChatLogConfiguration.ChatTypeFlag DefaultChatTypeFlag = new();
 
+    protected readonly Configuration Configuration = configuration;
     protected readonly IDateHelper DateHelper = dateHelper;
     protected readonly FileHelper FileHelper = fileHelper;
-    protected readonly ChatLogConfiguration LogConfiguration = configuration;
+    protected readonly ChatLogConfiguration LogConfiguration = logConfiguration;
     protected readonly LogFileInfo LogFileInfo = logFileInfo;
 
     private LocalDate _lastWrite = LocalDate.MinIsoValue;
@@ -200,11 +202,9 @@ public abstract class ChatLog(
          * therefore not critical.
          */
         var startDate = LogFileInfo.StartTime ?? DateHelper.ZonedNow;
-        var dateString = LogFileInfo.FileNameDatePattern.Format(startDate);
 
-        var pattern = LogFileInfo.Order == FileNameOrder.PrefixGroupDate ? "{0}-{1}-{2}" : "{0}-{2}-{1}";
-        var name = string.Format(pattern, LogFileInfo.FileNamePrefix, LogConfiguration.Name, dateString);
-        FileName = FileHelper.FullFileName(LogFileInfo.Directory, name, FileHelper.LogFileExtension);
+        var pathAdditional = GenerateDirectoryPrefix(startDate);
+        var directory = FileHelper.Join(LogFileInfo.Directory, pathAdditional);
         var ensureCode = FileHelper.EnsureDirectoryExists(LogFileInfo.Directory);
         if (ensureCode != FileHelper.EnsureCode.Success)
         {
@@ -213,6 +213,31 @@ public abstract class ChatLog(
             return;
         }
 
+        ensureCode = FileHelper.EnsureDirectoriesExists(directory);
+        if (ensureCode != FileHelper.EnsureCode.Success)
+        {
+            ErrorWriter.PrintError($"Could not create full logging directory '{directory}' because {ensureCode}");
+            Failed = true; // So we don't keep trying to create a failure.
+            return;
+        }
+
+        var dateString = LogFileInfo.FileNameDatePattern.Format(startDate);
+        var pattern = LogFileInfo.Order == FileNameOrder.PrefixGroupDate ? "{0}-{1}-{2}" : "{0}-{2}-{1}";
+        var name = string.Format(pattern, LogFileInfo.FileNamePrefix, LogConfiguration.Name, dateString);
+        FileName = FileHelper.FullFileName(directory, name, FileHelper.LogFileExtension);
         Log = FileHelper.OpenFile(FileName, true);
+    }
+
+    private string GenerateDirectoryPrefix(ZonedDateTime date)
+    {
+        return Configuration.DirectoryForm switch
+        {
+            DirectoryFormat.None or DirectoryFormat.Unified => string.Empty,
+            DirectoryFormat.Group                           => LogConfiguration.Name,
+            DirectoryFormat.YearMonth                       => $"{date.Year}/{date.Month:D2}",
+            DirectoryFormat.YearMonthGroup                  => $"{date.Year}/{date.Month:D2}/{LogConfiguration.Name}",
+            DirectoryFormat.GroupYearMonth                  => $"{LogConfiguration.Name}/{date.Year}/{date.Month:D2}",
+            _                                               => throw new ArgumentOutOfRangeException(),
+        };
     }
 }

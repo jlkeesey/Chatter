@@ -30,38 +30,38 @@ namespace Chatter.UnitTests.Support;
 
 internal class TestChatLog : ChatLog
 {
-    public TestChatLog(string name) : this(new ChatLogConfiguration(name))
+    public TestChatLog(string name) : this(new Configuration(), new ChatLogConfiguration(name))
     {
         LogConfiguration.InitializeTypeFlags();
         LogConfiguration.IsActive = true;
     }
 
-    public TestChatLog(ChatLogConfiguration configuration) : this(configuration,
-                                                                  new LogFileInfo(),
-                                                                  new DateHelperFake(),
-                                                                  new FileSystemFake(),
-                                                                  new ErrorWriter())
+    public TestChatLog(Configuration configuration, ChatLogConfiguration logConfiguration) : this(configuration,
+        logConfiguration,
+        new LogFileInfo(),
+        new DateHelperFake(),
+        new FileSystemFake(),
+        new ErrorWriter())
     {
     }
 
-    private TestChatLog(ChatLogConfiguration configuration,
+    private TestChatLog(Configuration configuration,
+                        ChatLogConfiguration logConfiguration,
                         LogFileInfo logFileInfo,
                         IDateHelper dateHelper,
                         FileSystemFake fileSystem,
                         IErrorWriter errorWriter) : base(configuration,
+                                                         logConfiguration,
                                                          logFileInfo,
                                                          dateHelper,
                                                          new FileHelper(fileSystem),
                                                          errorWriter)
     {
         FileSystem = fileSystem;
-        Configuration = new Configuration();
         Configuration.Initialize(FileHelper);
         logFileInfo.UpdateConfigValues(Configuration);
         logFileInfo.StartTime = dateHelper.ZonedNow;
     }
-
-    public Configuration Configuration { get; }
 
     public FileSystemFake FileSystem { get; }
 

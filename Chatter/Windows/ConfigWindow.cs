@@ -33,6 +33,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Numerics;
+using Chatter.Chat;
 using Chatter.Utilities;
 using static Chatter.Configuration;
 using static Chatter.Configuration.FileNameOrder;
@@ -117,6 +118,8 @@ public sealed partial class ConfigWindow : Window, IDisposable
 
     private readonly List<ComboOption<string>> _dateOptions;
     private readonly List<ComboOption<FileNameOrder>> _fileOrderOptions;
+    private readonly List<ComboOption<DirectoryFormat>> _directoryFormOptions;
+    private readonly ChatLogManager _chatLogManager;
     private readonly FriendManager _friendManager;
     private readonly Loc _loc;
     private bool _addUserAlreadyExists;
@@ -127,6 +130,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
     private IEnumerable<Friend> _filteredFriends = new List<Friend>();
     private string _friendFilter = Empty;
     private IEnumerable<Friend> _friends = new List<Friend>();
+    private int _directoryFormSelected = -1;
     private int _logOrderSelected = -1;
     private bool _removeDialogIsOpen = true;
     private string _removeDialogUser = Empty;
@@ -142,12 +146,14 @@ public sealed partial class ConfigWindow : Window, IDisposable
     /// </summary>
     /// <param name="config"></param>
     /// <param name="logger"></param>
+    /// <param name="chatLogManager"></param>
     /// <param name="dateHelper"></param>
     /// <param name="friendManager"></param>
     /// <param name="chatterImage">The Chatter plugin icon.</param>
     /// <param name="loc"></param>
     public ConfigWindow(Configuration config,
                         ILogger logger,
+                        ChatLogManager chatLogManager,
                         IDateHelper dateHelper,
                         FriendManager friendManager,
                         ISharedImmediateTexture chatterImage,
@@ -155,6 +161,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
     {
         _configuration = config;
         _logger = logger;
+        _chatLogManager = chatLogManager;
         _friendManager = friendManager;
         _chatterImage = chatterImage;
         _loc = loc;
@@ -180,7 +187,16 @@ public sealed partial class ConfigWindow : Window, IDisposable
         _fileOrderOptions = new List<ComboOption<FileNameOrder>>
         {
             new(MsgComboOrderGroupDate, PrefixGroupDate, MsgComboOrderGroupDateHelp),
-            new(MsgComboOrderDateGroup, PrefixGroupDate, MsgComboOrderDateGroupHelp),
+            new(MsgComboOrderDateGroup, PrefixDateGroup, MsgComboOrderDateGroupHelp),
+        };
+
+        _directoryFormOptions = new List<ComboOption<DirectoryFormat>>
+        {
+            new(MsgComboDirectoryUnified, DirectoryFormat.Unified, MsgComboDirectoryUnifiedHelp),
+            new(MsgComboDirectoryGroup, DirectoryFormat.Group, MsgComboDirectoryGroupHelp),
+            new(MsgComboDirectoryYearMonth, DirectoryFormat.YearMonth, MsgComboDirectoryYearMonthHelp),
+            new(MsgComboDirectoryYearMonthGroup, DirectoryFormat.YearMonthGroup, MsgComboDirectoryYearMonthGroupHelp),
+            new(MsgComboDirectoryGroupYearMonth, DirectoryFormat.GroupYearMonth, MsgComboDirectoryGroupYearMonthHelp),
         };
     }
 
@@ -266,6 +282,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
                 {
                     _logOrderSelected = i;
                     _configuration.LogOrder = _fileOrderOptions[i].Value;
+                    _chatLogManager.HandleGeneralConfigChange();
                 }
 
                 if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled)) DrawTooltip(_fileOrderOptions[i].Help);
@@ -276,6 +293,41 @@ public sealed partial class ConfigWindow : Window, IDisposable
         }
 
         HelpMarker(MsgComboOrderHelp);
+
+        VerticalSpace();
+
+        if (_directoryFormSelected < 0)
+        {
+            _directoryFormSelected = 0; // Default in case we don't find it
+            for (var i = 0; i < _directoryFormOptions.Count; i++)
+                if (_directoryFormOptions[i].Value == _configuration.DirectoryForm)
+                {
+                    _directoryFormSelected = i;
+                    break;
+                }
+        }
+
+        ImGui.SetNextItemWidth(200.0f);
+        if (ImGui.BeginCombo(MsgComboDirectoryFormLabel, _directoryFormOptions[_directoryFormSelected].Label))
+        {
+            for (var i = 0; i < _directoryFormOptions.Count; i++)
+            {
+                var isSelected = i == _directoryFormSelected;
+                if (ImGui.Selectable(_directoryFormOptions[i].Label, isSelected))
+                {
+                    _directoryFormSelected = i;
+                    _configuration.DirectoryForm = _directoryFormOptions[i].Value;
+                    _chatLogManager.HandleGeneralConfigChange();
+                }
+
+                if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled)) DrawTooltip(_directoryFormOptions[i].Help);
+                if (isSelected) ImGui.SetItemDefaultFocus();
+            }
+
+            ImGui.EndCombo();
+        }
+
+        HelpMarker(MsgComboDirectoryFormHelp);
     }
 
     /// <summary>
@@ -314,7 +366,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
                 {
                     if (!_configuration.ChatLogs.ContainsKey(chatLog.Name)) return;
                     _removeDialogGroup = chatLog.Name;
-                    ImGui.OpenPopup("Delete?");
+                    ImGui.OpenPopup(MsgTitleDelete);
                 }
 
                 DrawRemoveGroupDialog();
@@ -431,7 +483,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
                             {
                                 if (!chatLog.Users.ContainsKey(userFrom)) return;
                                 _removeDialogUser = userFrom;
-                                ImGui.OpenPopup("Remove?");
+                                ImGui.OpenPopup(MsgTitleRemove);
                             }
 
                             DrawRemoveUserDialog();
@@ -673,9 +725,9 @@ public sealed partial class ConfigWindow : Window, IDisposable
     {
         using (ImGuiWith.Font(UiBuilder.IconFont))
         {
-            if (disabled) ImGui.BeginDisabled();
-            var buttonPressed = ImGui.Button($"{(char) FontAwesomeIcon.Trash}##{id}Trash");
-            if (disabled) ImGui.EndDisabled();
+            bool buttonPressed;
+            using (ImGuiWith.Disabled(disabled))
+                buttonPressed = ImGui.Button($"{(char) FontAwesomeIcon.Trash}##{id}Trash");
             return buttonPressed;
         }
     }
@@ -688,14 +740,13 @@ public sealed partial class ConfigWindow : Window, IDisposable
     /// <returns><c>true</c> if the button was pressed.</returns>
     private static bool DrawCopyButton(string id, bool disabled = false)
     {
+        bool buttonPressed;
+        using (ImGuiWith.Disabled(disabled))
         using (ImGuiWith.Font(UiBuilder.IconFont))
-        {
-            if (disabled) ImGui.BeginDisabled();
-            var buttonPressed = ImGui.Button($"{(char) FontAwesomeIcon.Copy}##{id}Copy");
-            if (disabled) ImGui.EndDisabled();
-            if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled)) DrawTooltip("Copy to clipboard");
-            return buttonPressed;
-        }
+            buttonPressed = ImGui.Button($"{(char) FontAwesomeIcon.Copy}##{id}Copy");
+        if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled)) DrawTooltip("Copy to clipboard");
+
+        return buttonPressed;
     }
 
     /// <summary>
@@ -703,10 +754,9 @@ public sealed partial class ConfigWindow : Window, IDisposable
     /// </summary>
     private void DrawRemoveUserDialog()
     {
-        if (ImGui.BeginPopupModal("Remove?", ref _removeDialogIsOpen, ImGuiWindowFlags.AlwaysAutoResize))
+        if (ImGui.BeginPopupModal(MsgTitleRemove, ref _removeDialogIsOpen, ImGuiWindowFlags.AlwaysAutoResize))
         {
-            using (ImGuiWith.TextWrapPos(300.0f))
-                ImGui.TextUnformatted(Format(_loc.Message("Text.RemoveUser", _removeDialogUser)));
+            using (ImGuiWith.TextWrapPos(300.0f)) ImGui.TextUnformatted(Format(MsgRemoveUser, _removeDialogUser));
             ImGui.Separator();
 
             if (ImGui.Button(MsgButtonRemove, new Vector2(120, 0)))
@@ -727,10 +777,10 @@ public sealed partial class ConfigWindow : Window, IDisposable
     /// </summary>
     private void DrawRemoveGroupDialog()
     {
-        if (ImGui.BeginPopupModal("Delete?", ref _removeGroupDialogIsOpen, ImGuiWindowFlags.AlwaysAutoResize))
+        if (ImGui.BeginPopupModal(MsgTitleDelete, ref _removeGroupDialogIsOpen, ImGuiWindowFlags.AlwaysAutoResize))
         {
             using (ImGuiWith.TextWrapPos(300.0f))
-                ImGui.TextUnformatted(Format(_loc.Message("Label.Remove.Group", _removeDialogGroup)));
+                ImGui.TextUnformatted(Format(MsgLabelRemoveGroup, _removeDialogGroup));
             ImGui.Separator();
 
             if (ImGui.Button(MsgButtonRemove, new Vector2(120, 0)))
@@ -755,9 +805,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
     /// <param name="disabled"><c>true</c> if this control should be disabled.</param>
     private static void DrawCheckbox(string label, ref bool itemChecked, string? helpText = null, bool disabled = false)
     {
-        if (disabled) ImGui.BeginDisabled();
-        ImGui.Checkbox(label, ref itemChecked);
-        if (disabled) ImGui.EndDisabled();
+        using (ImGuiWith.Disabled(disabled)) ImGui.Checkbox(label, ref itemChecked);
         HelpMarker(helpText);
     }
 

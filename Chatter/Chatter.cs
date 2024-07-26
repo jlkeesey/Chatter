@@ -94,6 +94,7 @@ public sealed partial class Chatter : IDalamudPlugin
             _windowManager = new JlkWindowManager(pluginInterface,
                                                   _configuration,
                                                   _logger,
+                                                  _chatLogManager,
                                                   dateManager,
                                                   friendManager,
                                                   Name,

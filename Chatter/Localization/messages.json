@@ -594,6 +594,76 @@
       "key": "Label.Remove.Group",
       "message": "Do you want to remove group {0}?",
       "description": ""
+    },
+    {
+      "key": "Title.Delete",
+      "message": "Delete?",
+      "description": ""
+    },
+    {
+      "key": "Title.Remove",
+      "message": "Remove?",
+      "description": ""
+    },
+    {
+      "key": "Combo.Directory.Unified",
+      "message": "Unified",
+      "description": ""
+    },
+    {
+      "key": "Combo.Directory.Unified.Help",
+      "message": "All log files will be placed in same directory.",
+      "description": ""
+    },
+    {
+      "key": "Combo.Directory.Group",
+      "message": "Group",
+      "description": ""
+    },
+    {
+      "key": "Combo.Directory.Group.Help",
+      "message": "All log files for a group will be placed in same directory named for the group.",
+      "description": ""
+    },
+    {
+      "key": "Combo.Directory.YearMonth",
+      "message": "Year/Month",
+      "description": ""
+    },
+    {
+      "key": "Combo.Directory.YearMonth.Help",
+      "message": "Log files will be placed in subdirectories named for the year, and then the month e.g. 2024/07.",
+      "description": ""
+    },
+    {
+      "key": "Combo.Directory.YearMonthGroup",
+      "message": "Year/Month/Group",
+      "description": ""
+    },
+    {
+      "key": "Combo.Directory.YearMonthGroup.Help",
+      "message": "Log files will be placed in subdirectories named for the year, the month, and then the group e.g. 2024/07/all.",
+      "description": ""
+    },
+    {
+      "key": "Combo.Directory.GroupYearMonth",
+      "message": "Group/Year/Month",
+      "description": ""
+    },
+    {
+      "key": "Combo.Directory.GroupYearMonth.Help",
+      "message": "Log files will be placed in subdirectories named for the group, the year, and then the month e.g. all/2024/07.",
+      "description": ""
+    },
+    {
+      "key": "Combo.Directory.Label",
+      "message": "Log directory format",
+      "description": ""
+    },
+    {
+      "key": "Combo.Directory.Help",
+      "message": "Specifies the format for the log dirctory (nesting).",
+      "description": ""
     }
   ]
 }
