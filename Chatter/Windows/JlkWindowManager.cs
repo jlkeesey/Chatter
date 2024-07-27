@@ -47,7 +47,7 @@ public sealed class JlkWindowManager : IDisposable
     /// <param name="pluginInterface"></param>
     /// <param name="config"></param>
     /// <param name="logger"></param>
-    /// <param name="chatManager"></param>
+    /// <param name="chatLogManager"></param>
     /// <param name="dateHelper"></param>
     /// <param name="friendManager"></param>
     /// <param name="nameSpace"></param>

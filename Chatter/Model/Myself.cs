@@ -21,6 +21,7 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+using Chatter.System;
 using Dalamud.Plugin.Services;
 
 namespace Chatter.Model;
@@ -28,7 +29,7 @@ namespace Chatter.Model;
 /// <summary>
 ///     Information about the player running this plugin.
 /// </summary>
-public class Myself(IClientState clientState, WorldManager worldManager) : IPlayer
+public class Myself(IClientState clientState, WorldManager worldManager, ILogger logger) : IPlayer
 {
     private World? _homeWorld;
     private string? _name;
@@ -38,7 +39,10 @@ public class Myself(IClientState clientState, WorldManager worldManager) : IPlay
     /// </summary>
     public string Name
     {
-        get { return _name ??= clientState.LocalPlayer?.Name.TextValue ?? "Who am I?"; }
+        get
+        {
+            return _name ??= clientState.LocalPlayer?.Name.TextValue ?? "Who am I?";
+        }
     }
 
     /// <summary>

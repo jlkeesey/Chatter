@@ -192,6 +192,8 @@ public sealed class ChatManager : IDisposable
         var chatString = new ChatString(seSender);
         if (!chatString.HasInitialPlayer() && message.HasInitialPlayer())
             chatString = new ChatString(message.GetInitialPlayerItem(chatString.ToString(), _myself.HomeWorld.Name));
+        else
+            chatString = new ChatString(chatString.GetInitialPlayerItem(seSender.TextValue, _myself.HomeWorld.Name));
 
         return chatString;
     }

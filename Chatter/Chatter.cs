@@ -44,6 +44,7 @@ namespace Chatter;
 public sealed partial class Chatter : IDalamudPlugin
 {
     [UsedImplicitly] public static string Version { get; private set; } = string.Empty;
+    [UsedImplicitly] public static ILogger? Logger { get; private set; }
 
     private readonly ChatLogManager _chatLogManager;
     private readonly ChatManager _chatManager;
@@ -69,6 +70,7 @@ public sealed partial class Chatter : IDalamudPlugin
         {
             Version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "";
             _logger = new Logger(pluginLog);
+            Logger = _logger;
 
 #if DEBUG
             SeSpecialCharacters.InitializeDebug(_logger);
@@ -82,7 +84,7 @@ public sealed partial class Chatter : IDalamudPlugin
 
             var dateManager = new DateHelper() as IDateHelper;
             var worldManager = new WorldManager(gameData);
-            var myself = new Myself(clientState, worldManager);
+            var myself = new Myself(clientState, worldManager, _logger);
             var friendManager = new FriendManager(worldManager);
             var errorWriter = new ChatErrorWriter(chatGui);
             var chatLogGenerator = new ChatLogGenerator(errorWriter);

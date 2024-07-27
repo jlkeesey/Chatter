@@ -195,8 +195,12 @@ public sealed partial class ConfigWindow : Window, IDisposable
             new(MsgComboDirectoryUnified, DirectoryFormat.Unified, MsgComboDirectoryUnifiedHelp),
             new(MsgComboDirectoryGroup, DirectoryFormat.Group, MsgComboDirectoryGroupHelp),
             new(MsgComboDirectoryYearMonth, DirectoryFormat.YearMonth, MsgComboDirectoryYearMonthHelp),
-            new(MsgComboDirectoryYearMonthGroup, DirectoryFormat.YearMonthGroup, MsgComboDirectoryYearMonthGroupHelp),
-            new(MsgComboDirectoryGroupYearMonth, DirectoryFormat.GroupYearMonth, MsgComboDirectoryGroupYearMonthHelp),
+            new(MsgComboDirectoryYearMonthGroup,
+                DirectoryFormat.YearMonthGroup,
+                MsgComboDirectoryYearMonthGroupHelp),
+            new(MsgComboDirectoryGroupYearMonth,
+                DirectoryFormat.GroupYearMonth,
+                MsgComboDirectoryGroupYearMonthHelp),
         };
     }
 
@@ -209,7 +213,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
     /// </summary>
     public override void Draw()
     {
-        ImGui.Image(_chatterImage.GetWrapOrEmpty().ImGuiHandle, new Vector2(64, 64));
+        DrawTwoColumns("header", DrawIcon, DrawRestartButton, rightWidth: 100.0f);
         VerticalSpace(5.0f);
 
         if (ImGui.BeginTabBar("tabBar", ImGuiTabBarFlags.None))
@@ -227,6 +231,34 @@ public sealed partial class ConfigWindow : Window, IDisposable
             }
 
             ImGui.EndTabBar();
+        }
+    }
+
+    private void DrawRestartButton()
+    {
+        ImGui.Button("label");
+    }
+
+    private void DrawIcon()
+    {
+        ImGui.Image(_chatterImage.GetWrapOrEmpty().ImGuiHandle, new Vector2(64, 64));
+    }
+
+    private static void DrawTwoColumns(string id, Action left, Action right, float rightWidth = 22.0f)
+    {
+        if (ImGui.BeginTable(id, 2, ImGuiTableFlags.SizingFixedFit))
+        {
+            ImGui.TableSetupColumn(Empty, ImGuiTableColumnFlags.WidthStretch);
+            ImGui.TableSetupColumn(Empty, ImGuiTableColumnFlags.WidthFixed, rightWidth);
+
+            ImGui.TableNextRow();
+            ImGui.TableSetColumnIndex(0);
+            left.Invoke();
+
+            ImGui.TableSetColumnIndex(1);
+            right.Invoke();
+
+            ImGui.EndTable();
         }
     }
 
@@ -282,7 +314,6 @@ public sealed partial class ConfigWindow : Window, IDisposable
                 {
                     _logOrderSelected = i;
                     _configuration.LogOrder = _fileOrderOptions[i].Value;
-                    _chatLogManager.HandleGeneralConfigChange();
                 }
 
                 if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled)) DrawTooltip(_fileOrderOptions[i].Help);
@@ -317,10 +348,10 @@ public sealed partial class ConfigWindow : Window, IDisposable
                 {
                     _directoryFormSelected = i;
                     _configuration.DirectoryForm = _directoryFormOptions[i].Value;
-                    _chatLogManager.HandleGeneralConfigChange();
                 }
 
-                if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled)) DrawTooltip(_directoryFormOptions[i].Help);
+                if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+                    DrawTooltip(_directoryFormOptions[i].Help);
                 if (isSelected) ImGui.SetItemDefaultFocus();
             }
 
