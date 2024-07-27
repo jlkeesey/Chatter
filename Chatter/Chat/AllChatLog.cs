@@ -33,11 +33,13 @@ namespace Chatter.Chat;
 ///     Chat log for the log that record everything.
 /// </summary>
 public class AllChatLog(
-    ChatLogConfiguration configuration,
+    Configuration configuration,
+    ChatLogConfiguration logConfiguration,
     LogFileInfo logFileInfo,
     IDateHelper dateHelper,
     FileHelper fileHelper,
-    IErrorWriter errorWriter) : ChatLog(configuration, logFileInfo, dateHelper, fileHelper, errorWriter)
+    IErrorWriter errorWriter)
+    : ChatLog(configuration, logConfiguration, logFileInfo, dateHelper, fileHelper, errorWriter)
 {
     protected override string DefaultFormat => "{6}:{2}:{0}:{5}";
 

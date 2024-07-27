@@ -58,7 +58,7 @@ public interface IFileSystem
     bool Exists(string path);
 
     /// <summary>
-    ///     Creates the given directory. This will only attempt to create the final component of the path.
+    ///     Creates the given directory. This will attempt to create the all the components of the path.
     /// </summary>
     /// <param name="path">The directory path to create.</param>
     /// <returns><c>true</c> if the directory was created, <c>false</c> if anything went wrong.</returns>

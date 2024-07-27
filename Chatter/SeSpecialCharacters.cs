@@ -45,6 +45,7 @@ public static class SeSpecialCharacters
     private static readonly Dictionary<char, string> SpecialCharacterMap = new()
     {
         {'\uE03C', "\u2747"}, // Flower separator between names and worlds
+        {'\uE03D', "\u25A3"}, // Box
         {'\uE040', "["},      // Open double arrow used to surround translatable words
         {'\uE041', "]"},      // Close double arrow used to surround translatable words
         {'\uE049', "\u25CB"}, // D-controller circle button
@@ -52,6 +53,7 @@ public static class SeSpecialCharacters
         {'\uE04B', "\u2716"}, // D-controller x button
         {'\uE04C', "\u2795"}, // D-controller triangle button
         {'\uE04D', "\u25B3"}, // D-controller + button
+        {'\uE05B', "\u26E8"}, // Cross on shield
         {'\uE05C', "\u2302"}, // House
         {'\uE05D', "\u273F"}, // Flower
         {'\uE05E', "\U0001F441"}, // Eye
@@ -106,6 +108,15 @@ public static class SeSpecialCharacters
         {'\uE0A2', "\u2472"}, // Number 19
         {'\uE0A3', "\u2473"}, // Number 20
         {'\uE0AF', "\u2A01"}, // Plus in filled square
+        {'\uE0B1', "\u2776"}, // Filled circle 1
+        {'\uE0B2', "\u2777"}, // Filled circle 2
+        {'\uE0B3', "\u2778"}, // Filled circle 3
+        {'\uE0B4', "\u2779"}, // Filled circle 4
+        {'\uE0B5', "\u277A"}, // Filled circle 5
+        {'\uE0B6', "\u277B"}, // Filled circle 6
+        {'\uE0B7', "\u277C"}, // Filled circle 7
+        {'\uE0B8', "\u277D"}, // Filled circle 8
+        {'\uE0B9', "\u277E"}, // Filled circle 9
         {'\uE0BB', "\u02A2"}, // Filled arrow in front of links
         {'\uE0BC', "\u233D"}, // Swoop in square
         {'\uE0BD', "\u29F3"}, // Swoop in filled square

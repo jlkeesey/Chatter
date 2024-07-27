@@ -1,4 +1,4 @@
-﻿// Copyright 2023 James Keesey
+﻿// Copyright 2024 James Keesey
 // 
 // Redistribution and use in source and binary forms, with or without modification,
 // are permitted provided that the following conditions are met:
@@ -21,42 +21,14 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-using Dalamud.Plugin.Services;
+using ImGuiNET;
 
-namespace Chatter.Model;
+namespace Chatter.Utilities;
 
-/// <summary>
-///     Information about the player running this plugin.
-/// </summary>
-public class Myself(IClientState clientState, WorldManager worldManager) : IPlayer
+public static class ImGuiUse
 {
-    private World? _homeWorld;
-    private string? _name;
-
-    /// <summary>
-    ///     The player character's name.
-    /// </summary>
-    public string Name
+    public static void ColoredText(string text, uint color)
     {
-        get
-        {
-            return _name ??= clientState.LocalPlayer?.Name.TextValue ?? "Who am I?";
-        }
+        using (ImGuiWith.Color(ImGuiCol.Text, color)) ImGui.TextUnformatted(text);
     }
-
-    /// <summary>
-    ///     The player character's home world.
-    /// </summary>
-    public World HomeWorld
-    {
-        get
-        {
-            return _homeWorld ??= worldManager.GetWorld(clientState.LocalPlayer?.HomeWorld.GameData?.Name.ToString());
-        }
-    }
-
-    /// <summary>
-    ///     Returns my full name (name plus home world).
-    /// </summary>
-    public string FullName => $"{Name}@{HomeWorld.Name}";
 }

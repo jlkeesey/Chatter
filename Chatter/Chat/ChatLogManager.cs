@@ -66,7 +66,7 @@ public sealed class ChatLogManager(
     {
         if (!_logs.ContainsKey(logConfiguration.Name))
             _logs[logConfiguration.Name] =
-                chatLogGenerator.Create(logConfiguration, _logFileInfo, dateHelper, fileHelper, myself);
+                chatLogGenerator.Create(configuration, logConfiguration, _logFileInfo, dateHelper, fileHelper, myself);
 
         return _logs[logConfiguration.Name];
     }
@@ -89,6 +89,24 @@ public sealed class ChatLogManager(
     {
         foreach (var (_, entry) in _logs) entry.Close();
         _logFileInfo.StartTime = null;
+    }
+
+    /// <summary>
+    /// Called when a change is made to a general configuration value that affects the logs.
+    /// </summary>
+    public void HandleGeneralConfigChange()
+    {
+        CloseLogs();
+    }
+
+    /// <summary>
+    /// Called when a change is made to a group configuration value that affects just one log.
+    /// </summary>
+    /// <param name="group">The name of the group.</param>
+    public void HandleGroupConfigChange(string group)
+    {
+        if (_logs.TryGetValue(group, out var log))
+            log.Close();
     }
 
     /// <summary>

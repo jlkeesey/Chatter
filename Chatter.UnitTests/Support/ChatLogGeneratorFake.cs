@@ -27,24 +27,18 @@ using Chatter.System;
 
 namespace Chatter.UnitTests.Support;
 
-internal class ChatLogGeneratorFake : IChatLogGenerator
+internal class ChatLogGeneratorFake(IChatLog chatLog) : IChatLogGenerator
 {
-    private readonly IChatLog _chatLog;
-
-    public ChatLogGeneratorFake(IChatLog chatLog)
-    {
-        _chatLog = chatLog;
-    }
-
     public int Count { get; private set; }
 
-    public IChatLog Create(Configuration.ChatLogConfiguration logConfiguration,
+    public IChatLog Create(Configuration configuration,
+                           Configuration.ChatLogConfiguration logConfiguration,
                            LogFileInfo logFileInfo,
                            IDateHelper dateHelper,
                            FileHelper fileHelper,
                            IPlayer myself)
     {
         Count++;
-        return _chatLog;
+        return chatLog;
     }
 }
