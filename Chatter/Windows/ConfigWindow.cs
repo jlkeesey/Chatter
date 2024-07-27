@@ -33,7 +33,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Numerics;
-using Chatter.Chat;
 using Chatter.Utilities;
 using static Chatter.Configuration;
 using static Chatter.Configuration.FileNameOrder;
@@ -119,7 +118,6 @@ public sealed partial class ConfigWindow : Window, IDisposable
     private readonly List<ComboOption<string>> _dateOptions;
     private readonly List<ComboOption<FileNameOrder>> _fileOrderOptions;
     private readonly List<ComboOption<DirectoryFormat>> _directoryFormOptions;
-    private readonly ChatLogManager _chatLogManager;
     private readonly FriendManager _friendManager;
     private readonly Loc _loc;
     private bool _addUserAlreadyExists;
@@ -146,14 +144,12 @@ public sealed partial class ConfigWindow : Window, IDisposable
     /// </summary>
     /// <param name="config"></param>
     /// <param name="logger"></param>
-    /// <param name="chatLogManager"></param>
     /// <param name="dateHelper"></param>
     /// <param name="friendManager"></param>
     /// <param name="chatterImage">The Chatter plugin icon.</param>
     /// <param name="loc"></param>
     public ConfigWindow(Configuration config,
                         ILogger logger,
-                        ChatLogManager chatLogManager,
                         IDateHelper dateHelper,
                         FriendManager friendManager,
                         ISharedImmediateTexture chatterImage,
@@ -161,7 +157,6 @@ public sealed partial class ConfigWindow : Window, IDisposable
     {
         _configuration = config;
         _logger = logger;
-        _chatLogManager = chatLogManager;
         _friendManager = friendManager;
         _chatterImage = chatterImage;
         _loc = loc;

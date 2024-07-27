@@ -84,7 +84,7 @@ public sealed partial class Chatter : IDalamudPlugin
 
             var dateManager = new DateHelper() as IDateHelper;
             var worldManager = new WorldManager(gameData);
-            var myself = new Myself(clientState, worldManager, _logger);
+            var myself = new Myself(clientState, worldManager);
             var friendManager = new FriendManager(worldManager);
             var errorWriter = new ChatErrorWriter(chatGui);
             var chatLogGenerator = new ChatLogGenerator(errorWriter);
@@ -96,7 +96,6 @@ public sealed partial class Chatter : IDalamudPlugin
             _windowManager = new JlkWindowManager(pluginInterface,
                                                   _configuration,
                                                   _logger,
-                                                  _chatLogManager,
                                                   dateManager,
                                                   friendManager,
                                                   Name,
