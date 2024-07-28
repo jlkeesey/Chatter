@@ -25,7 +25,7 @@ using System;
 using FFXIVClientStructs.FFXIV.Common.Math;
 using ImGuiNET;
 
-namespace Chatter.Utilities;
+namespace Chatter.ImGuiX;
 
 public static class ImGuiWith
 {
