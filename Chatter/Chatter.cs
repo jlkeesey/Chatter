@@ -98,6 +98,7 @@ public sealed partial class Chatter : IDalamudPlugin
                                                   _logger,
                                                   dateManager,
                                                   friendManager,
+                                                  _chatLogManager,
                                                   Name,
                                                   chatterImage,
                                                   loc);

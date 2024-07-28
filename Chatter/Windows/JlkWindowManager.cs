@@ -27,6 +27,7 @@ using Chatter.System;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
 using System;
+using Chatter.Chat;
 using Dalamud.Interface.Textures;
 
 namespace Chatter.Windows;
@@ -48,6 +49,7 @@ public sealed class JlkWindowManager : IDisposable
     /// <param name="logger"></param>
     /// <param name="dateHelper"></param>
     /// <param name="friendManager"></param>
+    /// <param name="chatLogManager"></param>
     /// <param name="nameSpace"></param>
     /// <param name="chatterImage"></param>
     /// <param name="loc"></param>
@@ -56,13 +58,14 @@ public sealed class JlkWindowManager : IDisposable
                             ILogger logger,
                             IDateHelper dateHelper,
                             FriendManager friendManager,
+                            ChatLogManager chatLogManager,
                             string nameSpace,
                             ISharedImmediateTexture chatterImage,
                             Loc loc)
     {
         _pluginInterface = pluginInterface;
         _windowSystem = new WindowSystem(nameSpace);
-        _configWindow = Add(new ConfigWindow(config, logger, dateHelper, friendManager, chatterImage, loc));
+        _configWindow = Add(new ConfigWindow(config, logger, dateHelper, friendManager, chatLogManager, chatterImage, loc));
         _pluginInterface.UiBuilder.Draw += _windowSystem.Draw;
         _pluginInterface.UiBuilder.OpenConfigUi += ToggleConfig;
     }

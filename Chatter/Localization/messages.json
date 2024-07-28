@@ -516,7 +516,7 @@
       "description": ""
     },
     {
-      "key": "Combo.Timestamp.Cultural,Help",
+      "key": "Combo.Timestamp.Cultural.Help",
       "message": "Formats the timestamp in a way that is reasonable for the region you are in. This uses the default region settings of this computer. For example, this will look like: '5/4/2023 9:37:54 PM' in the US and '4/5/2023 21:37:54' in The Netherlands.'",
       "description": ""
     },
@@ -591,8 +591,8 @@
       "description": ""
     },
     {
-      "key": "Label.Remove.Group",
-      "message": "Do you want to remove group {0}?",
+      "key": "Label.Delete.Group",
+      "message": "Do you want to delete group {0}?",
       "description": ""
     },
     {
@@ -663,6 +663,21 @@
     {
       "key": "Combo.Directory.Help",
       "message": "Specifies the format for the log dirctory (nesting).",
+      "description": ""
+    },
+    {
+      "key": "Button.Delete",
+      "message": "Delete",
+      "description": ""
+    },
+    {
+      "key": "Button.Restart",
+      "message": "Restart",
+      "description": ""
+    },
+    {
+      "key": "Button.Restart.Help",
+      "message": "Closes the current logs and reopens them using the updated configuration settings.",
       "description": ""
     }
   ]
