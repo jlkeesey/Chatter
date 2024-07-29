@@ -679,6 +679,16 @@
       "key": "Button.Restart.Help",
       "message": "Closes the current logs and reopens them using the updated configuration settings.",
       "description": ""
+    },
+    {
+      "key": "Label.IsEvent.Checkbox",
+      "message": "Is event",
+      "description": ""
+    },
+    {
+      "key": "Label.IsEvent.Checkbox.Help",
+      "message": "Marks this as an event, which must be actively started and will only be active for a set period of time.",
+      "description": ""
     }
   ]
 }

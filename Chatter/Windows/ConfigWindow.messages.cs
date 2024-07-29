@@ -88,6 +88,8 @@ public partial class ConfigWindow
     private string MsgLabelIncludeServerNameHelp => _loc.Message("Label.IncludeServerName.Checkbox.Help");
     private string MsgLabelIsActive => _loc.Message("Label.IsActive.Checkbox");
     private string MsgLabelIsActiveHelp => _loc.Message("Label.IsActive.Checkbox.Help");
+    private string MsgLabelIsEvent => _loc.Message("Label.IsEvent.Checkbox");
+    private string MsgLabelIsEventHelp => _loc.Message("Label.IsEvent.Checkbox.Help");
     private string MsgLabelSaveDirectory => _loc.Message("Label.SaveDirectory");
     private string MsgLabelSaveDirectoryHelp => _loc.Message("Label.SaveDirectory.Help");
     private string MsgPlayerAlreadyInList => _loc.Message("Message.PlayerAlreadyInList");

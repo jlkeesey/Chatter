@@ -36,9 +36,10 @@ public class LogFileInfo
     private static readonly LocalTimePattern TimePattern = CreateWithInvariantCulture("H:mm");
     private static readonly LocalTime DefaultTimeToClose = new(6, 0);
 
+    // U+A789 is Modifier Letter Colon.
     // ReSharper disable once StringLiteralTypo
     private static readonly ZonedDateTimePattern DefaultFileDateTimePattern =
-        ZonedDateTimePattern.CreateWithCurrentCulture("yyyyMMdd-HHmmss", null);
+        ZonedDateTimePattern.CreateWithCurrentCulture("yyyy-MM-dd HH\uA789mm\uA789ss", null);
 
     private ZonedDateTime? _startTime;
 

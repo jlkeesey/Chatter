@@ -349,7 +349,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
 
     private static void DrawGroupTitle(ChatLogConfiguration chatLog)
     {
-        ImGuiWidgets.ColoredText(chatLog.Name, 0xff00ff00);
+        ImGuiWidgets.ColoredText(chatLog.Title, 0xff00ff00);
     }
 
     private void DrawGroupDelete(ChatLogConfiguration chatLog)
@@ -392,11 +392,14 @@ public sealed partial class ConfigWindow : Window, IDisposable
                                           MsgLabelIncludeAllUsersHelp,
                                           chatLog.IsAll);
                 ImGui.TableNextColumn();
+                ImGuiWidgets.DrawCheckbox(MsgLabelIsEvent, ref chatLog.IsEvent, MsgLabelIsEventHelp, chatLog.IsAll);
+                ImGui.TableNextColumn();
+                ImGuiWidgets.DrawCheckbox(MsgLabelIncludeSelf, ref chatLog.IncludeMe, MsgLabelIncludeSelfHelp);
+
+                ImGui.TableNextColumn();
                 ImGuiWidgets.DrawCheckbox(MsgLabelIncludeServerName,
                                           ref chatLog.IncludeServer,
                                           MsgLabelIncludeServerNameHelp);
-                ImGui.TableNextColumn();
-                ImGuiWidgets.DrawCheckbox(MsgLabelIncludeSelf, ref chatLog.IncludeMe, MsgLabelIncludeSelfHelp);
 
 #if DEBUG
                 ImGui.TableNextColumn();
@@ -795,8 +798,8 @@ public sealed partial class ConfigWindow : Window, IDisposable
                 foreach (var (_, cl) in _configuration.ChatLogs)
                 {
                     var isSelected = _selectedGroup == cl.Name;
-                    if (ImGui.Selectable(cl.Name, isSelected)) _selectedGroup = cl.Name;
-                    if (ImGui.IsItemHovered()) ImGuiWidgets.DrawTooltip(cl.Name);
+                    if (ImGui.Selectable(cl.Title, isSelected)) _selectedGroup = cl.Name;
+                    if (ImGui.IsItemHovered()) ImGuiWidgets.DrawTooltip(cl.Title);
                     if (isSelected) ImGui.SetItemDefaultFocus();
                 }
 
