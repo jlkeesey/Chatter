@@ -29,6 +29,8 @@ using Dalamud.Plugin;
 using System;
 using Chatter.Chat;
 using Dalamud.Interface.Textures;
+using FFXIVClientStructs.FFXIV.Common.Math;
+using ImGuiNET;
 
 namespace Chatter.Windows;
 
@@ -37,9 +39,11 @@ namespace Chatter.Windows;
 /// </summary>
 public sealed class JlkWindowManager : IDisposable
 {
+    private readonly MainWindow _mainWindow;
     private readonly ConfigWindow _configWindow;
     private readonly IDalamudPluginInterface _pluginInterface;
     private readonly WindowSystem _windowSystem;
+    private readonly SelectEventPopup _selectEventPopup;
 
     /// <summary>
     ///     Creates the manager, all top-level windows, and binds them where needed.
@@ -65,8 +69,12 @@ public sealed class JlkWindowManager : IDisposable
     {
         _pluginInterface = pluginInterface;
         _windowSystem = new WindowSystem(nameSpace);
-        _configWindow = Add(new ConfigWindow(config, logger, dateHelper, friendManager, chatLogManager, chatterImage, loc));
+        _mainWindow = Add(new MainWindow(this, config, chatLogManager, loc));
+        _configWindow =
+            Add(new ConfigWindow(config, logger, dateHelper, friendManager, chatLogManager, chatterImage, loc));
+        _selectEventPopup = Add(new SelectEventPopup(this, config, loc));
         _pluginInterface.UiBuilder.Draw += _windowSystem.Draw;
+        _pluginInterface.UiBuilder.OpenMainUi += ToggleMain;
         _pluginInterface.UiBuilder.OpenConfigUi += ToggleConfig;
     }
 
@@ -79,8 +87,14 @@ public sealed class JlkWindowManager : IDisposable
         _pluginInterface.UiBuilder.Draw -= _windowSystem.Draw;
 
         _windowSystem.RemoveAllWindows();
+    }
 
-        _configWindow.Dispose();
+    /// <summary>
+    ///     Toggles the visibility of the main window.
+    /// </summary>
+    public void ToggleMain()
+    {
+        _mainWindow.IsOpen = !_mainWindow.IsOpen;
     }
 
     /// <summary>
@@ -89,6 +103,32 @@ public sealed class JlkWindowManager : IDisposable
     public void ToggleConfig()
     {
         _configWindow.IsOpen = !_configWindow.IsOpen;
+    }
+
+    /// <summary>
+    ///     Shows the select event popup.
+    /// </summary>
+    public void ShowSelectEvent(Vector2? position = null)
+    {
+        if (position == null)
+        {
+            _selectEventPopup.PositionCondition = ImGuiCond.None;
+        }
+        else
+        {
+            _selectEventPopup.PositionCondition = ImGuiCond.Appearing;
+            _selectEventPopup.Position = position;
+        }
+
+        _selectEventPopup.IsOpen = true;
+    }
+
+    /// <summary>
+    ///     Shows the select event popup.
+    /// </summary>
+    public void HideSelectEvent()
+    {
+        _selectEventPopup.IsOpen = false;
     }
 
     /// <summary>

@@ -29,6 +29,7 @@ namespace Chatter.Windows;
 public partial class ConfigWindow
 {
     private string MsgButtonAdd => _loc.Message("Button.Add");
+    private string MsgButtonAddEvent => _loc.Message("Button.AddEvent");
     private string MsgButtonAddGroup => _loc.Message("Button.AddGroup");
     private string MsgButtonAddUser => _loc.Message("Button.AddUser");
     private string MsgButtonCancel => _loc.Message("Button.Cancel");
@@ -66,6 +67,9 @@ public partial class ConfigWindow
     private string MsgComboTimestampSortable => _loc.Message("Combo.Timestamp.Sortable");
     private string MsgComboTimestampSortableHelp => _loc.Message("Combo.Timestamp.Sortable.Help");
     private string MsgDescriptionIncludedUsers => _loc.Message("Description.IncludedUsers");
+    private string MsgEventAlreadyInList => _loc.Message("Message.EventAlreadyInList");
+    private string MsgEventName => _loc.Message("Label.EventName");
+    private string MsgEventNameHelp => _loc.Message("Label.EventName.Help");
     private string MsgGroupAlreadyInList => _loc.Message("Message.GroupAlreadyInList");
     private string MsgGroupName => _loc.Message("Label.GroupName");
     private string MsgGroupNameHelp => _loc.Message("Label.GroupName.Help");
@@ -75,7 +79,7 @@ public partial class ConfigWindow
     private string MsgInputWrapIndentLabel => _loc.Message("Input.WrapIndent.Label");
     private string MsgInputWrapWidthHelp => _loc.Message("Input.WrapWidth.Help");
     private string MsgInputWrapWidthLabel => _loc.Message("Input.WrapWidth.Label");
-    private string MsgLabelDeleteGroup => _loc.MessageUnformatted("Label.Delete.Group");
+    private string MsgLabelDeleteGroup => _loc.Message("Label.Delete.Group");
     private string MsgLabelFileNamePrefix => _loc.Message("Label.FileNamePrefix");
     private string MsgLabelFileNamePrefixHelp => _loc.Message("Label.FileNamePrefix.Help");
     private string MsgLabelIncludeAll => _loc.Message("Label.IncludeAll.Checkbox");
@@ -92,12 +96,14 @@ public partial class ConfigWindow
     private string MsgLabelIsEventHelp => _loc.Message("Label.IsEvent.Checkbox.Help");
     private string MsgLabelSaveDirectory => _loc.Message("Label.SaveDirectory");
     private string MsgLabelSaveDirectoryHelp => _loc.Message("Label.SaveDirectory.Help");
+    private string MsgShowMinimalMain => _loc.Message("Label.ShowMinimalMain");
+    private string MsgShowMinimalMainHelp => _loc.Message("Label.ShowMinimalMain.Help");
     private string MsgPlayerAlreadyInList => _loc.Message("Message.PlayerAlreadyInList");
     private string MsgPlayerFullName => _loc.Message("Label.PlayerFullName");
     private string MsgPlayerFullNameHelp => _loc.Message("Label.PlayerFullName.Help");
     private string MsgPlayerReplacement => _loc.Message("Label.PlayerReplacement");
     private string MsgPlayerReplacementHelp => _loc.Message("Label.PlayerReplacement.Help");
-    private string MsgRemoveUser => _loc.MessageUnformatted("Text.RemoveUser");
+    private string MsgRemoveUser => _loc.Message("Text.RemoveUser");
     private string MsgTabGeneral => _loc.Message("Tab.General");
     private string MsgTabGroups => _loc.Message("Tab.Groups");
     private string MsgTitleDelete => _loc.Message("Title.Delete");

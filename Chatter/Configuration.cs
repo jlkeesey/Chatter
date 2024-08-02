@@ -60,6 +60,11 @@ public partial class Configuration : IPluginConfiguration
     public string WhenToCloseLogs = string.Empty;
 
     /// <summary>
+    ///     When true the alternate, minimal main window is drawn.
+    /// </summary>
+    public bool ShowMinimalMainWindow = false;
+
+    /// <summary>
     ///     Specifies the order of the parts in a log file name.
     /// </summary>
     public enum FileNameOrder
@@ -220,9 +225,6 @@ public partial class Configuration : IPluginConfiguration
 
         config._pluginInterface = pluginInterface;
 
-#if DEBUG
-        config.InitializeForDebug();
-#endif
         config.Initialize(fileHelper);
 
         config.Save();
@@ -239,36 +241,11 @@ public partial class Configuration : IPluginConfiguration
         foreach (var (_, chatLogConfiguration) in ChatLogs) chatLogConfiguration.InitializeTypeFlags();
     }
 
-#if DEBUG
-    public void InitializeForDebug()
-    {
-        // ReSharper disable StringLiteralTypo
-        if (!ChatLogs.ContainsKey("Frollo"))
-        {
-            var logConfiguration = new ChatLogConfiguration("Frollo", true)
-            {
-                Users =
-                {
-                    ["Pierre Gringoire@Zalera"] = string.Empty,
-                    ["Phoebus Chateaupers@Zalera"] = "Stud Muffin",
-                    ["Quasimodo Curveback@Zalera"] = "The Oppressed",
-                },
-            };
-            AddLog(logConfiguration);
-        }
-
-        if (!ChatLogs.ContainsKey("Pimpernel"))
-        {
-            AddLog(new ChatLogConfiguration("Pimpernel", true, wrapColumn: 60, wrapIndent: 54, includeAllUsers: true));
-        }
-        // ReSharper restore StringLiteralTypo
-    }
-#endif
-
     /// <summary>
-    ///     These chat type should all be enabled by default on new configurations.
+    ///     These all the chat types that we support currently. Actually we support all types but these are the
+    ///     ones that are meaningful as they are the ones that people generate.
     /// </summary>
-    private static readonly List<XivChatType> DefaultEnabledTypes =
+    private static readonly List<XivChatType> AllSupportedTypes =
     [
         XivChatType.Say, XivChatType.TellOutgoing, XivChatType.TellIncoming, XivChatType.Shout, XivChatType.Party,
         XivChatType.Alliance, XivChatType.Ls1, XivChatType.Ls2, XivChatType.Ls3, XivChatType.Ls4, XivChatType.Ls5,
@@ -277,6 +254,30 @@ public partial class Configuration : IPluginConfiguration
         XivChatType.PvPTeam, XivChatType.CrossLinkShell1, XivChatType.CrossLinkShell2, XivChatType.CrossLinkShell3,
         XivChatType.CrossLinkShell4, XivChatType.CrossLinkShell5, XivChatType.CrossLinkShell6,
         XivChatType.CrossLinkShell7, XivChatType.CrossLinkShell8,
+    ];
+
+    /// <summary>
+    ///     These chat type should all be enabled by default on new group configurations.
+    /// </summary>
+    private static readonly List<XivChatType> DefaultGroupEnabledTypes =
+    [
+        XivChatType.Say, XivChatType.TellOutgoing, XivChatType.TellIncoming, XivChatType.Shout, XivChatType.Party,
+        XivChatType.Alliance, XivChatType.Ls1, XivChatType.Ls2, XivChatType.Ls3, XivChatType.Ls4, XivChatType.Ls5,
+        XivChatType.Ls6, XivChatType.Ls7, XivChatType.Ls8, XivChatType.FreeCompany, XivChatType.NoviceNetwork,
+        XivChatType.CustomEmote, XivChatType.StandardEmote, XivChatType.Yell, XivChatType.CrossParty,
+        XivChatType.PvPTeam, XivChatType.CrossLinkShell1, XivChatType.CrossLinkShell2, XivChatType.CrossLinkShell3,
+        XivChatType.CrossLinkShell4, XivChatType.CrossLinkShell5, XivChatType.CrossLinkShell6,
+        XivChatType.CrossLinkShell7, XivChatType.CrossLinkShell8,
+    ];
+
+    /// <summary>
+    ///     These chat type should all be enabled by default on new event configurations.
+    /// </summary>
+    private static readonly List<XivChatType> DefaultEventEnabledTypes =
+    [
+        XivChatType.Say, XivChatType.TellOutgoing, XivChatType.TellIncoming, XivChatType.Shout, XivChatType.Party,
+        XivChatType.Alliance, XivChatType.FreeCompany, XivChatType.CustomEmote, XivChatType.StandardEmote,
+        XivChatType.Yell,
     ];
 
     [JsonIgnore] private IDalamudPluginInterface? _pluginInterface;

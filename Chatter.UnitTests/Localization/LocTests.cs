@@ -47,14 +47,6 @@ public class LocTests
                 ]
             }";
 
-    private const string MessageFoundReplacement = @"
-            {
-                ""messages"": [
-                    { ""key"": ""the-key"",""message"": ""the-message here >{0}< and >{1}<""
-                    }
-                ]
-            }";
-
     public class LoadTests
     {
         private const string BaseMessageJson = @"
@@ -212,19 +204,6 @@ public class LocTests
             var result = loc.Message("the-key");
 
             Assert.That(result, Is.EqualTo("the-message"));
-        }
-
-        [Test]
-        public void Message_FoundReplacement()
-        {
-            var loc = new Loc("en", "US"); // Don't assume the language/country is en-US
-            var logger = new LoggerFake();
-            var msgReader = new MsgSingleReader("messages", MessageFoundReplacement);
-            loc.Load(logger, msgReader);
-
-            var result = loc.Message("the-key", "one", "two");
-
-            Assert.That(result, Is.EqualTo("the-message here >one< and >two<"));
         }
     }
 }

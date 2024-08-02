@@ -239,7 +239,8 @@ public partial class Configuration
         /// </remarks>
         public void InitializeTypeFlags()
         {
-            foreach (var type in DefaultEnabledTypes) ChatTypeFilterFlags.TryAdd(type, new ChatTypeFlag(true));
+            var types = IsEvent ? DefaultEventEnabledTypes : DefaultGroupEnabledTypes;
+            foreach (var type in AllSupportedTypes) ChatTypeFilterFlags.TryAdd(type, new ChatTypeFlag(types.Contains(type)));
         }
 
         public class ChatTypeFlag(bool value = false)

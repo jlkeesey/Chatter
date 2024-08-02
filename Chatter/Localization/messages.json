@@ -689,6 +689,66 @@
       "key": "Label.IsEvent.Checkbox.Help",
       "message": "Marks this as an event, which must be actively started and will only be active for a set period of time.",
       "description": ""
+    },
+    {
+      "key": "Message.EventAlreadyInList",
+      "message": "Event and group names must be unique.",
+      "description": ""
+    },
+    {
+      "key": "Label.EventName",
+      "message": "Event name",
+      "description": ""
+    },
+    {
+      "key": "Label.EventName.Help",
+      "message": "The name of the event. This will be used as part of the log file name, so it should be short, but understandable.",
+      "description": ""
+    },
+    {
+      "key": "Button.AddEvent",
+      "message": "New event",
+      "description": ""
+    },
+    {
+      "key": "Button.StartEvent",
+      "message": "Start event",
+      "description": ""
+    },
+    {
+      "key": "Button.StartEvent.Help",
+      "message": "Starts an inactive event.",
+      "description": ""
+    },
+    {
+      "key": "Button.StopEvent",
+      "message": "Stop event",
+      "description": ""
+    },
+    {
+      "key": "Button.StopEvent.Help",
+      "message": "Stops an active event.",
+      "description": ""
+    },
+    {
+      "key": "Button.Start",
+      "message": "Start",
+      "description": ""
+    },
+    {
+      "key": "Button.Stop",
+      "message": "Stop",
+      "description": ""
+    },
+    {
+      "key": "Label.ShowMinimalMain",
+      "message": "Show minimal main window",
+      "description": ""
+    },
+    {
+      "key": "Label.ShowMinimalMain.Help",
+      "message": "Shows the main Chatter window as small as possible to cover as little screen space as possible.",
+      "description": ""
     }
   ]
 }
