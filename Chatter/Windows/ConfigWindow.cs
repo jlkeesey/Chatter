@@ -40,6 +40,8 @@ using static Chatter.Configuration.FileNameOrder;
 using static System.String;
 using Dalamud.Interface.Textures;
 using JetBrains.Annotations;
+using NodaTime;
+using NodaTime.Extensions;
 
 // ReSharper disable InvertIf
 
@@ -48,7 +50,7 @@ namespace Chatter.Windows;
 /// <summary>
 ///     Defines the configuration editing window.
 /// </summary>
-public sealed partial class ConfigWindow : Window, IDisposable
+public sealed partial class ConfigWindow : Window
 {
     private const string Title = "Chatter Configuration";
 
@@ -111,20 +113,23 @@ public sealed partial class ConfigWindow : Window, IDisposable
         {XivChatType.SystemMessage, "ChatType.SystemMessage", "ChatType.SystemMessage.Help"},
     };
 
-    private static int _timeStampSelected = -1;
+    private static int _timeStampSelected;
     private readonly ISharedImmediateTexture _chatterImage;
     private readonly Configuration _configuration;
     private readonly ChatLogManager _chatLogManager;
+    private readonly FriendManager _friendManager;
+    private readonly Loc _loc;
     [UsedImplicitly] private readonly ILogger _logger;
 
     private readonly List<ImGuiWidgets.ComboOption<string>> _dateOptions;
     private readonly List<ImGuiWidgets.ComboOption<FileNameOrder>> _fileOrderOptions;
     private readonly List<ImGuiWidgets.ComboOption<DirectoryFormat>> _directoryFormOptions;
-    private readonly FriendManager _friendManager;
-    private readonly Loc _loc;
+    private readonly PeriodEditor _periodEditor;
     private bool _addUserAlreadyExists;
     private bool _addGroupAlreadyExists;
     private string _addGroupName = Empty;
+    private bool _addEventAlreadyExists;
+    private string _addEventName = Empty;
     private string _addUserFullName = Empty;
     private string _addUserReplacementName = Empty;
     private IEnumerable<Friend> _filteredFriends = new List<Friend>();
@@ -165,6 +170,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
         _chatLogManager = chatLogManager;
         _chatterImage = chatterImage;
         _loc = loc;
+        _periodEditor = new PeriodEditor(loc, MsgLabelEventLength, MsgLabelEventLengthHelp);
 
         SizeConstraints = new WindowSizeConstraints
         {
@@ -214,8 +220,26 @@ public sealed partial class ConfigWindow : Window, IDisposable
         ];
     }
 
-    public void Dispose()
+    public override void OnOpen()
     {
+        base.OnOpen();
+        _logOrderSelected = 0; // Default in case we don't find it
+        for (var i = 0; i < _fileOrderOptions.Count; i++)
+            if (_fileOrderOptions[i].Value == _configuration.LogOrder)
+            {
+                _logOrderSelected = i;
+                break;
+            }
+
+        _directoryFormSelected = 0; // Default in case we don't find it
+        for (var i = 0; i < _directoryFormOptions.Count; i++)
+            if (_directoryFormOptions[i].Value == _configuration.DirectoryForm)
+            {
+                _directoryFormSelected = i;
+                break;
+            }
+
+        HandleSelectGroup(AllLogName);
     }
 
     /// <summary>
@@ -286,17 +310,6 @@ public sealed partial class ConfigWindow : Window, IDisposable
 
         ImGuiWidgets.VerticalSpace();
 
-        if (_logOrderSelected < 0)
-        {
-            _logOrderSelected = 0; // Default in case we don't find it
-            for (var i = 0; i < _fileOrderOptions.Count; i++)
-                if (_fileOrderOptions[i].Value == _configuration.LogOrder)
-                {
-                    _logOrderSelected = i;
-                    break;
-                }
-        }
-
         ImGuiWidgets.DrawCombo(MsgComboOrderLabel,
                                _fileOrderOptions,
                                _logOrderSelected,
@@ -309,17 +322,6 @@ public sealed partial class ConfigWindow : Window, IDisposable
 
         ImGuiWidgets.VerticalSpace();
 
-        if (_directoryFormSelected < 0)
-        {
-            _directoryFormSelected = 0; // Default in case we don't find it
-            for (var i = 0; i < _directoryFormOptions.Count; i++)
-                if (_directoryFormOptions[i].Value == _configuration.DirectoryForm)
-                {
-                    _directoryFormSelected = i;
-                    break;
-                }
-        }
-
         ImGuiWidgets.DrawCombo(MsgComboDirectoryFormLabel,
                                _directoryFormOptions,
                                _directoryFormSelected,
@@ -329,6 +331,10 @@ public sealed partial class ConfigWindow : Window, IDisposable
                                    _directoryFormSelected = ind;
                                    _configuration.DirectoryForm = _directoryFormOptions[ind].Value;
                                });
+
+        ImGuiWidgets.VerticalSpace(8);
+
+        ImGuiWidgets.DrawCheckbox(MsgShowMinimalMain, ref _configuration.ShowMinimalMainWindow, MsgShowMinimalMainHelp);
 
         ImGuiWidgets.VerticalSpace(8);
 
@@ -349,7 +355,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
 
     private static void DrawGroupTitle(ChatLogConfiguration chatLog)
     {
-        ImGuiWidgets.ColoredText(chatLog.Name, 0xff00ff00);
+        ImGuiWidgets.ColoredText(chatLog.Title, 0xff00ff00);
     }
 
     private void DrawGroupDelete(ChatLogConfiguration chatLog)
@@ -380,6 +386,16 @@ public sealed partial class ConfigWindow : Window, IDisposable
                                         left: () => { DrawGroupTitle(chatLog); },
                                         right: () => { DrawGroupDelete(chatLog); });
             ImGui.Separator();
+            if (chatLog is {IsEvent: true, IsActive: true,})
+            {
+                ImGui.Spacing();
+                var endTime = chatLog.EventStartTime + chatLog.EventLength;
+                var now = SystemClock.Instance.InBclSystemDefaultZone().GetCurrentLocalDateTime();
+                var diff = endTime - now;
+                var timeLeft = FormatPeriod(diff);
+                ImGui.TextUnformatted($"Time remaining {timeLeft}");
+            }
+
             ImGui.Spacing();
 
             if (ImGui.BeginTable("general", 2))
@@ -392,11 +408,14 @@ public sealed partial class ConfigWindow : Window, IDisposable
                                           MsgLabelIncludeAllUsersHelp,
                                           chatLog.IsAll);
                 ImGui.TableNextColumn();
+                ImGuiWidgets.DrawCheckbox(MsgLabelIsEvent, ref chatLog.IsEvent, MsgLabelIsEventHelp, chatLog.IsAll);
+                ImGui.TableNextColumn();
+                ImGuiWidgets.DrawCheckbox(MsgLabelIncludeSelf, ref chatLog.IncludeMe, MsgLabelIncludeSelfHelp);
+
+                ImGui.TableNextColumn();
                 ImGuiWidgets.DrawCheckbox(MsgLabelIncludeServerName,
                                           ref chatLog.IncludeServer,
                                           MsgLabelIncludeServerNameHelp);
-                ImGui.TableNextColumn();
-                ImGuiWidgets.DrawCheckbox(MsgLabelIncludeSelf, ref chatLog.IncludeMe, MsgLabelIncludeSelfHelp);
 
 #if DEBUG
                 ImGui.TableNextColumn();
@@ -405,6 +424,12 @@ public sealed partial class ConfigWindow : Window, IDisposable
                                           MsgLabelIncludeAllHelp);
 #endif
                 ImGui.EndTable();
+            }
+
+            if (chatLog is {IsEvent: true,})
+            {
+                ImGuiWidgets.VerticalSpace();
+                _periodEditor.DrawPeriodEditor(chatLog.EventLength, period => chatLog.EventLength = period);
             }
 
             ImGuiWidgets.VerticalSpace();
@@ -416,17 +441,6 @@ public sealed partial class ConfigWindow : Window, IDisposable
 
                 ImGui.InputInt(MsgInputWrapIndentLabel, ref chatLog.MessageWrapIndentation);
                 ImGuiWidgets.HelpMarker(MsgInputWrapIndentHelp);
-
-                if (_timeStampSelected < 0)
-                {
-                    _timeStampSelected = 0; // Default in case we don't find it
-                    for (var i = 0; i < _dateOptions.Count; i++)
-                        if (_dateOptions[i].Value == chatLog.Format)
-                        {
-                            _timeStampSelected = i;
-                            break;
-                        }
-                }
 
                 ImGuiWidgets.DrawCombo(MsgComboTimestampLabel,
                                        _dateOptions,
@@ -502,7 +516,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
 
             if (_deleteGroup != Empty)
             {
-                _selectedGroup = AllLogName;
+                HandleSelectGroup(AllLogName);
                 _configuration.ChatLogs.Remove(_deleteGroup);
                 _deleteGroup = Empty;
             }
@@ -517,6 +531,33 @@ public sealed partial class ConfigWindow : Window, IDisposable
 
             ImGui.EndChild();
         }
+    }
+
+    private string FormatPeriod(Period period)
+    {
+        if (period.Days > 0)
+        {
+            return Format("{0:D} days, {1:D} hours, {2:D} minutes, and {3:D} seconds",
+                          period.Days,
+                          period.Hours,
+                          period.Minutes,
+                          period.Seconds);
+        }
+
+        if (period.Hours > 0)
+        {
+            return Format("{0:D} hours, {1:D} minutes, and {2:D} seconds",
+                          period.Hours,
+                          period.Minutes,
+                          period.Seconds);
+        }
+
+        if (period.Minutes > 0)
+        {
+            return Format("{0:D} minutes, and {1:D} seconds", period.Minutes, period.Seconds);
+        }
+
+        return Format("{0:D} seconds", period.Seconds);
     }
 
     /// <summary>
@@ -606,34 +647,113 @@ public sealed partial class ConfigWindow : Window, IDisposable
                 ImGuiWidgets.VerticalSpace();
             }
 
-            ImGuiWidgets.LongInputField(MsgGroupName, ref _addGroupName, 128, "##groupName", MsgGroupNameHelp);
+            if (ImGuiWidgets.LongInputField(MsgGroupName,
+                                            ref _addGroupName,
+                                            128,
+                                            "##groupName",
+                                            MsgGroupNameHelp,
+                                            allowEnter: true,
+                                            filter: new ImGuiWidgets.FilenameCharactersFilter()))
+            {
+                HandleAddGroupAccept();
+            }
 
             ImGuiWidgets.VerticalSpace();
             ImGui.Separator();
             ImGuiWidgets.VerticalSpace();
 
-            if (ImGui.Button(MsgButtonCreate, new Vector2(120, 0)))
-            {
-                _addGroupAlreadyExists = false;
-                var groupName = _addGroupName.Trim();
-                if (!IsNullOrWhiteSpace(groupName))
-                {
-                    if (_configuration.ChatLogs.TryAdd(groupName, new ChatLogConfiguration(groupName)))
-                        ImGui.CloseCurrentPopup();
-                    else
-                        _addGroupAlreadyExists = true;
-                }
-            }
+            if (ImGui.Button(MsgButtonCreate, new Vector2(120, 0))) HandleAddGroupAccept();
 
             ImGui.SetItemDefaultFocus();
             ImGui.SameLine();
             if (ImGui.Button(MsgButtonCancel, new Vector2(120, 0)))
             {
+                _addGroupName = "";
                 _addGroupAlreadyExists = false;
                 ImGui.CloseCurrentPopup();
             }
 
             ImGui.EndPopup();
+        }
+    }
+
+    private void HandleAddGroupAccept()
+    {
+        _addGroupAlreadyExists = false;
+        var groupName = _addGroupName.Trim();
+        if (!IsNullOrWhiteSpace(groupName))
+        {
+            if (_configuration.ChatLogs.TryAdd(groupName, new ChatLogConfiguration(groupName)))
+            {
+                _addGroupName = "";
+                HandleSelectGroup(groupName);
+                ImGui.CloseCurrentPopup();
+            }
+            else
+                _addGroupAlreadyExists = true;
+        }
+    }
+
+    /// <summary>
+    ///     Draws the popup to add a new event to the group list.
+    /// </summary>
+    private void DrawAddEventPopup()
+    {
+        ImGui.SetNextWindowSizeConstraints(new Vector2(350, 100), new Vector2(350, 200));
+        if (ImGui.BeginPopup("addEvent", ImGuiWindowFlags.AlwaysAutoResize))
+        {
+            if (_addEventAlreadyExists)
+            {
+                ImGuiWidgets.VerticalSpace();
+                ImGuiWidgets.ColoredText(MsgEventAlreadyInList, 0xff0000ff);
+                ImGuiWidgets.VerticalSpace();
+            }
+
+            if (ImGuiWidgets.LongInputField(MsgEventName,
+                                            ref _addEventName,
+                                            128,
+                                            "##eventName",
+                                            MsgEventNameHelp,
+                                            allowEnter: true,
+                                            filter: new ImGuiWidgets.FilenameCharactersFilter()))
+            {
+                HandleAddEventAccept();
+            }
+
+            ImGuiWidgets.VerticalSpace();
+            ImGui.Separator();
+            ImGuiWidgets.VerticalSpace();
+
+            if (ImGui.Button(MsgButtonCreate, new Vector2(120, 0))) HandleAddEventAccept();
+            ImGui.SameLine();
+            if (ImGui.Button(MsgButtonCancel, new Vector2(120, 0)))
+            {
+                _addEventName = "";
+                _addEventAlreadyExists = false;
+                ImGui.CloseCurrentPopup();
+            }
+
+            ImGui.EndPopup();
+        }
+    }
+
+    private void HandleAddEventAccept()
+    {
+        _addEventAlreadyExists = false;
+        var eventName = _addEventName.Trim();
+        if (!IsNullOrWhiteSpace(eventName))
+        {
+            if (_configuration.ChatLogs.TryAdd(eventName,
+                                               new ChatLogConfiguration(eventName,
+                                                                        isEvent: true,
+                                                                        includeAllUsers: true)))
+            {
+                _addEventName = "";
+                HandleSelectGroup(eventName);
+                ImGui.CloseCurrentPopup();
+            }
+            else
+                _addEventAlreadyExists = true;
         }
     }
 
@@ -758,8 +878,7 @@ public sealed partial class ConfigWindow : Window, IDisposable
     {
         if (ImGui.BeginPopupModal(MsgTitleDelete, ref _deleteGroupDialogIsOpen, ImGuiWindowFlags.AlwaysAutoResize))
         {
-            using (ImGuiWith.TextWrapPos(300))
-                ImGui.TextUnformatted(Format(MsgLabelDeleteGroup, _deleteDialogGroup));
+            using (ImGuiWith.TextWrapPos(300)) ImGui.TextUnformatted(Format(MsgLabelDeleteGroup, _deleteDialogGroup));
             ImGui.Separator();
 
             if (ImGui.Button(MsgButtonDelete, new Vector2(120, 0)))
@@ -786,8 +905,10 @@ public sealed partial class ConfigWindow : Window, IDisposable
                              new Vector2(ImGui.GetContentRegionAvail().X * 0.25f, ImGui.GetContentRegionAvail().Y),
                              true);
             if (ImGui.Button(MsgButtonAddGroup)) ImGui.OpenPopup("addGroup");
-
             DrawAddGroupPopup();
+            ImGui.SameLine();
+            if (ImGui.Button(MsgButtonAddEvent)) ImGui.OpenPopup("addEvent");
+            DrawAddEventPopup();
 
             if (ImGui.BeginListBox("##groups",
                                    new Vector2(ImGui.GetContentRegionAvail().X, ImGui.GetContentRegionAvail().Y)))
@@ -795,8 +916,8 @@ public sealed partial class ConfigWindow : Window, IDisposable
                 foreach (var (_, cl) in _configuration.ChatLogs)
                 {
                     var isSelected = _selectedGroup == cl.Name;
-                    if (ImGui.Selectable(cl.Name, isSelected)) _selectedGroup = cl.Name;
-                    if (ImGui.IsItemHovered()) ImGuiWidgets.DrawTooltip(cl.Name);
+                    if (ImGui.Selectable(cl.Title, isSelected)) HandleSelectGroup(cl.Name);
+                    if (ImGui.IsItemHovered()) ImGuiWidgets.DrawTooltip(cl.Title);
                     if (isSelected) ImGui.SetItemDefaultFocus();
                 }
 
@@ -805,6 +926,19 @@ public sealed partial class ConfigWindow : Window, IDisposable
 
             ImGui.EndChild();
         }
+    }
+
+    private void HandleSelectGroup(string name)
+    {
+        _selectedGroup = name;
+        var chatLog = _configuration.ChatLogs[name];
+        _timeStampSelected = 0; // Default in case we don't find it
+        for (var i = 0; i < _dateOptions.Count; i++)
+            if (_dateOptions[i].Value == chatLog.Format)
+            {
+                _timeStampSelected = i;
+                break;
+            }
     }
 
     /// <summary>

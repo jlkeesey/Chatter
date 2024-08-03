@@ -73,25 +73,79 @@ public static class ImGuiWidgets
     /// <param name="maxLength">The maximum length.</param>
     /// <param name="id">The optional id for the field. This is only necessary if the label is not unique.</param>
     /// <param name="help">The optional help text displayed when hovering over the help button.</param>
+    /// <param name="allowEnter">True if the enter key is used to finish the entry.</param>
+    /// <param name="filter">Filter for the characters allowed.</param>
     /// <param name="extra">Function to add extra parts to the end of the widget.</param>
     /// <param name="extraWidth">The width of the extra element(s).</param>
-    public static void LongInputField(string label,
-                                      ref string value,
-                                      uint maxLength = 100,
-                                      string? id = null,
-                                      string? help = null,
-                                      Action? extra = null,
-                                      int extraWidth = 0)
+    public static unsafe bool LongInputField(string label,
+                                             ref string value,
+                                             uint maxLength = 100,
+                                             string? id = null,
+                                             string? help = null,
+                                             bool allowEnter = false,
+                                             ICharacterFilter? filter = null,
+                                             Action? extra = null,
+                                             int extraWidth = 0)
     {
         ImGui.TextUnformatted(label);
         HelpMarker(help);
 
+        var flags = allowEnter ? ImGuiInputTextFlags.EnterReturnsTrue : ImGuiInputTextFlags.None;
+
         ImGui.SetNextItemWidth(extraWidth == 0 ? -1 : -extraWidth);
-        ImGui.InputText(id ?? label, ref value, maxLength);
+        if (filter != null)
+        {
+            flags |= ImGuiInputTextFlags.CallbackCharFilter;
+            if (ImGui.InputText(id ?? label, ref value, maxLength, flags, filter.Filter))
+            {
+                return true;
+            }
+        }
+        else
+        {
+            if (ImGui.InputText(id ?? label, ref value, maxLength, flags))
+            {
+                return true;
+            }
+        }
+
         if (extra != null)
         {
             ImGui.SameLine();
             extra();
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    ///     Base for character filters for input fields;
+    /// </summary>
+    public interface ICharacterFilter
+    {
+        /// <summary>
+        ///     Passed to the <c>ImGui.InputText</c> to filter out any unwanted characters.
+        /// </summary>
+        /// <param name="data">The filter callback data.</param>
+        /// <returns>0 to allow the character, 1 to ignore it.</returns>
+        public unsafe int Filter(ImGuiInputTextCallbackData* data);
+    }
+
+    /// <summary>
+    ///     Filters out characters that are not allowed in file names.
+    /// </summary>
+    public class FilenameCharactersFilter : ICharacterFilter
+    {
+        /// <inheritdoc/>
+        public unsafe int Filter(ImGuiInputTextCallbackData* data)
+        {
+            var ch = Convert.ToChar(data->EventChar);
+            if (char.IsLetterOrDigit(ch)) return 0;
+            return ch switch
+            {
+                '-' or ',' or '=' or '~' or '!' or '@' or '#' or '$' or '+' or ':' => 0,
+                _                                                                  => 1,
+            };
         }
     }
 
@@ -145,7 +199,6 @@ public static class ImGuiWidgets
                 ImGui.TableSetupColumn(string.Empty, ImGuiTableColumnFlags.WidthFixed, rightWidth);
             }
 
-
             ImGui.TableNextRow();
             ImGui.TableSetColumnIndex(0);
             left.Invoke();
@@ -183,19 +236,22 @@ public static class ImGuiWidgets
                                     float width = 200,
                                     Action<int>? onSelect = null)
     {
-        ImGui.SetNextItemWidth(200.0f);
-        if (ImGui.BeginCombo(label, options[selected].Label))
+        using (ImGuiWith.ItemWidth(width))
         {
-            for (var i = 0; i < options.Count; i++)
+            if (ImGui.BeginCombo(label, options[selected].Label))
             {
-                var isSelected = i == selected;
-                if (ImGui.Selectable(options[i].Label, isSelected)) onSelect?.Invoke(i);
+                for (var i = 0; i < options.Count; i++)
+                {
+                    var isSelected = i == selected;
+                    if (ImGui.Selectable(options[i].Label, isSelected)) onSelect?.Invoke(i);
 
-                if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled)) ImGuiWidgets.DrawTooltip(options[i].Help);
-                if (isSelected) ImGui.SetItemDefaultFocus();
+                    if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+                        ImGuiWidgets.DrawTooltip(options[i].Help);
+                    if (isSelected) ImGui.SetItemDefaultFocus();
+                }
+
+                ImGui.EndCombo();
             }
-
-            ImGui.EndCombo();
         }
 
         ImGuiWidgets.HelpMarker(help);

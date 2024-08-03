@@ -24,6 +24,9 @@
 using Chatter.System;
 using Dalamud.Game.Text;
 using System.Collections.Generic;
+using Newtonsoft.Json;
+using NodaTime;
+using NodaTime.Text;
 
 namespace Chatter;
 
@@ -37,7 +40,38 @@ public partial class Configuration
     /// </summary>
     public sealed class ChatLogConfiguration
     {
-        public bool IsAll => Name == AllLogName;
+        public ChatLogConfiguration(string name,
+                                    bool isActive = false,
+                                    bool isEvent = false,
+                                    bool includeServer = false,
+                                    bool includeMe = true,
+                                    bool includeAllUsers = false,
+                                    bool includeAllMessages = false,
+                                    int wrapColumn = 0,
+                                    int wrapIndent = 0,
+                                    string? format = null)
+        {
+            Name = name;
+            IsActive = isActive;
+            IsEvent = isEvent;
+            IncludeServer = includeServer;
+            IncludeMe = includeMe;
+            IncludeAllUsers = includeAllUsers;
+            DebugIncludeAllMessages = includeAllMessages;
+            MessageWrapWidth = wrapColumn;
+            MessageWrapIndentation = wrapIndent;
+            Format = format;
+            InitializeTypeFlags();
+        }
+
+        /// <summary>
+        ///     The name of this group. Will be part of the log file name.
+        /// </summary>
+        public string Name { get; }
+
+        [JsonIgnore] public string Title => IsEvent ? $"{Name} (event)" : Name;
+
+        [JsonIgnore] public bool IsAll => Name == AllLogName;
 
         /// <summary>
         ///     The include/exclude flags for each <see cref="XivChatType" />.
@@ -90,7 +124,7 @@ public partial class Configuration
         ///         <item>
         ///             <term>{4}</term>
         ///             <description>
-        ///                 The sender and chat type. The is the short sender name with the short chat type appended,
+        ///                 The sender and chat type. This is the short sender name with the short chat type appended,
         ///                 separated by a space. Equivalent to <c>{3} {1}</c>.
         ///             </description>
         ///         </item>
@@ -106,7 +140,24 @@ public partial class Configuration
         public string? Format;
 
         /// <summary>
-        ///     If <c>true</c> the all users will be included even if they are not in the user list. This will always be
+        ///     If <c>true</c> then this is a timed event and will only run for a specific amount of time and then will stop
+        ///     logging chat messages.
+        /// </summary>
+        public bool IsEvent;
+
+        /// <summary>
+        ///     How long the event lasts for. When the current time is greater than EventStartTime + EventLength, the event ends.
+        /// </summary>
+        [JsonIgnore] public Period EventLength = Period.FromHours(12);
+
+        /// <summary>
+        ///     When the event started. If this is <c>null</c> then the event hasn't started.
+        /// </summary>
+        [JsonIgnore] public LocalDateTime EventStartTime = LocalDateTime.MinIsoValue;
+
+        // public StringEnumConverter foo;
+        /// <summary>
+        ///     If <c>true</c> then all users will be included even if they are not in the user list. This will always be
         ///     <c>true</c> for the
         ///     all user.
         /// </summary>
@@ -120,7 +171,7 @@ public partial class Configuration
 
         /// <summary>
         ///     If this is <c>true</c> then server names are included in the output, otherwise they are stripped from
-        ///     the output, both in the name column as well as the message.
+        ///     the output, both in the name column and the message.
         /// </summary>
         public bool IncludeServer;
 
@@ -139,33 +190,6 @@ public partial class Configuration
         /// </summary>
         public int MessageWrapWidth;
 
-        public ChatLogConfiguration(string name,
-                                    bool isActive = false,
-                                    bool includeServer = false,
-                                    bool includeMe = true,
-                                    bool includeAllUsers = false,
-                                    bool includeAllMessages = false,
-                                    int wrapColumn = 0,
-                                    int wrapIndent = 0,
-                                    string? format = null)
-        {
-            Name = name;
-            IsActive = isActive;
-            IncludeServer = includeServer;
-            IncludeMe = includeMe;
-            IncludeAllUsers = includeAllUsers;
-            DebugIncludeAllMessages = includeAllMessages;
-            MessageWrapWidth = wrapColumn;
-            MessageWrapIndentation = wrapIndent;
-            Format = format;
-            InitializeTypeFlags();
-        }
-
-        /// <summary>
-        ///     The name of this group. Will be part of the log file name.
-        /// </summary>
-        public string Name { get; }
-
         /// <summary>
         ///     The set of users to include.
         /// </summary>
@@ -175,6 +199,26 @@ public partial class Configuration
         ///     name should be renamed in the output. If this is empty, then all users are included.
         /// </remarks>
         public SortedDictionary<string, string> Users { get; } = new();
+
+        /// <summary>
+        ///     This is used to save the EventLength value to the configuration. I could not figure out how
+        ///     to get a converter to work.
+        /// </summary>
+        public string EventLengthString
+        {
+            get => PeriodPattern.Roundtrip.Format(EventLength);
+            set => EventLength = PeriodPattern.Roundtrip.Parse(value).Value;
+        }
+
+        /// <summary>
+        ///     This is used to save the EventStartTime value to the configuration. I could not figure out how
+        ///     to get a converter to work.
+        /// </summary>
+        public string EventStartTimeString
+        {
+            get => LocalDateTimePattern.ExtendedIso.Format(EventStartTime);
+            set => EventStartTime = LocalDateTimePattern.ExtendedIso.Parse(value).Value;
+        }
 
         /// <summary>
         ///     Makes sure that paired flags are kept in sync.
@@ -195,17 +239,61 @@ public partial class Configuration
         /// </remarks>
         public void InitializeTypeFlags()
         {
-            foreach (var type in DefaultEnabledTypes) ChatTypeFilterFlags.TryAdd(type, new ChatTypeFlag(true));
+            var types = IsEvent ? DefaultEventEnabledTypes : DefaultGroupEnabledTypes;
+            foreach (var type in AllSupportedTypes) ChatTypeFilterFlags.TryAdd(type, new ChatTypeFlag(types.Contains(type)));
         }
 
-        public class ChatTypeFlag
+        public class ChatTypeFlag(bool value = false)
         {
-            public bool Value;
-
-            public ChatTypeFlag(bool value = false)
-            {
-                Value = value;
-            }
+            public bool Value = value;
         }
     }
 }
+//
+// public class LocalDateTimeConverter : JsonConverter<LocalDateTime?>
+// {
+//     public override void WriteJson(JsonWriter writer, LocalDateTime? value, JsonSerializer serializer)
+//     {
+//         Chatter.Logger?.Debug("@@@@ Convert WriteJson");
+//         if (value == null)
+//         {
+//             writer.WriteNull();
+//             return;
+//         }
+//
+//         var dt = (LocalDateTime) value;
+//
+//         writer.WriteValue(LocalDateTimePattern.ExtendedIso.Format(dt));
+//     }
+//
+//     public override LocalDateTime? ReadJson(JsonReader reader,
+//                                             Type objectType,
+//                                             LocalDateTime? existingValue,
+//                                             bool hasExistingValue,
+//                                             JsonSerializer serializer)
+//     {
+//         Chatter.Logger?.Debug("@@@@ Convert ReadJson");
+//         if (reader.TokenType == JsonToken.Null)
+//         {
+//             if (!IsNullableType(objectType))
+//             {
+//                 throw new JsonSerializationException($"Cannot convert null value to {objectType}.");
+//             }
+//
+//             return null;
+//         }
+//
+//         var text = reader.Value?.ToString();
+//         if (text.IsNullOrEmpty())
+//         {
+//             return null;
+//         }
+//
+//         return LocalDateTimePattern.ExtendedIso.Parse(text).Value;
+//     }
+//
+//     private static bool IsNullableType(Type t)
+//     {
+//         return (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Nullable<>));
+//     }
+// }

@@ -679,6 +679,136 @@
       "key": "Button.Restart.Help",
       "message": "Closes the current logs and reopens them using the updated configuration settings.",
       "description": ""
+    },
+    {
+      "key": "Label.IsEvent.Checkbox",
+      "message": "Is event",
+      "description": ""
+    },
+    {
+      "key": "Label.IsEvent.Checkbox.Help",
+      "message": "Marks this as an event, which must be actively started and will only be active for a set period of time.",
+      "description": ""
+    },
+    {
+      "key": "Message.EventAlreadyInList",
+      "message": "Event and group names must be unique.",
+      "description": ""
+    },
+    {
+      "key": "Label.EventName",
+      "message": "Event name",
+      "description": ""
+    },
+    {
+      "key": "Label.EventName.Help",
+      "message": "The name of the event. This will be used as part of the log file name, so it should be short, but understandable.",
+      "description": ""
+    },
+    {
+      "key": "Button.AddEvent",
+      "message": "New event",
+      "description": ""
+    },
+    {
+      "key": "Button.StartEvent",
+      "message": "Start event",
+      "description": ""
+    },
+    {
+      "key": "Button.StartEvent.Help",
+      "message": "Starts an inactive event.",
+      "description": ""
+    },
+    {
+      "key": "Button.StopEvent",
+      "message": "Stop event",
+      "description": ""
+    },
+    {
+      "key": "Button.StopEvent.Help",
+      "message": "Stops an active event.",
+      "description": ""
+    },
+    {
+      "key": "Button.ShowConfig",
+      "message": "Show config",
+      "description": ""
+    },
+    {
+      "key": "Button.ShowConfig.Help",
+      "message": "Shows the config window.",
+      "description": ""
+    },
+    {
+      "key": "Button.Start",
+      "message": "Start",
+      "description": ""
+    },
+    {
+      "key": "Button.Stop",
+      "message": "Stop",
+      "description": ""
+    },
+    {
+      "key": "Label.ShowMinimalMain",
+      "message": "Show minimal main window",
+      "description": ""
+    },
+    {
+      "key": "Label.ShowMinimalMain.Help",
+      "message": "Shows the main Chatter window as small as possible to cover as little screen space as possible.",
+      "description": ""
+    },
+    {
+      "key": "Combo.Period.Days",
+      "message": "Days",
+      "description": ""
+    },
+    {
+      "key": "Combo.Period.Days.Help",
+      "message": "The number of days to run.",
+      "description": ""
+    },
+    {
+      "key": "Combo.Period.Hours",
+      "message": "Hours",
+      "description": ""
+    },
+    {
+      "key": "Combo.Period.Hours.Help",
+      "message": "The number of hours to run.",
+      "description": ""
+    },
+    {
+      "key": "Combo.Period.Minutes",
+      "message": "Minutes",
+      "description": ""
+    },
+    {
+      "key": "Combo.Period.Minutes.Help",
+      "message": "The number of minutes to run.",
+      "description": ""
+    },
+    {
+      "key": "Label.Period",
+      "message": "Period",
+      "description": ""
+    },
+    {
+      "key": "Label.Period.Help",
+      "message": "The length of the period.",
+      "description": ""
+    },
+    {
+      "key": "Label.EventLength",
+      "message": "Event length",
+      "description": ""
+    },
+    {
+      "key": "Label.EventLength.Help",
+      "message": "The legnth of time this event will be active.",
+      "description": ""
     }
   ]
 }

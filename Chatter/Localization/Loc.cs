@@ -165,26 +165,8 @@ public class Loc
     }
 
     /// <summary>
-    ///     Looks up the message by key from the language resources and returns it formatted with the given arguments.
-    /// </summary>
-    /// <remarks>
-    ///     <para>
-    ///         The lookup for a message works by looking the most specific set first, then the less specific, then the
-    ///         fallback set. So for a system set to en_US, the search is messages-en-US.json, then messages-en.json, then
-    ///         messages.json. If no message is found then a default message constructed from the key is returned.
-    ///     </para>
-    /// </remarks>
-    /// <param name="key">The key to lookup.</param>
-    /// <param name="args">The optional arguments for formatting the string.</param>
-    /// <returns>The formatted message string.</returns>
-    public string Message(string key, params object[] args)
-    {
-        if (!_messages.TryGetValue(key, out var message)) return $"??[[{key}]]??";
-        return args.Length == 0 ? message : Format(message, args);
-    }
-
-    /// <summary>
-    ///     Looks up the message by key from the language resources and returns it without doing parameter replacement.
+    ///     Looks up the message by key from the language resources and returns it. Formatting any parameters is the
+    ///     responsibility of the caller.
     /// </summary>
     /// <remarks>
     ///     <para>
@@ -195,7 +177,7 @@ public class Loc
     /// </remarks>
     /// <param name="key">The key to lookup.</param>
     /// <returns>The message string.</returns>
-    public string MessageUnformatted(string key)
+    public string Message(string key)
     {
         return !_messages.TryGetValue(key, out var message) ? $"??[[{key}]]??" : message;
     }

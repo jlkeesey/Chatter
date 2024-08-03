@@ -41,14 +41,41 @@ public class ChatLogGenerator(IErrorWriter errorWriter) : IChatLogGenerator
                            FileHelper fileHelper,
                            IPlayer myself)
     {
-        return logConfiguration.Name == AllLogName
-                   ? new AllChatLog(configuration, logConfiguration, logFileInfo, dateHelper, fileHelper, errorWriter)
-                   : new GroupChatLog(configuration,
-                                      logConfiguration,
-                                      logFileInfo,
-                                      dateHelper,
-                                      fileHelper,
-                                      myself,
-                                      errorWriter);
+        if (logConfiguration.IsAll)
+            return new AllChatLog(configuration, logConfiguration, logFileInfo, dateHelper, fileHelper, errorWriter);
+        if (logConfiguration.IsEvent)
+            return new EventChatLog(configuration,
+                                    logConfiguration,
+                                    logFileInfo,
+                                    dateHelper,
+                                    fileHelper,
+                                    myself,
+                                    errorWriter);
+        return new GroupChatLog(configuration,
+                                logConfiguration,
+                                logFileInfo,
+                                dateHelper,
+                                fileHelper,
+                                myself,
+                                errorWriter);
+
+        // return logConfiguration.IsAll
+        //        ?
+        //        new AllChatLog(configuration, logConfiguration, logFileInfo, dateHelper, fileHelper, errorWriter)
+        //        : logConfiguration.IsEvent
+        //            ? new EventChatLog(configuration,
+        //                               logConfiguration,
+        //                               logFileInfo,
+        //                               dateHelper,
+        //                               fileHelper,
+        //                               myself,
+        //                               errorWriter)
+        //            : new GroupChatLog(configuration,
+        //                               logConfiguration,
+        //                               logFileInfo,
+        //                               dateHelper,
+        //                               fileHelper,
+        //                               myself,
+        //                               errorWriter);
     }
 }

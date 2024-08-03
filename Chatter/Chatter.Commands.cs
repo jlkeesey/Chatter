@@ -34,22 +34,28 @@ namespace Chatter;
 public sealed partial class Chatter
 {
     private const string CommandChatter = "/chatter";
+    private const string CommandChatterConfig = "/chattercfg";
     private const string CommandDebug = "/chatterdebug";
 
     private const string DebugChatDump = "chatdump";
     private const string DebugList = "list";
 
-    private readonly Dictionary<string, CommandInfo> _commands = new();
-    private readonly Dictionary<string, Func<bool>> _debugFlags = new();
+    private readonly Dictionary<string, CommandInfo> _commands = [];
+    private readonly Dictionary<string, Func<bool>> _debugFlags = [];
 
     /// <summary>
-    ///     Registers all of the text commands with the Dalamud plugin environment.
+    ///     Registers all the text commands with the Dalamud plugin environment.
     /// </summary>
     private void RegisterCommands()
     {
         _debugFlags.TryAdd("debug", () => _configuration.IsDebug);
 
-        _commands[CommandChatter] = new CommandInfo(OnChatterConfig)
+        _commands[CommandChatter] = new CommandInfo(OnChatter)
+        {
+            HelpMessage = "Opens the Chatter main window.", ShowInHelp = true,
+        };
+
+        _commands[CommandChatterConfig] = new CommandInfo(OnChatterConfig)
         {
             HelpMessage = "Opens the Chatter configuration window.", ShowInHelp = true,
         };
@@ -68,6 +74,16 @@ public sealed partial class Chatter
     private void UnregisterCommands()
     {
         foreach (var command in _commands.Keys) _commandManager.RemoveHandler(command);
+    }
+
+    /// <summary>
+    ///     Handles the <c>/chatter</c> text command. This just toggles the main window.
+    /// </summary>
+    /// <param name="command">The text of the command (in case of aliases).</param>
+    /// <param name="arguments">Any arguments to the command.</param>
+    private void OnChatter(string command, string arguments)
+    {
+        _windowManager.ToggleMain();
     }
 
     /// <summary>
