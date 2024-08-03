@@ -236,19 +236,22 @@ public static class ImGuiWidgets
                                     float width = 200,
                                     Action<int>? onSelect = null)
     {
-        ImGui.SetNextItemWidth(width);
-        if (ImGui.BeginCombo(label, options[selected].Label))
+        using (ImGuiWith.ItemWidth(width))
         {
-            for (var i = 0; i < options.Count; i++)
+            if (ImGui.BeginCombo(label, options[selected].Label))
             {
-                var isSelected = i == selected;
-                if (ImGui.Selectable(options[i].Label, isSelected)) onSelect?.Invoke(i);
+                for (var i = 0; i < options.Count; i++)
+                {
+                    var isSelected = i == selected;
+                    if (ImGui.Selectable(options[i].Label, isSelected)) onSelect?.Invoke(i);
 
-                if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled)) ImGuiWidgets.DrawTooltip(options[i].Help);
-                if (isSelected) ImGui.SetItemDefaultFocus();
+                    if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+                        ImGuiWidgets.DrawTooltip(options[i].Help);
+                    if (isSelected) ImGui.SetItemDefaultFocus();
+                }
+
+                ImGui.EndCombo();
             }
-
-            ImGui.EndCombo();
         }
 
         ImGuiWidgets.HelpMarker(help);

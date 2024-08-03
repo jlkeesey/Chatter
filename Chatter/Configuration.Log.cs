@@ -148,7 +148,7 @@ public partial class Configuration
         /// <summary>
         ///     How long the event lasts for. When the current time is greater than EventStartTime + EventLength, the event ends.
         /// </summary>
-        [JsonIgnore] public Period EventLength = Period.Zero;
+        [JsonIgnore] public Period EventLength = Period.FromHours(12);
 
         /// <summary>
         ///     When the event started. If this is <c>null</c> then the event hasn't started.

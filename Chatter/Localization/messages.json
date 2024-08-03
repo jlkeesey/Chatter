@@ -731,6 +731,16 @@
       "description": ""
     },
     {
+      "key": "Button.ShowConfig",
+      "message": "Show config",
+      "description": ""
+    },
+    {
+      "key": "Button.ShowConfig.Help",
+      "message": "Shows the config window.",
+      "description": ""
+    },
+    {
       "key": "Button.Start",
       "message": "Start",
       "description": ""
@@ -748,6 +758,56 @@
     {
       "key": "Label.ShowMinimalMain.Help",
       "message": "Shows the main Chatter window as small as possible to cover as little screen space as possible.",
+      "description": ""
+    },
+    {
+      "key": "Combo.Period.Days",
+      "message": "Days",
+      "description": ""
+    },
+    {
+      "key": "Combo.Period.Days.Help",
+      "message": "The number of days to run.",
+      "description": ""
+    },
+    {
+      "key": "Combo.Period.Hours",
+      "message": "Hours",
+      "description": ""
+    },
+    {
+      "key": "Combo.Period.Hours.Help",
+      "message": "The number of hours to run.",
+      "description": ""
+    },
+    {
+      "key": "Combo.Period.Minutes",
+      "message": "Minutes",
+      "description": ""
+    },
+    {
+      "key": "Combo.Period.Minutes.Help",
+      "message": "The number of minutes to run.",
+      "description": ""
+    },
+    {
+      "key": "Label.Period",
+      "message": "Period",
+      "description": ""
+    },
+    {
+      "key": "Label.Period.Help",
+      "message": "The length of the period.",
+      "description": ""
+    },
+    {
+      "key": "Label.EventLength",
+      "message": "Event length",
+      "description": ""
+    },
+    {
+      "key": "Label.EventLength.Help",
+      "message": "The legnth of time this event will be active.",
       "description": ""
     }
   ]

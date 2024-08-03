@@ -44,6 +44,7 @@ public sealed class JlkWindowManager : IDisposable
     private readonly IDalamudPluginInterface _pluginInterface;
     private readonly WindowSystem _windowSystem;
     private readonly SelectEventPopup _selectEventPopup;
+    private readonly StopEventPopup _stopEventPopup;
 
     /// <summary>
     ///     Creates the manager, all top-level windows, and binds them where needed.
@@ -73,6 +74,7 @@ public sealed class JlkWindowManager : IDisposable
         _configWindow =
             Add(new ConfigWindow(config, logger, dateHelper, friendManager, chatLogManager, chatterImage, loc));
         _selectEventPopup = Add(new SelectEventPopup(this, config, loc));
+        _stopEventPopup = Add(new StopEventPopup(this, config, loc));
         _pluginInterface.UiBuilder.Draw += _windowSystem.Draw;
         _pluginInterface.UiBuilder.OpenMainUi += ToggleMain;
         _pluginInterface.UiBuilder.OpenConfigUi += ToggleConfig;
@@ -106,6 +108,14 @@ public sealed class JlkWindowManager : IDisposable
     }
 
     /// <summary>
+    ///     Toggles the visibility of the configuration window.
+    /// </summary>
+    public void ShowConfig()
+    {
+        _configWindow.IsOpen = true;
+    }
+
+    /// <summary>
     ///     Shows the select event popup.
     /// </summary>
     public void ShowSelectEvent(Vector2? position = null)
@@ -129,6 +139,32 @@ public sealed class JlkWindowManager : IDisposable
     public void HideSelectEvent()
     {
         _selectEventPopup.IsOpen = false;
+    }
+
+    /// <summary>
+    ///     Shows the stop event popup.
+    /// </summary>
+    public void ShowStopEvent(Vector2? position = null)
+    {
+        if (position == null)
+        {
+            _stopEventPopup.PositionCondition = ImGuiCond.None;
+        }
+        else
+        {
+            _stopEventPopup.PositionCondition = ImGuiCond.Appearing;
+            _stopEventPopup.Position = position;
+        }
+
+        _stopEventPopup.IsOpen = true;
+    }
+
+    /// <summary>
+    ///     Shows the stop event popup.
+    /// </summary>
+    public void HideStopEvent()
+    {
+        _stopEventPopup.IsOpen = false;
     }
 
     /// <summary>

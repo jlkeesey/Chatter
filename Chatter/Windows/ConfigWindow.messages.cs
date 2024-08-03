@@ -80,6 +80,8 @@ public partial class ConfigWindow
     private string MsgInputWrapWidthHelp => _loc.Message("Input.WrapWidth.Help");
     private string MsgInputWrapWidthLabel => _loc.Message("Input.WrapWidth.Label");
     private string MsgLabelDeleteGroup => _loc.Message("Label.Delete.Group");
+    private string MsgLabelEventLength => _loc.Message("Label.EventLength");
+    private string MsgLabelEventLengthHelp => _loc.Message("Label.EventLength.Help");
     private string MsgLabelFileNamePrefix => _loc.Message("Label.FileNamePrefix");
     private string MsgLabelFileNamePrefixHelp => _loc.Message("Label.FileNamePrefix.Help");
     private string MsgLabelIncludeAll => _loc.Message("Label.IncludeAll.Checkbox");

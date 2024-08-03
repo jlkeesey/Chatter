@@ -78,6 +78,10 @@ public sealed partial class MainWindow : Window
         DrawRestart();
         ImGui.SameLine();
         DrawStartEvent();
+        ImGui.SameLine();
+        DrawStopEvent();
+        ImGui.SameLine();
+        DrawSettings();
     }
 
     /// <summary>
@@ -130,6 +134,60 @@ public sealed partial class MainWindow : Window
         {
             result = ImGui.Button(MsgButtonStartEvent);
             if (ImGui.IsItemHovered()) ImGuiWidgets.DrawTooltip(MsgButtonStartEventHelp);
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    ///     Draws and handles the show/hide config action.
+    /// </summary>
+    private void DrawSettings()
+    {
+        if (DrawSettingsButton()) _windowManager.ShowConfig();
+    }
+
+    /// <summary>
+    ///     Draws the show/hide config button.
+    /// <returns><c>true</c> if the button was pressed.</returns>
+    /// </summary>
+    private bool DrawSettingsButton()
+    {
+        bool result;
+        if (_config.ShowMinimalMainWindow)
+            result = ImGuiWidgets.DrawIconButton("toggleConfig", FontAwesomeIcon.Cog, MsgButtonShowConfigHelp);
+        else
+        {
+            result = ImGui.Button(MsgButtonShowConfig);
+            if (ImGui.IsItemHovered()) ImGuiWidgets.DrawTooltip(MsgButtonShowConfigHelp);
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    ///     Draws and handles the start event action. This event will show a popup that allows the user to
+    ///     select a non-active event for starting.
+    /// </summary>
+    private void DrawStopEvent()
+    {
+        var loc = ImGui.GetCursorScreenPos();
+        if (DrawStopEventButton()) _windowManager.ShowStopEvent(loc);
+    }
+
+    /// <summary>
+    ///     Draws the start event button.
+    /// <returns><c>true</c> if the button was pressed.</returns>
+    /// </summary>
+    private bool DrawStopEventButton()
+    {
+        bool result;
+        if (_config.ShowMinimalMainWindow)
+            result = ImGuiWidgets.DrawIconButton("stopEvent", FontAwesomeIcon.Stop, MsgButtonStopEventHelp);
+        else
+        {
+            result = ImGui.Button(MsgButtonStopEvent);
+            if (ImGui.IsItemHovered()) ImGuiWidgets.DrawTooltip(MsgButtonStopEventHelp);
         }
 
         return result;

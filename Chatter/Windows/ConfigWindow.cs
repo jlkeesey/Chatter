@@ -40,6 +40,8 @@ using static Chatter.Configuration.FileNameOrder;
 using static System.String;
 using Dalamud.Interface.Textures;
 using JetBrains.Annotations;
+using NodaTime;
+using NodaTime.Extensions;
 
 // ReSharper disable InvertIf
 
@@ -111,17 +113,18 @@ public sealed partial class ConfigWindow : Window
         {XivChatType.SystemMessage, "ChatType.SystemMessage", "ChatType.SystemMessage.Help"},
     };
 
-    private static int _timeStampSelected = -1;
+    private static int _timeStampSelected;
     private readonly ISharedImmediateTexture _chatterImage;
     private readonly Configuration _configuration;
     private readonly ChatLogManager _chatLogManager;
+    private readonly FriendManager _friendManager;
+    private readonly Loc _loc;
     [UsedImplicitly] private readonly ILogger _logger;
 
     private readonly List<ImGuiWidgets.ComboOption<string>> _dateOptions;
     private readonly List<ImGuiWidgets.ComboOption<FileNameOrder>> _fileOrderOptions;
     private readonly List<ImGuiWidgets.ComboOption<DirectoryFormat>> _directoryFormOptions;
-    private readonly FriendManager _friendManager;
-    private readonly Loc _loc;
+    private readonly PeriodEditor _periodEditor;
     private bool _addUserAlreadyExists;
     private bool _addGroupAlreadyExists;
     private string _addGroupName = Empty;
@@ -167,6 +170,7 @@ public sealed partial class ConfigWindow : Window
         _chatLogManager = chatLogManager;
         _chatterImage = chatterImage;
         _loc = loc;
+        _periodEditor = new PeriodEditor(loc, MsgLabelEventLength, MsgLabelEventLengthHelp);
 
         SizeConstraints = new WindowSizeConstraints
         {
@@ -234,6 +238,8 @@ public sealed partial class ConfigWindow : Window
                 _directoryFormSelected = i;
                 break;
             }
+
+        HandleSelectGroup(AllLogName);
     }
 
     /// <summary>
@@ -380,6 +386,16 @@ public sealed partial class ConfigWindow : Window
                                         left: () => { DrawGroupTitle(chatLog); },
                                         right: () => { DrawGroupDelete(chatLog); });
             ImGui.Separator();
+            if (chatLog is {IsEvent: true, IsActive: true,})
+            {
+                ImGui.Spacing();
+                var endTime = chatLog.EventStartTime + chatLog.EventLength;
+                var now = SystemClock.Instance.InBclSystemDefaultZone().GetCurrentLocalDateTime();
+                var diff = endTime - now;
+                var timeLeft = FormatPeriod(diff);
+                ImGui.TextUnformatted($"Time remaining {timeLeft}");
+            }
+
             ImGui.Spacing();
 
             if (ImGui.BeginTable("general", 2))
@@ -408,6 +424,12 @@ public sealed partial class ConfigWindow : Window
                                           MsgLabelIncludeAllHelp);
 #endif
                 ImGui.EndTable();
+            }
+
+            if (chatLog is {IsEvent: true,})
+            {
+                ImGuiWidgets.VerticalSpace();
+                _periodEditor.DrawPeriodEditor(chatLog.EventLength, period => chatLog.EventLength = period);
             }
 
             ImGuiWidgets.VerticalSpace();
@@ -509,6 +531,33 @@ public sealed partial class ConfigWindow : Window
 
             ImGui.EndChild();
         }
+    }
+
+    private string FormatPeriod(Period period)
+    {
+        if (period.Days > 0)
+        {
+            return Format("{0:D} days, {1:D} hours, {2:D} minutes, and {3:D} seconds",
+                          period.Days,
+                          period.Hours,
+                          period.Minutes,
+                          period.Seconds);
+        }
+
+        if (period.Hours > 0)
+        {
+            return Format("{0:D} hours, {1:D} minutes, and {2:D} seconds",
+                          period.Hours,
+                          period.Minutes,
+                          period.Seconds);
+        }
+
+        if (period.Minutes > 0)
+        {
+            return Format("{0:D} minutes, and {1:D} seconds", period.Minutes, period.Seconds);
+        }
+
+        return Format("{0:D} seconds", period.Seconds);
     }
 
     /// <summary>

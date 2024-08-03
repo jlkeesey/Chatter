@@ -28,8 +28,6 @@ using ImGuiNET;
 using System.Linq;
 using System.Numerics;
 using Chatter.ImGuiX;
-using NodaTime;
-using NodaTime.Extensions;
 
 // ReSharper disable InvertIf
 
@@ -38,9 +36,9 @@ namespace Chatter.Windows;
 /// <summary>
 ///     Defines the configuration editing window.
 /// </summary>
-public sealed class SelectEventPopup : Window
+public sealed class StopEventPopup : Window
 {
-    private const string Title = "Select Event";
+    private const string Title = "Stop Event";
 
     private readonly JlkWindowManager _windowManager;
     private readonly Configuration _configuration;
@@ -50,21 +48,18 @@ public sealed class SelectEventPopup : Window
     private int _eventSelected;
     private List<ImGuiWidgets.ComboOption<string>> _items = [];
 
-    private readonly PeriodEditor _periodEditor;
-
     /// <summary>
-    ///     Constructs the start event selection popup.
+    ///     Constructs the stop event selection popup.
     /// </summary>
     /// <param name="windowManager">The window manager.</param>
     /// <param name="config">The plugin configuration.</param>
     /// <param name="loc">The message localization object.</param>
-    public SelectEventPopup(JlkWindowManager windowManager, Configuration config, Loc loc) : base(Title,
+    public StopEventPopup(JlkWindowManager windowManager, Configuration config, Loc loc) : base(Title,
         ImGuiWindowFlags.AlwaysAutoResize)
     {
         _windowManager = windowManager;
         _configuration = config;
         _loc = loc;
-        _periodEditor = new PeriodEditor(loc);
 
         SizeConstraints = new WindowSizeConstraints
         {
@@ -83,23 +78,20 @@ public sealed class SelectEventPopup : Window
     {
         base.OnOpen();
         _items = _configuration.ChatLogs.Select(log => log.Value)
-                               .Where(log => log is {IsEvent: true, IsActive: false,})
+                               .Where(log => log is {IsEvent: true, IsActive: true,})
                                .OrderBy(item => item.Name)
                                .Select(item => new ImGuiWidgets.ComboOption<string>(item.Name, item.Name))
                                .ToList();
         _eventSelected = 0;
+
         _hasEvents = _items.Count > 0;
-        if (_hasEvents)
-        {
-            _periodEditor.SetPeriod(_configuration.ChatLogs[_items[_eventSelected].Value].EventLength);
-        }
-        else
+        if (!_hasEvents)
         {
             _items =
             [
-                new ImGuiWidgets.ComboOption<string>("(no inactive events)",
+                new ImGuiWidgets.ComboOption<string>("(no active events)",
                                                      "-null-",
-                                                     "There are no inactive events to start."),
+                                                     "There are no active events to start."),
             ];
         }
     }
@@ -116,20 +108,15 @@ public sealed class SelectEventPopup : Window
                                onSelect: (ind) => { _eventSelected = ind; });
 
         ImGuiWidgets.VerticalSpace();
-        _periodEditor.DrawPeriodEditor(GetEventLength(), SetEventLength);
-        ImGuiWidgets.VerticalSpace();
-        ImGui.Separator();
-        ImGuiWidgets.VerticalSpace();
 
         using (ImGuiWith.Disabled(!_hasEvents))
         {
-            if (ImGui.Button(MsgButtonStart, new Vector2(120, 0)))
+            if (ImGui.Button(MsgButtonStop, new Vector2(120, 0)))
             {
                 var name = _items[_eventSelected].Value;
                 var log = _configuration.ChatLogs[name];
-                log.EventStartTime = SystemClock.Instance.InBclSystemDefaultZone().GetCurrentLocalDateTime();
-                log.IsActive = true;
-                _windowManager.HideSelectEvent();
+                log.IsActive = false;
+                _windowManager.HideStopEvent();
             }
         }
 
@@ -137,24 +124,10 @@ public sealed class SelectEventPopup : Window
         ImGui.SameLine();
         if (ImGui.Button(MsgButtonCancel, new Vector2(120, 0)))
         {
-            _windowManager.HideSelectEvent();
+            _windowManager.HideStopEvent();
         }
     }
 
-    private Period GetEventLength()
-    {
-        var name = _items[_eventSelected].Value;
-        var log = _configuration.ChatLogs[name];
-        return log.EventLength;
-    }
-
-    private void SetEventLength(Period period)
-    {
-        var name = _items[_eventSelected].Value;
-        var log = _configuration.ChatLogs[name];
-        log.EventLength = period;
-    }
-
-    private string MsgButtonStart => _loc.Message("Button.Start");
+    private string MsgButtonStop => _loc.Message("Button.Stop");
     private string MsgButtonCancel => _loc.Message("Button.Cancel");
 }

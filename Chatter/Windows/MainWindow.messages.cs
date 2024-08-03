@@ -32,4 +32,8 @@ public partial class MainWindow
     private string MsgButtonRestartHelp => _loc.Message("Button.Restart.Help");
     private string MsgButtonStartEvent => _loc.Message("Button.StartEvent");
     private string MsgButtonStartEventHelp => _loc.Message("Button.StartEvent.Help");
+    private string MsgButtonStopEvent => _loc.Message("Button.StopEvent");
+    private string MsgButtonStopEventHelp => _loc.Message("Button.StopEvent.Help");
+    private string MsgButtonShowConfig => _loc.Message("Button.ShowConfig");
+    private string MsgButtonShowConfigHelp => _loc.Message("Button.ShowConfig.Help");
 }
