@@ -47,6 +47,13 @@ public interface ILogger
     /// <summary>
     ///     Sends the formatted string to the error log output.
     /// </summary>
+    /// <param name="pattern">The message patter string.</param>
+    /// <param name="args">Any replacement parameters for the pattern.</param>
+    void Error(string pattern, params object[] args);
+
+    /// <summary>
+    ///     Sends the formatted string to the error log output.
+    /// </summary>
     /// <param name="exception">The exception that caused the error.</param>
     /// <param name="pattern">The message patter string.</param>
     /// <param name="args">Any replacement parameters for the pattern.</param>

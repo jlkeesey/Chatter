@@ -809,6 +809,146 @@
       "key": "Label.EventLength.Help",
       "message": "The legnth of time this event will be active.",
       "description": ""
+    },
+    {
+      "key": "Title.StartEvent",
+      "message": "Start Event",
+      "description": ""
+    },
+    {
+      "key": "Title.StopEvent",
+      "message": "Stop Event",
+      "description": ""
+    },
+    {
+      "key": "Combo.NoInactiveEvents",
+      "message": "(no inactive events)",
+      "description": ""
+    },
+    {
+      "key": "Combo.NoInactiveEvents.Help",
+      "message": "There are no inactive events to start.",
+      "description": ""
+    },
+    {
+      "key": "Label.EventsInactive",
+      "message": "Events",
+      "description": ""
+    },
+    {
+      "key": "Label.EventsInactive.Help",
+      "message": "The list of inactive events to choose from.",
+      "description": ""
+    },
+    {
+      "key": "Combo.NoActiveEvents",
+      "message": "(no active events)",
+      "description": ""
+    },
+    {
+      "key": "Combo.NoActiveEvents.Help",
+      "message": "There are no active events to stop.",
+      "description": ""
+    },
+    {
+      "key": "Label.EventsActive",
+      "message": "Events",
+      "description": ""
+    },
+    {
+      "key": "Label.EventsActive.Help",
+      "message": "The list of active events to choose from.",
+      "description": ""
+    },
+    {
+      "key": "Title.MainWindow",
+      "message": "Chatter",
+      "description": ""
+    },
+    {
+      "key": "Title.ConfigurationWindow",
+      "message": "Chatter Configuration",
+      "description": ""
+    },
+    {
+      "key": "Label.TimeRemaining",
+      "message": "Time remaining {0}",
+      "description": ""
+    },
+    {
+      "key": "Format.Period.Days",
+      "message": "1|Format.Period.Days.1,*|Format.Period.Days.0",
+      "description": ""
+    },
+    {
+      "key": "Format.Period.Days.0",
+      "message": "{0:D} days, {1:D} hours, {2:D} minutes, and {3:D} seconds",
+      "description": ""
+    },
+    {
+      "key": "Format.Period.Days.1",
+      "message": "{0:D} day, {1:D} hours, {2:D} minutes, and {3:D} seconds",
+      "description": ""
+    },
+    {
+      "key": "Format.Period.Hours",
+      "message": "1|Format.Period.Hours.1,*|Format.Period.Hours.0",
+      "description": ""
+    },
+    {
+      "key": "Format.Period.Hours.0",
+      "message": "{0:D} hours, {1:D} minutes, and {2:D} seconds",
+      "description": ""
+    },
+    {
+      "key": "Format.Period.Hours.1",
+      "message": "{0:D} hour, {1:D} minutes, and {2:D} seconds",
+      "description": ""
+    },
+    {
+      "key": "Format.Period.Minutes",
+      "message": "1|Format.Period.Minutes.1,*|Format.Period.Minutes.0",
+      "description": ""
+    },
+    {
+      "key": "Format.Period.Minutes.0",
+      "message": "{0:D} minutes and {1:D} seconds",
+      "description": ""
+    },
+    {
+      "key": "Format.Period.Minutes.1",
+      "message": "{0:D} minute and {1:D} seconds",
+      "description": ""
+    },
+    {
+      "key": "Format.Period.Seconds",
+      "message": "1|Format.Period.Seconds.1,*|Format.Period.Seconds.0",
+      "description": ""
+    },
+    {
+      "key": "Format.Period.Seconds.0",
+      "message": "{0:D} seconds",
+      "description": ""
+    },
+    {
+      "key": "Format.Period.Seconds.1",
+      "message": "{0:D} second",
+      "description": ""
+    },
+    {
+      "key": "Button.RemoveUser.Help",
+      "message": "Removes the user.",
+      "description": ""
+    },
+    {
+      "key": "Button.DeleteGroup.Help",
+      "message": "Deletes the group.",
+      "description": ""
+    },
+    {
+      "key": "Button.CopyToClipboard.Help",
+      "message": "Copies the directory path to theclipboard and opens the file explorer at the location.",
+      "description": ""
     }
   ]
 }

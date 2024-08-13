@@ -52,8 +52,6 @@ namespace Chatter.Windows;
 /// </summary>
 public sealed partial class ConfigWindow : Window
 {
-    private const string Title = "Chatter Configuration";
-
     /// <summary>
     ///     The list of chat types for the General section.
     /// </summary>
@@ -132,9 +130,9 @@ public sealed partial class ConfigWindow : Window
     private string _addEventName = Empty;
     private string _addUserFullName = Empty;
     private string _addUserReplacementName = Empty;
-    private IEnumerable<Friend> _filteredFriends = new List<Friend>();
+    private IEnumerable<Friend> _filteredFriends = [];
     private string _friendFilter = Empty;
-    private IEnumerable<Friend> _friends = new List<Friend>();
+    private IEnumerable<Friend> _friends = [];
     private int _directoryFormSelected = -1;
     private int _logOrderSelected = -1;
     private bool _removeDialogIsOpen = true;
@@ -162,7 +160,7 @@ public sealed partial class ConfigWindow : Window
                         FriendManager friendManager,
                         ChatLogManager chatLogManager,
                         ISharedImmediateTexture chatterImage,
-                        Loc loc) : base(Title)
+                        Loc loc) : base(loc.Message("Title.ConfigurationWindow"))
     {
         _configuration = config;
         _logger = logger;
@@ -393,7 +391,7 @@ public sealed partial class ConfigWindow : Window
                 var now = SystemClock.Instance.InBclSystemDefaultZone().GetCurrentLocalDateTime();
                 var diff = endTime - now;
                 var timeLeft = FormatPeriod(diff);
-                ImGui.TextUnformatted($"Time remaining {timeLeft}");
+                ImGui.TextUnformatted(Format(MsgLabelTimeRemaining, timeLeft));
             }
 
             ImGui.Spacing();
@@ -537,27 +535,20 @@ public sealed partial class ConfigWindow : Window
     {
         if (period.Days > 0)
         {
-            return Format("{0:D} days, {1:D} hours, {2:D} minutes, and {3:D} seconds",
-                          period.Days,
-                          period.Hours,
-                          period.Minutes,
-                          period.Seconds);
+            return MsgFormatPeriodDays.Format(period.Days, period.Hours, period.Minutes, period.Seconds);
         }
 
         if (period.Hours > 0)
         {
-            return Format("{0:D} hours, {1:D} minutes, and {2:D} seconds",
-                          period.Hours,
-                          period.Minutes,
-                          period.Seconds);
+            return MsgFormatPeriodHours.Format(period.Hours, period.Minutes, period.Seconds);
         }
 
         if (period.Minutes > 0)
         {
-            return Format("{0:D} minutes, and {1:D} seconds", period.Minutes, period.Seconds);
+            return MsgFormatPeriodMinutes.Format(period.Minutes, period.Seconds);
         }
 
-        return Format("{0:D} seconds", period.Seconds);
+        return MsgFormatPeriodSeconds.Format(period.Seconds);
     }
 
     /// <summary>
@@ -823,7 +814,7 @@ public sealed partial class ConfigWindow : Window
     /// <returns><c>true</c> if the button was pressed.</returns>
     private bool DrawRemoveButton(string id, bool disabled = false)
     {
-        return ImGuiWidgets.DrawIconButton($"Trash-{id}", FontAwesomeIcon.Trash, "Remove the user", disabled);
+        return ImGuiWidgets.DrawIconButton($"Trash-{id}", FontAwesomeIcon.Trash, MsgButtonRemoveUserHelp, disabled);
     }
 
     /// <summary>
@@ -834,7 +825,7 @@ public sealed partial class ConfigWindow : Window
     /// <returns><c>true</c> if the button was pressed.</returns>
     private bool DrawDeleteGroupButton(string id, bool disabled = false)
     {
-        return ImGuiWidgets.DrawIconButton($"Trash-{id}", FontAwesomeIcon.Trash, "Delete the group", disabled);
+        return ImGuiWidgets.DrawIconButton($"Trash-{id}", FontAwesomeIcon.Trash, MsgButtonDeleteGroupHelp, disabled);
     }
 
     /// <summary>
@@ -845,7 +836,7 @@ public sealed partial class ConfigWindow : Window
     /// <returns><c>true</c> if the button was pressed.</returns>
     private bool DrawCopyButton(string id, bool disabled = false)
     {
-        return ImGuiWidgets.DrawIconButton($"Copy-{id}", FontAwesomeIcon.Copy, "Copy to clipboard", disabled);
+        return ImGuiWidgets.DrawIconButton($"Copy-{id}", FontAwesomeIcon.Copy, MsgButtonCopyToClipboardHelp, disabled);
     }
 
     /// <summary>

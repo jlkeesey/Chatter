@@ -38,7 +38,12 @@ namespace Chatter.Windows;
 /// </summary>
 public sealed class StopEventPopup : Window
 {
-    private const string Title = "Stop Event";
+    private string MsgButtonStop => _loc.Message("Button.Stop");
+    private string MsgButtonCancel => _loc.Message("Button.Cancel");
+    private string MsgNoActiveEvents => _loc.Message("Combo.NoActiveEvents");
+    private string MsgNoActiveEventsHelp => _loc.Message("Combo.NoActiveEvents.Help");
+    private string MsgEventsActive => _loc.Message("Label.EventsActive");
+    private string MsgEventsActiveHelp => _loc.Message("Label.EventsActive.Help");
 
     private readonly JlkWindowManager _windowManager;
     private readonly Configuration _configuration;
@@ -54,8 +59,8 @@ public sealed class StopEventPopup : Window
     /// <param name="windowManager">The window manager.</param>
     /// <param name="config">The plugin configuration.</param>
     /// <param name="loc">The message localization object.</param>
-    public StopEventPopup(JlkWindowManager windowManager, Configuration config, Loc loc) : base(Title,
-        ImGuiWindowFlags.AlwaysAutoResize)
+    public StopEventPopup(JlkWindowManager windowManager, Configuration config, Loc loc) :
+        base(loc.Message("Title.StopEvent"), ImGuiWindowFlags.AlwaysAutoResize)
     {
         _windowManager = windowManager;
         _configuration = config;
@@ -87,12 +92,7 @@ public sealed class StopEventPopup : Window
         _hasEvents = _items.Count > 0;
         if (!_hasEvents)
         {
-            _items =
-            [
-                new ImGuiWidgets.ComboOption<string>("(no active events)",
-                                                     "-null-",
-                                                     "There are no active events to start."),
-            ];
+            _items = [new ImGuiWidgets.ComboOption<string>(MsgNoActiveEvents, "-null-", MsgNoActiveEventsHelp),];
         }
     }
 
@@ -101,10 +101,10 @@ public sealed class StopEventPopup : Window
     /// </summary>
     public override void Draw()
     {
-        ImGuiWidgets.DrawCombo("Events",
+        ImGuiWidgets.DrawCombo(MsgEventsActive,
                                _items,
                                _eventSelected,
-                               "Events",
+                               MsgEventsActiveHelp,
                                onSelect: (ind) => { _eventSelected = ind; });
 
         ImGuiWidgets.VerticalSpace();
@@ -127,7 +127,4 @@ public sealed class StopEventPopup : Window
             _windowManager.HideStopEvent();
         }
     }
-
-    private string MsgButtonStop => _loc.Message("Button.Stop");
-    private string MsgButtonCancel => _loc.Message("Button.Cancel");
 }
