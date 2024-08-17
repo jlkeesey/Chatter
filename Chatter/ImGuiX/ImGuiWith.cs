@@ -22,113 +22,20 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using System;
-using FFXIVClientStructs.FFXIV.Common.Math;
 using ImGuiNET;
 
 namespace Chatter.ImGuiX;
 
 public static class ImGuiWith
 {
-    public static IDisposable Disabled(bool flag)
-    {
-        return new WithDisabledDisposable(flag);
-    }
-
-    public static IDisposable Color(ImGuiCol idx, Vector4 value)
-    {
-        return new WithColorDisposable(idx, value);
-    }
-
-    public static IDisposable Color(ImGuiCol idx, uint value)
-    {
-        return new WithColorDisposable(idx, value);
-    }
-
-    public static IDisposable Style(ImGuiStyleVar styleVar, Vector2 value)
-    {
-        return new WithStyleDisposable(styleVar, value);
-    }
-
-    public static IDisposable Style(ImGuiStyleVar styleVar, float value)
-    {
-        return new WithStyleDisposable(styleVar, value);
-    }
-
     public static IDisposable TextWrapPos(float value)
     {
         return new WithTextWrapPosDisposable(value);
     }
 
-    public static IDisposable Font(ImFontPtr value)
-    {
-        return new WithFontDisposable(value);
-    }
-
     public static IDisposable ItemWidth(float value)
     {
         return new WithItemWidthDisposable(value);
-    }
-
-    public static IDisposable ID(int value)
-    {
-        return new WithIDDisposable(value);
-    }
-
-    public static IDisposable ID(string value)
-    {
-        return new WithIDDisposable(value);
-    }
-
-    private sealed class WithDisabledDisposable : IDisposable
-    {
-        private readonly bool _flag;
-
-        public WithDisabledDisposable(bool flag)
-        {
-            _flag = flag;
-            if (_flag) ImGui.BeginDisabled();
-        }
-
-        public void Dispose()
-        {
-            if (_flag) ImGui.EndDisabled();
-        }
-    }
-
-    private sealed class WithColorDisposable : IDisposable
-    {
-        public WithColorDisposable(ImGuiCol idx, Vector4 value)
-        {
-            ImGui.PushStyleColor(idx, value);
-        }
-
-        public WithColorDisposable(ImGuiCol idx, uint value)
-        {
-            ImGui.PushStyleColor(idx, value);
-        }
-
-        public void Dispose()
-        {
-            ImGui.PopStyleColor();
-        }
-    }
-
-    private sealed class WithStyleDisposable : IDisposable
-    {
-        public WithStyleDisposable(ImGuiStyleVar styleVar, Vector2 value)
-        {
-            ImGui.PushStyleVar(styleVar, value);
-        }
-
-        public WithStyleDisposable(ImGuiStyleVar styleVar, float value)
-        {
-            ImGui.PushStyleVar(styleVar, value);
-        }
-
-        public void Dispose()
-        {
-            ImGui.PopStyleVar();
-        }
     }
 
     private sealed class WithTextWrapPosDisposable : IDisposable
@@ -144,19 +51,6 @@ public static class ImGuiWith
         }
     }
 
-    private sealed class WithFontDisposable : IDisposable
-    {
-        public WithFontDisposable(ImFontPtr value)
-        {
-            ImGui.PushFont(value);
-        }
-
-        public void Dispose()
-        {
-            ImGui.PopFont();
-        }
-    }
-
     private sealed class WithItemWidthDisposable : IDisposable
     {
         public WithItemWidthDisposable(float value)
@@ -167,24 +61,6 @@ public static class ImGuiWith
         public void Dispose()
         {
             ImGui.PopItemWidth();
-        }
-    }
-
-    private sealed class WithIDDisposable : IDisposable
-    {
-        public WithIDDisposable(int value)
-        {
-            ImGui.PushID(value);
-        }
-
-        public WithIDDisposable(string value)
-        {
-            ImGui.PushID(value);
-        }
-
-        public void Dispose()
-        {
-            ImGui.PopID();
         }
     }
 }

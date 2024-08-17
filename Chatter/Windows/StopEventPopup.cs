@@ -28,6 +28,7 @@ using ImGuiNET;
 using System.Linq;
 using System.Numerics;
 using Chatter.ImGuiX;
+using Dalamud.Interface.Utility.Raii;
 
 // ReSharper disable InvertIf
 
@@ -109,7 +110,7 @@ public sealed class StopEventPopup : Window
 
         ImGuiWidgets.VerticalSpace();
 
-        using (ImGuiWith.Disabled(!_hasEvents))
+        using (ImRaii.Disabled(!_hasEvents))
         {
             if (ImGui.Button(MsgButtonStop, new Vector2(120, 0)))
             {

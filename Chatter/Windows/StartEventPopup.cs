@@ -28,6 +28,7 @@ using ImGuiNET;
 using System.Linq;
 using System.Numerics;
 using Chatter.ImGuiX;
+using Dalamud.Interface.Utility.Raii;
 using NodaTime;
 using NodaTime.Extensions;
 
@@ -121,7 +122,7 @@ public sealed class StartEventPopup : Window
         ImGui.Separator();
         ImGuiWidgets.VerticalSpace();
 
-        using (ImGuiWith.Disabled(!_hasEvents))
+        using (ImRaii.Disabled(!_hasEvents))
         {
             if (ImGui.Button(MsgButtonStart, new Vector2(120, 0)))
             {

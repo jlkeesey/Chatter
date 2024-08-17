@@ -39,7 +39,10 @@ public class Loc
 {
     private static readonly JsonSerializerOptions SerializeOptions = new()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        WriteIndented = true,
+        ReadCommentHandling = JsonCommentHandling.Skip,
+        AllowTrailingCommas = true,
     };
 
     private LocalizedMessageList _messages = new();
@@ -53,7 +56,7 @@ public class Loc
         if (IsNullOrWhiteSpace(language))
             throw new ArgumentException("Argument cannot be null, empty, or whitespace", nameof(language));
         if (IsNullOrWhiteSpace(country))
-            throw new ArgumentException("Argument cannot be null, empty, or whitespace", nameof(language));
+            throw new ArgumentException("Argument cannot be null, empty, or whitespace", nameof(country));
         Language = language;
         Country = country;
     }

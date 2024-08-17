@@ -38,7 +38,7 @@ using JetBrains.Annotations;
 namespace Chatter;
 
 /// <summary>
-///     The entry point for this plugin.
+///    The entry point for this plugin.
 /// </summary>
 [UsedImplicitly]
 public sealed partial class Chatter : IDalamudPlugin

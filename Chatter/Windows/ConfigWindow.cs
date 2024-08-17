@@ -39,6 +39,7 @@ using static Chatter.Configuration;
 using static Chatter.Configuration.FileNameOrder;
 using static System.String;
 using Dalamud.Interface.Textures;
+using Dalamud.Interface.Utility.Raii;
 using JetBrains.Annotations;
 using NodaTime;
 using NodaTime.Extensions;
@@ -52,6 +53,8 @@ namespace Chatter.Windows;
 /// </summary>
 public sealed partial class ConfigWindow : Window
 {
+    private bool _selectAllGeneral;
+
     /// <summary>
     ///     The list of chat types for the General section.
     /// </summary>
@@ -66,6 +69,8 @@ public sealed partial class ConfigWindow : Window
         {XivChatType.Alliance, "ChatType.Alliance", "ChatType.Alliance.Help"},
         {XivChatType.StandardEmote, "ChatType.Emote", "ChatType.Emote.Help", config => config.SyncFlags()},
     };
+
+    private bool _selectAllLs;
 
     /// <summary>
     ///     The list of chat types for the Linkshell section.
@@ -82,6 +87,8 @@ public sealed partial class ConfigWindow : Window
         {XivChatType.Ls8, "ChatType.Ls8", "ChatType.Ls8.Help"},
     };
 
+    private bool _selectAllCwls;
+
     /// <summary>
     ///     The list of chat types for the Cross-World Linkshell section.
     /// </summary>
@@ -96,6 +103,8 @@ public sealed partial class ConfigWindow : Window
         {XivChatType.CrossLinkShell7, "ChatType.Cwls7", "ChatType.Cwls7.Help"},
         {XivChatType.CrossLinkShell8, "ChatType.Cwls8", "ChatType.Cwls8.Help"},
     };
+
+    private bool _selectAllOther;
 
     /// <summary>
     ///     The list of chat types for the Other section.
@@ -248,21 +257,17 @@ public sealed partial class ConfigWindow : Window
         ImGuiWidgets.DrawTwoColumns("header", DrawPluginIcon, DrawRestartButton, rightWidth: 70);
         ImGuiWidgets.VerticalSpace(5);
 
-        if (ImGui.BeginTabBar("tabBar", ImGuiTabBarFlags.None))
+        using var tabBar = ImRaii.TabBar("tabBar");
+        if (!tabBar) return;
+
+        using (var tabGeneral = ImRaii.TabItem(MsgTabGeneral))
         {
-            if (ImGui.BeginTabItem(MsgTabGeneral))
-            {
-                DrawGeneralTab();
-                ImGui.EndTabItem();
-            }
+            if (tabGeneral) DrawGeneralTab();
+        }
 
-            if (ImGui.BeginTabItem(MsgTabGroups))
-            {
-                DrawGroupsTab();
-                ImGui.EndTabItem();
-            }
-
-            ImGui.EndTabBar();
+        using (var tabGroups = ImRaii.TabItem(MsgTabGroups))
+        {
+            if (tabGroups) DrawGroupsTab();
         }
     }
 
@@ -344,16 +349,16 @@ public sealed partial class ConfigWindow : Window
     /// </summary>
     private void DrawGroupsTab()
     {
-        DrawGroupsList();
+        DrawGroupsChild();
 
         ImGui.SameLine();
 
         DrawGroupEdit();
     }
 
-    private static void DrawGroupTitle(ChatLogConfiguration chatLog)
+    private static void DrawGroupTitle(string title)
     {
-        ImGuiWidgets.ColoredText(chatLog.Title, 0xff00ff00);
+        ImGuiWidgets.ColoredText(title, ImGuiWidgets.Rgb(0x00ff00));
     }
 
     private void DrawGroupDelete(ChatLogConfiguration chatLog)
@@ -373,138 +378,35 @@ public sealed partial class ConfigWindow : Window
     /// </summary>
     private void DrawGroupEdit()
     {
-        using (ImGuiWith.Style(ImGuiStyleVar.ChildRounding, 5))
+        using (ImRaii.PushStyle(ImGuiStyleVar.ChildRounding, 5))
+        using (var child = ImRaii.Child("groupData",
+                                        new Vector2(ImGui.GetContentRegionAvail().X, ImGui.GetContentRegionAvail().Y),
+                                        true))
         {
-            ImGui.BeginChild("groupData",
-                             new Vector2(ImGui.GetContentRegionAvail().X, ImGui.GetContentRegionAvail().Y),
-                             true);
+            if (!child) return;
             var chatLog = _configuration.ChatLogs[_selectedGroup];
             ImGuiWidgets.DrawTwoColumns("groupTitleTable",
                                         rightWidth: 22,
-                                        left: () => { DrawGroupTitle(chatLog); },
+                                        left: () => { DrawGroupTitle(chatLog.Title); },
                                         right: () => { DrawGroupDelete(chatLog); });
             ImGui.Separator();
-            if (chatLog is {IsEvent: true, IsActive: true,})
-            {
-                ImGui.Spacing();
-                var endTime = chatLog.EventStartTime + chatLog.EventLength;
-                var now = SystemClock.Instance.InBclSystemDefaultZone().GetCurrentLocalDateTime();
-                var diff = endTime - now;
-                var timeLeft = FormatPeriod(diff);
-                ImGui.TextUnformatted(Format(MsgLabelTimeRemaining, timeLeft));
-            }
+            DrawEventRemainingTime(chatLog);
 
             ImGui.Spacing();
 
-            if (ImGui.BeginTable("general", 2))
-            {
-                ImGui.TableNextColumn();
-                ImGuiWidgets.DrawCheckbox(MsgLabelIsActive, ref chatLog.IsActive, MsgLabelIsActiveHelp, chatLog.IsAll);
-                ImGui.TableNextColumn();
-                ImGuiWidgets.DrawCheckbox(MsgLabelIncludeAllUsers,
-                                          ref chatLog.IncludeAllUsers,
-                                          MsgLabelIncludeAllUsersHelp,
-                                          chatLog.IsAll);
-                ImGui.TableNextColumn();
-                ImGuiWidgets.DrawCheckbox(MsgLabelIsEvent, ref chatLog.IsEvent, MsgLabelIsEventHelp, chatLog.IsAll);
-                ImGui.TableNextColumn();
-                ImGuiWidgets.DrawCheckbox(MsgLabelIncludeSelf, ref chatLog.IncludeMe, MsgLabelIncludeSelfHelp);
+            DrawGroupControlFlags(chatLog);
 
-                ImGui.TableNextColumn();
-                ImGuiWidgets.DrawCheckbox(MsgLabelIncludeServerName,
-                                          ref chatLog.IncludeServer,
-                                          MsgLabelIncludeServerNameHelp);
-
-#if DEBUG
-                ImGui.TableNextColumn();
-                ImGuiWidgets.DrawCheckbox(MsgLabelIncludeAll,
-                                          ref chatLog.DebugIncludeAllMessages,
-                                          MsgLabelIncludeAllHelp);
-#endif
-                ImGui.EndTable();
-            }
-
-            if (chatLog is {IsEvent: true,})
-            {
-                ImGuiWidgets.VerticalSpace();
-                _periodEditor.DrawPeriodEditor(chatLog.EventLength, period => chatLog.EventLength = period);
-            }
+            DrawEventPeriodEntry(chatLog);
 
             ImGuiWidgets.VerticalSpace();
 
-            using (ImGuiWith.ItemWidth(150))
-            {
-                ImGui.InputInt(MsgInputWrapWidthLabel, ref chatLog.MessageWrapWidth);
-                ImGuiWidgets.HelpMarker(MsgInputWrapWidthHelp);
-
-                ImGui.InputInt(MsgInputWrapIndentLabel, ref chatLog.MessageWrapIndentation);
-                ImGuiWidgets.HelpMarker(MsgInputWrapIndentHelp);
-
-                ImGuiWidgets.DrawCombo(MsgComboTimestampLabel,
-                                       _dateOptions,
-                                       _timeStampSelected,
-                                       MsgComboTimestampHelp,
-                                       onSelect: (ind) =>
-                                       {
-                                           _timeStampSelected = ind;
-                                           chatLog.DateTimeFormat = _dateOptions[ind].Value;
-                                       });
-            }
+            DrawGroupWrappingInfo(chatLog);
 
             ImGuiWidgets.VerticalSpace();
 
-            if (ImGui.CollapsingHeader(MsgHeaderIncludedUsers))
-            {
-                ImGuiWidgets.VerticalSpace(5);
-                ImGui.TextUnformatted(MsgDescriptionIncludedUsers);
-                ImGuiWidgets.VerticalSpace();
-                if (ImGui.Button(MsgButtonAddUser)) ImGui.OpenPopup("addUser");
+            DrawGroupUserList(chatLog);
 
-                DrawAddUserPopup(chatLog);
-
-                const ImGuiTableFlags tableFlags = ImGuiTableFlags.ScrollY
-                                                 | ImGuiTableFlags.RowBg
-                                                 | ImGuiTableFlags.BordersOuter
-                                                 | ImGuiTableFlags.SizingFixedFit
-                                                 | ImGuiTableFlags.BordersV;
-                var textBaseHeight = ImGui.GetTextLineHeightWithSpacing();
-                var outerSize = new Vector2(0, textBaseHeight * 8);
-                if (ImGui.BeginTable("userTable", 3, tableFlags, outerSize))
-                {
-                    ImGui.TableSetupScrollFreeze(0, 1); // Make top row always visible
-                    ImGui.TableSetupColumn(MsgColumnFullName, ImGuiTableColumnFlags.WidthStretch);
-                    ImGui.TableSetupColumn(MsgColumnReplacement, ImGuiTableColumnFlags.WidthStretch);
-                    ImGui.TableSetupColumn(Empty, ImGuiTableColumnFlags.WidthFixed, 22);
-                    ImGui.TableHeadersRow();
-
-                    foreach (var (userFrom, userTo) in chatLog.Users)
-                    {
-                        using (ImGuiWith.ID(userFrom))
-                        {
-                            ImGui.TableNextRow();
-
-                            ImGui.TableSetColumnIndex(0);
-                            ImGuiWidgets.ColoredText(userFrom, 0xffFFB299);
-
-                            ImGui.TableSetColumnIndex(1);
-                            ImGuiWidgets.ColoredText(IsNullOrWhiteSpace(userTo) ? "-" : userTo, 0xff99E5B2);
-
-                            ImGui.TableSetColumnIndex(2);
-                            if (DrawRemoveButton(userFrom))
-                            {
-                                if (!chatLog.Users.ContainsKey(userFrom)) return;
-                                _removeDialogUser = userFrom;
-                                ImGui.OpenPopup(MsgTitleRemove);
-                            }
-
-                            DrawRemoveUserDialog();
-                        }
-                    }
-
-                    ImGui.EndTable();
-                    ImGuiWidgets.VerticalSpace();
-                }
-            }
+            DrawGroupChatTypeList(chatLog);
 
             if (_removeUser != Empty)
             {
@@ -518,16 +420,146 @@ public sealed partial class ConfigWindow : Window
                 _configuration.ChatLogs.Remove(_deleteGroup);
                 _deleteGroup = Empty;
             }
+        }
+    }
 
-            if (ImGui.CollapsingHeader(MsgHeaderIncludedChatTypes))
+    private void DrawGroupChatTypeList(ChatLogConfiguration chatLog)
+    {
+        if (ImGui.CollapsingHeader(MsgHeaderIncludedChatTypes))
+        {
+            DrawChatTypeFlags("flagGeneral", "General", chatLog, ref _selectAllGeneral, GeneralChatTypeFlags);
+            DrawChatTypeFlags("flagLs", "Linkshells", chatLog, ref _selectAllLs, LinkShellChatTypeFlags);
+            DrawChatTypeFlags("flagCwls",
+                              "Cross-world Linkshells",
+                              chatLog,
+                              ref _selectAllCwls,
+                              CrossWorldLinkShellChatTypeFlags);
+            DrawChatTypeFlags("flagOther", "Other", chatLog, ref _selectAllOther, OtherChatTypeFlags);
+        }
+    }
+
+    private void DrawGroupUserList(ChatLogConfiguration chatLog)
+    {
+        if (ImGui.CollapsingHeader(MsgHeaderIncludedUsers))
+        {
+            ImGuiWidgets.VerticalSpace(5);
+            ImGui.TextUnformatted(MsgDescriptionIncludedUsers);
+            ImGuiWidgets.VerticalSpace();
+            if (ImGui.Button(MsgButtonAddUser)) ImGui.OpenPopup("addUser");
+
+            DrawAddUserPopup(chatLog);
+
+            const ImGuiTableFlags tableFlags = ImGuiTableFlags.ScrollY
+                                             | ImGuiTableFlags.RowBg
+                                             | ImGuiTableFlags.BordersOuter
+                                             | ImGuiTableFlags.SizingFixedFit
+                                             | ImGuiTableFlags.BordersV;
+            var textBaseHeight = ImGui.GetTextLineHeightWithSpacing();
+            var outerSize = new Vector2(0, textBaseHeight * 8);
+            using var table = ImRaii.Table("userTable", 3, tableFlags, outerSize);
+            if (!table) return;
+            ImGui.TableSetupScrollFreeze(0, 1); // Make top row always visible
+            ImGui.TableSetupColumn(MsgColumnFullName, ImGuiTableColumnFlags.WidthStretch);
+            ImGui.TableSetupColumn(MsgColumnReplacement, ImGuiTableColumnFlags.WidthStretch);
+            ImGui.TableSetupColumn(Empty, ImGuiTableColumnFlags.WidthFixed, 22);
+            ImGui.TableHeadersRow();
+
+            foreach (var (userFrom, userTo) in chatLog.Users)
             {
-                DrawChatTypeFlags("flagGeneral", chatLog, GeneralChatTypeFlags);
-                DrawChatTypeFlags("flagLs", chatLog, LinkShellChatTypeFlags);
-                DrawChatTypeFlags("flagCwls", chatLog, CrossWorldLinkShellChatTypeFlags);
-                DrawChatTypeFlags("flagOther", chatLog, OtherChatTypeFlags);
+                using (ImRaii.PushId(userFrom))
+                {
+                    ImGui.TableNextRow();
+
+                    ImGui.TableSetColumnIndex(0);
+                    ImGuiWidgets.ColoredText(userFrom, ImGuiWidgets.Rgb(0xFFB299));
+
+                    ImGui.TableSetColumnIndex(1);
+                    ImGuiWidgets.ColoredText(IsNullOrWhiteSpace(userTo) ? "-" : userTo, ImGuiWidgets.Rgb(0xB2E599));
+
+                    ImGui.TableSetColumnIndex(2);
+                    if (DrawRemoveButton(userFrom))
+                    {
+                        if (chatLog.Users.ContainsKey(userFrom))
+                        {
+                            _removeDialogUser = userFrom;
+                            ImGui.OpenPopup(MsgTitleRemove);
+                        }
+                    }
+
+                    DrawRemoveUserDialog();
+                }
             }
 
-            ImGui.EndChild();
+            ImGuiWidgets.VerticalSpace();
+        }
+    }
+
+    private void DrawGroupWrappingInfo(ChatLogConfiguration chatLog)
+    {
+        using (ImGuiWith.ItemWidth(150))
+        {
+            ImGui.InputInt(MsgInputWrapWidthLabel, ref chatLog.MessageWrapWidth);
+            ImGuiWidgets.HelpMarker(MsgInputWrapWidthHelp);
+
+            ImGui.InputInt(MsgInputWrapIndentLabel, ref chatLog.MessageWrapIndentation);
+            ImGuiWidgets.HelpMarker(MsgInputWrapIndentHelp);
+
+            ImGuiWidgets.DrawCombo(MsgComboTimestampLabel,
+                                   _dateOptions,
+                                   _timeStampSelected,
+                                   MsgComboTimestampHelp,
+                                   onSelect: (ind) =>
+                                   {
+                                       _timeStampSelected = ind;
+                                       chatLog.DateTimeFormat = _dateOptions[ind].Value;
+                                   });
+        }
+    }
+
+    private void DrawEventPeriodEntry(ChatLogConfiguration chatLog)
+    {
+        if (chatLog is {IsEvent: true,})
+        {
+            ImGuiWidgets.VerticalSpace();
+            _periodEditor.DrawPeriodEditor(chatLog.EventLength, period => chatLog.EventLength = period);
+        }
+    }
+
+    private void DrawGroupControlFlags(ChatLogConfiguration chatLog)
+    {
+        using var table = ImRaii.Table("general", 2);
+        if (!table) return;
+        ImGui.TableNextColumn();
+        ImGuiWidgets.DrawCheckbox(MsgLabelIsActive, ref chatLog.IsActive, MsgLabelIsActiveHelp, chatLog.IsAll);
+        ImGui.TableNextColumn();
+        ImGuiWidgets.DrawCheckbox(MsgLabelIncludeAllUsers,
+                                  ref chatLog.IncludeAllUsers,
+                                  MsgLabelIncludeAllUsersHelp,
+                                  chatLog.IsAll);
+        ImGui.TableNextColumn();
+        ImGuiWidgets.DrawCheckbox(MsgLabelIsEvent, ref chatLog.IsEvent, MsgLabelIsEventHelp, chatLog.IsAll);
+        ImGui.TableNextColumn();
+        ImGuiWidgets.DrawCheckbox(MsgLabelIncludeSelf, ref chatLog.IncludeMe, MsgLabelIncludeSelfHelp);
+
+        ImGui.TableNextColumn();
+        ImGuiWidgets.DrawCheckbox(MsgLabelIncludeServerName, ref chatLog.IncludeServer, MsgLabelIncludeServerNameHelp);
+
+#if DEBUG
+        ImGui.TableNextColumn();
+        ImGuiWidgets.DrawCheckbox(MsgLabelIncludeAll, ref chatLog.DebugIncludeAllMessages, MsgLabelIncludeAllHelp);
+#endif
+    }
+
+    private void DrawEventRemainingTime(ChatLogConfiguration chatLog)
+    {
+        if (chatLog is {IsEvent: true, IsActive: true,})
+        {
+            ImGui.Spacing();
+            var endTime = chatLog.EventStartTime + chatLog.EventLength;
+            var now = SystemClock.Instance.InBclSystemDefaultZone().GetCurrentLocalDateTime();
+            var diff = endTime - now;
+            var timeLeft = FormatPeriod(diff);
+            ImGui.TextUnformatted(Format(MsgLabelTimeRemaining, timeLeft));
         }
     }
 
@@ -543,12 +575,9 @@ public sealed partial class ConfigWindow : Window
             return MsgFormatPeriodHours.Format(period.Hours, period.Minutes, period.Seconds);
         }
 
-        if (period.Minutes > 0)
-        {
-            return MsgFormatPeriodMinutes.Format(period.Minutes, period.Seconds);
-        }
-
-        return MsgFormatPeriodSeconds.Format(period.Seconds);
+        return period.Minutes > 0
+                   ? MsgFormatPeriodMinutes.Format(period.Minutes, period.Seconds)
+                   : MsgFormatPeriodSeconds.Format(period.Seconds);
     }
 
     /// <summary>
@@ -558,69 +587,66 @@ public sealed partial class ConfigWindow : Window
     private void DrawAddUserPopup(ChatLogConfiguration chatLog)
     {
         ImGui.SetNextWindowSizeConstraints(new Vector2(350, 100), new Vector2(350, 200));
-        if (ImGui.BeginPopup("addUser", ImGuiWindowFlags.AlwaysAutoResize))
+        using var popup = ImRaii.Popup("addUser", ImGuiWindowFlags.AlwaysAutoResize);
+        if (!popup) return;
+        if (_addUserAlreadyExists)
         {
-            if (_addUserAlreadyExists)
-            {
-                ImGuiWidgets.VerticalSpace();
-                ImGuiWidgets.ColoredText(MsgPlayerAlreadyInList, 0xff0000FF);
-                ImGuiWidgets.VerticalSpace();
-            }
-
-            ImGuiWidgets.LongInputField(MsgPlayerFullName,
-                                        ref _addUserFullName,
-                                        128,
-                                        "##playerFullName",
-                                        MsgPlayerFullNameHelp,
-                                        extraWidth: 30,
-                                        extra: () =>
-                                        {
-                                            if (DrawFindFriendButton())
-                                            {
-                                                _friendFilter = Empty;
-                                                _friends = _filteredFriends = _friendManager.GetFriends();
-                                                _selectedFriend = Empty;
-                                                ImGui.OpenPopup("findFriend");
-                                            }
-                                        });
-
             ImGuiWidgets.VerticalSpace();
-            ImGuiWidgets.LongInputField(MsgPlayerReplacement,
-                                        ref _addUserReplacementName,
-                                        128,
-                                        "##playerReplaceName",
-                                        MsgPlayerReplacementHelp,
-                                        extraWidth: 30);
-
+            ImGuiWidgets.ColoredText(MsgPlayerAlreadyInList, ImGuiWidgets.Rgb(0xff0000));
             ImGuiWidgets.VerticalSpace();
-            ImGui.Separator();
-            ImGuiWidgets.VerticalSpace();
-
-            if (ImGui.Button(MsgButtonAdd, new Vector2(120, 0)))
-            {
-                _addUserAlreadyExists = false;
-                var fullName = _addUserFullName.Trim();
-                if (!IsNullOrWhiteSpace(fullName))
-                {
-                    var replacement = _addUserReplacementName.Trim();
-                    if (chatLog.Users.TryAdd(fullName, replacement))
-                        ImGui.CloseCurrentPopup();
-                    else
-                        _addUserAlreadyExists = true;
-                }
-            }
-
-            ImGui.SameLine();
-            if (ImGui.Button(MsgButtonCancel, new Vector2(120, 0)))
-            {
-                _addUserAlreadyExists = false;
-                ImGui.CloseCurrentPopup();
-            }
-
-            DrawFindFriendPopup(ref _addUserFullName);
-
-            ImGui.EndPopup();
         }
+
+        ImGuiWidgets.LongInputField(MsgPlayerFullName,
+                                    ref _addUserFullName,
+                                    128,
+                                    "##playerFullName",
+                                    MsgPlayerFullNameHelp,
+                                    extraWidth: 30,
+                                    extra: () =>
+                                    {
+                                        if (DrawFindFriendButton())
+                                        {
+                                            _friendFilter = Empty;
+                                            _friends = _filteredFriends = _friendManager.GetFriends();
+                                            _selectedFriend = Empty;
+                                            ImGui.OpenPopup("findFriend");
+                                        }
+                                    });
+
+        ImGuiWidgets.VerticalSpace();
+        ImGuiWidgets.LongInputField(MsgPlayerReplacement,
+                                    ref _addUserReplacementName,
+                                    128,
+                                    "##playerReplaceName",
+                                    MsgPlayerReplacementHelp,
+                                    extraWidth: 30);
+
+        ImGuiWidgets.VerticalSpace();
+        ImGui.Separator();
+        ImGuiWidgets.VerticalSpace();
+
+        if (ImGui.Button(MsgButtonAdd, new Vector2(120, 0)))
+        {
+            _addUserAlreadyExists = false;
+            var fullName = _addUserFullName.Trim();
+            if (!IsNullOrWhiteSpace(fullName))
+            {
+                var replacement = _addUserReplacementName.Trim();
+                if (chatLog.Users.TryAdd(fullName, replacement))
+                    ImGui.CloseCurrentPopup();
+                else
+                    _addUserAlreadyExists = true;
+            }
+        }
+
+        ImGui.SameLine();
+        if (ImGui.Button(MsgButtonCancel, new Vector2(120, 0)))
+        {
+            _addUserAlreadyExists = false;
+            ImGui.CloseCurrentPopup();
+        }
+
+        DrawFindFriendPopup(ref _addUserFullName);
     }
 
     /// <summary>
@@ -629,42 +655,39 @@ public sealed partial class ConfigWindow : Window
     private void DrawAddGroupPopup()
     {
         ImGui.SetNextWindowSizeConstraints(new Vector2(350, 100), new Vector2(350, 200));
-        if (ImGui.BeginPopup("addGroup", ImGuiWindowFlags.AlwaysAutoResize))
+        using var popup = ImRaii.Popup("addGroup", ImGuiWindowFlags.AlwaysAutoResize);
+        if (!popup) return;
+        if (_addGroupAlreadyExists)
         {
-            if (_addGroupAlreadyExists)
-            {
-                ImGuiWidgets.VerticalSpace();
-                ImGuiWidgets.ColoredText(MsgGroupAlreadyInList, 0xff0000ff);
-                ImGuiWidgets.VerticalSpace();
-            }
-
-            if (ImGuiWidgets.LongInputField(MsgGroupName,
-                                            ref _addGroupName,
-                                            128,
-                                            "##groupName",
-                                            MsgGroupNameHelp,
-                                            allowEnter: true,
-                                            filter: new ImGuiWidgets.FilenameCharactersFilter()))
-            {
-                HandleAddGroupAccept();
-            }
-
             ImGuiWidgets.VerticalSpace();
-            ImGui.Separator();
+            ImGuiWidgets.ColoredText(MsgGroupAlreadyInList, ImGuiWidgets.Rgb(0xff0000));
             ImGuiWidgets.VerticalSpace();
+        }
 
-            if (ImGui.Button(MsgButtonCreate, new Vector2(120, 0))) HandleAddGroupAccept();
+        if (ImGuiWidgets.LongInputField(MsgGroupName,
+                                        ref _addGroupName,
+                                        128,
+                                        "##groupName",
+                                        MsgGroupNameHelp,
+                                        allowEnter: true,
+                                        filter: new ImGuiWidgets.FilenameCharactersFilter()))
+        {
+            HandleAddGroupAccept();
+        }
 
-            ImGui.SetItemDefaultFocus();
-            ImGui.SameLine();
-            if (ImGui.Button(MsgButtonCancel, new Vector2(120, 0)))
-            {
-                _addGroupName = "";
-                _addGroupAlreadyExists = false;
-                ImGui.CloseCurrentPopup();
-            }
+        ImGuiWidgets.VerticalSpace();
+        ImGui.Separator();
+        ImGuiWidgets.VerticalSpace();
 
-            ImGui.EndPopup();
+        if (ImGui.Button(MsgButtonCreate, new Vector2(120, 0))) HandleAddGroupAccept();
+
+        ImGui.SetItemDefaultFocus();
+        ImGui.SameLine();
+        if (ImGui.Button(MsgButtonCancel, new Vector2(120, 0)))
+        {
+            _addGroupName = "";
+            _addGroupAlreadyExists = false;
+            ImGui.CloseCurrentPopup();
         }
     }
 
@@ -691,40 +714,37 @@ public sealed partial class ConfigWindow : Window
     private void DrawAddEventPopup()
     {
         ImGui.SetNextWindowSizeConstraints(new Vector2(350, 100), new Vector2(350, 200));
-        if (ImGui.BeginPopup("addEvent", ImGuiWindowFlags.AlwaysAutoResize))
+        using var popup = ImRaii.Popup("addEvent", ImGuiWindowFlags.AlwaysAutoResize);
+        if (!popup) return;
+        if (_addEventAlreadyExists)
         {
-            if (_addEventAlreadyExists)
-            {
-                ImGuiWidgets.VerticalSpace();
-                ImGuiWidgets.ColoredText(MsgEventAlreadyInList, 0xff0000ff);
-                ImGuiWidgets.VerticalSpace();
-            }
-
-            if (ImGuiWidgets.LongInputField(MsgEventName,
-                                            ref _addEventName,
-                                            128,
-                                            "##eventName",
-                                            MsgEventNameHelp,
-                                            allowEnter: true,
-                                            filter: new ImGuiWidgets.FilenameCharactersFilter()))
-            {
-                HandleAddEventAccept();
-            }
-
             ImGuiWidgets.VerticalSpace();
-            ImGui.Separator();
+            ImGuiWidgets.ColoredText(MsgEventAlreadyInList, ImGuiWidgets.Rgb(0xff0000));
             ImGuiWidgets.VerticalSpace();
+        }
 
-            if (ImGui.Button(MsgButtonCreate, new Vector2(120, 0))) HandleAddEventAccept();
-            ImGui.SameLine();
-            if (ImGui.Button(MsgButtonCancel, new Vector2(120, 0)))
-            {
-                _addEventName = "";
-                _addEventAlreadyExists = false;
-                ImGui.CloseCurrentPopup();
-            }
+        if (ImGuiWidgets.LongInputField(MsgEventName,
+                                        ref _addEventName,
+                                        128,
+                                        "##eventName",
+                                        MsgEventNameHelp,
+                                        allowEnter: true,
+                                        filter: new ImGuiWidgets.FilenameCharactersFilter()))
+        {
+            HandleAddEventAccept();
+        }
 
-            ImGui.EndPopup();
+        ImGuiWidgets.VerticalSpace();
+        ImGui.Separator();
+        ImGuiWidgets.VerticalSpace();
+
+        if (ImGui.Button(MsgButtonCreate, new Vector2(120, 0))) HandleAddEventAccept();
+        ImGui.SameLine();
+        if (ImGui.Button(MsgButtonCancel, new Vector2(120, 0)))
+        {
+            _addEventName = "";
+            _addEventAlreadyExists = false;
+            ImGui.CloseCurrentPopup();
         }
     }
 
@@ -754,38 +774,37 @@ public sealed partial class ConfigWindow : Window
     /// <param name="targetUserFullName">Where to put the chosen friend name.</param>
     private void DrawFindFriendPopup(ref string targetUserFullName)
     {
-        if (ImGui.BeginPopup("findFriend", ImGuiWindowFlags.AlwaysAutoResize))
+        using var popup = ImRaii.Popup("findFriend", ImGuiWindowFlags.AlwaysAutoResize);
+        if (!popup) return;
+        if (ImGui.InputText("##filter", ref _friendFilter, 100))
+            _filteredFriends = _friends.Where(f => f.Name.Contains(_friendFilter, StringComparison.OrdinalIgnoreCase))
+                                       .ToImmutableSortedSet();
+        ImGui.SameLine();
+        if (DrawClearFilterButton()) _friendFilter = Empty;
+
+        DrawFriendsList();
+
+        ImGui.Separator();
+        if (ImGui.Button(MsgButtonAdd, new Vector2(120, 0)))
         {
-            if (ImGui.InputText("##filter", ref _friendFilter, 100))
-                _filteredFriends = _friends
-                                  .Where(f => f.Name.Contains(_friendFilter, StringComparison.OrdinalIgnoreCase))
-                                  .ToImmutableSortedSet();
-            ImGui.SameLine();
-            if (DrawClearFilterButton()) _friendFilter = Empty;
-
-            var textBaseHeight = ImGui.GetTextLineHeightWithSpacing();
-            var outerSize = new Vector2(-1, textBaseHeight * 8);
-            if (ImGui.BeginListBox("##friendList", outerSize))
-            {
-                foreach (var filteredFriend in _filteredFriends)
-                    if (ImGui.Selectable(filteredFriend.FullName, filteredFriend.FullName == _selectedFriend))
-                        _selectedFriend = filteredFriend.FullName;
-
-                ImGui.EndListBox();
-            }
-
-            ImGui.Separator();
-            if (ImGui.Button(MsgButtonAdd, new Vector2(120, 0)))
-            {
-                if (!IsNullOrWhiteSpace(_selectedFriend)) targetUserFullName = _selectedFriend;
-                ImGui.CloseCurrentPopup();
-            }
-
-            ImGui.SameLine();
-            if (ImGui.Button(MsgButtonCancel, new Vector2(120, 0))) ImGui.CloseCurrentPopup();
-
-            ImGui.EndPopup();
+            if (!IsNullOrWhiteSpace(_selectedFriend)) targetUserFullName = _selectedFriend;
+            ImGui.CloseCurrentPopup();
         }
+
+        ImGui.SameLine();
+        if (ImGui.Button(MsgButtonCancel, new Vector2(120, 0))) ImGui.CloseCurrentPopup();
+    }
+
+    private void DrawFriendsList()
+    {
+        var textBaseHeight = ImGui.GetTextLineHeightWithSpacing();
+        var outerSize = new Vector2(-1, textBaseHeight * 8);
+        using var listbox = ImRaii.ListBox("##friendList", outerSize);
+        if (!listbox) return;
+
+        foreach (var filteredFriend in _filteredFriends)
+            if (ImGui.Selectable(filteredFriend.FullName, filteredFriend.FullName == _selectedFriend))
+                _selectedFriend = filteredFriend.FullName;
     }
 
     /// <summary>
@@ -844,22 +863,19 @@ public sealed partial class ConfigWindow : Window
     /// </summary>
     private void DrawRemoveUserDialog()
     {
-        if (ImGui.BeginPopupModal(MsgTitleRemove, ref _removeDialogIsOpen, ImGuiWindowFlags.AlwaysAutoResize))
+        using var popup = ImRaii.PopupModal(MsgTitleRemove, ref _removeDialogIsOpen, ImGuiWindowFlags.AlwaysAutoResize);
+        if (!popup) return;
+        using (ImGuiWith.TextWrapPos(300)) ImGui.TextUnformatted(Format(MsgRemoveUser, _removeDialogUser));
+        ImGui.Separator();
+
+        if (ImGui.Button(MsgButtonRemove, new Vector2(120, 0)))
         {
-            using (ImGuiWith.TextWrapPos(300)) ImGui.TextUnformatted(Format(MsgRemoveUser, _removeDialogUser));
-            ImGui.Separator();
-
-            if (ImGui.Button(MsgButtonRemove, new Vector2(120, 0)))
-            {
-                _removeUser = _removeDialogUser;
-                ImGui.CloseCurrentPopup();
-            }
-
-            ImGui.SameLine();
-            if (ImGui.Button(MsgButtonCancel, new Vector2(120, 0))) ImGui.CloseCurrentPopup();
-
-            ImGui.EndPopup();
+            _removeUser = _removeDialogUser;
+            ImGui.CloseCurrentPopup();
         }
+
+        ImGui.SameLine();
+        if (ImGui.Button(MsgButtonCancel, new Vector2(120, 0))) ImGui.CloseCurrentPopup();
     }
 
     /// <summary>
@@ -867,55 +883,54 @@ public sealed partial class ConfigWindow : Window
     /// </summary>
     private void DrawDeleteGroupDialog()
     {
-        if (ImGui.BeginPopupModal(MsgTitleDelete, ref _deleteGroupDialogIsOpen, ImGuiWindowFlags.AlwaysAutoResize))
+        using var popup =
+            ImRaii.PopupModal(MsgTitleDelete, ref _deleteGroupDialogIsOpen, ImGuiWindowFlags.AlwaysAutoResize);
+        if (!popup) return;
+        using (ImGuiWith.TextWrapPos(300)) ImGui.TextUnformatted(Format(MsgLabelDeleteGroup, _deleteDialogGroup));
+        ImGui.Separator();
+
+        if (ImGui.Button(MsgButtonDelete, new Vector2(120, 0)))
         {
-            using (ImGuiWith.TextWrapPos(300)) ImGui.TextUnformatted(Format(MsgLabelDeleteGroup, _deleteDialogGroup));
-            ImGui.Separator();
-
-            if (ImGui.Button(MsgButtonDelete, new Vector2(120, 0)))
-            {
-                _deleteGroup = _deleteDialogGroup;
-                ImGui.CloseCurrentPopup();
-            }
-
-            ImGui.SameLine();
-            if (ImGui.Button(MsgButtonCancel, new Vector2(120, 0))) ImGui.CloseCurrentPopup();
-
-            ImGui.EndPopup();
+            _deleteGroup = _deleteDialogGroup;
+            ImGui.CloseCurrentPopup();
         }
+
+        ImGui.SameLine();
+        if (ImGui.Button(MsgButtonCancel, new Vector2(120, 0))) ImGui.CloseCurrentPopup();
     }
 
     /// <summary>
-    ///     Draws the list of groups for selecting into the editor.
+    ///     Draws the child that contains the groups list. This includes the add group and event controls with the list
+    ///     of groups for selecting into the editor.
     /// </summary>
-    private void DrawGroupsList()
+    private void DrawGroupsChild()
     {
-        using (ImGuiWith.Style(ImGuiStyleVar.ChildRounding, 5))
+        using (ImRaii.PushStyle(ImGuiStyleVar.ChildRounding, 5))
+        using (ImRaii.Child("groupsChild",
+                            new Vector2(ImGui.GetContentRegionAvail().X * 0.25f, ImGui.GetContentRegionAvail().Y),
+                            true))
         {
-            ImGui.BeginChild("groupsChild",
-                             new Vector2(ImGui.GetContentRegionAvail().X * 0.25f, ImGui.GetContentRegionAvail().Y),
-                             true);
             if (ImGui.Button(MsgButtonAddGroup)) ImGui.OpenPopup("addGroup");
             DrawAddGroupPopup();
             ImGui.SameLine();
             if (ImGui.Button(MsgButtonAddEvent)) ImGui.OpenPopup("addEvent");
             DrawAddEventPopup();
+            DrawGroupsList();
+        }
+    }
 
-            if (ImGui.BeginListBox("##groups",
-                                   new Vector2(ImGui.GetContentRegionAvail().X, ImGui.GetContentRegionAvail().Y)))
-            {
-                foreach (var (_, cl) in _configuration.ChatLogs)
-                {
-                    var isSelected = _selectedGroup == cl.Name;
-                    if (ImGui.Selectable(cl.Title, isSelected)) HandleSelectGroup(cl.Name);
-                    if (ImGui.IsItemHovered()) ImGuiWidgets.DrawTooltip(cl.Title);
-                    if (isSelected) ImGui.SetItemDefaultFocus();
-                }
-
-                ImGui.EndListBox();
-            }
-
-            ImGui.EndChild();
+    private void DrawGroupsList()
+    {
+        using var listbox = ImRaii.ListBox("##groups",
+                                           new Vector2(ImGui.GetContentRegionAvail().X,
+                                                       ImGui.GetContentRegionAvail().Y));
+        if (!listbox) return;
+        foreach (var (_, cl) in _configuration.ChatLogs)
+        {
+            var isSelected = _selectedGroup == cl.Name;
+            if (ImGui.Selectable(cl.Title, isSelected)) HandleSelectGroup(cl.Name);
+            if (ImGui.IsItemHovered()) ImGuiWidgets.DrawTooltip(cl.Title);
+            if (isSelected) ImGui.SetItemDefaultFocus();
         }
     }
 
@@ -930,29 +945,75 @@ public sealed partial class ConfigWindow : Window
                 _timeStampSelected = i;
                 break;
             }
+
+        _selectAllGeneral = HasAllFlagsSet(chatLog.ChatTypeFilterFlags, GeneralChatTypeFlags);
+        _selectAllLs = HasAllFlagsSet(chatLog.ChatTypeFilterFlags, LinkShellChatTypeFlags);
+        _selectAllCwls = HasAllFlagsSet(chatLog.ChatTypeFilterFlags, CrossWorldLinkShellChatTypeFlags);
+        _selectAllOther = HasAllFlagsSet(chatLog.ChatTypeFilterFlags, OtherChatTypeFlags);
     }
 
     /// <summary>
     ///     Draws all the chat flags in a given list.
     /// </summary>
     /// <param name="id">The id for the list of items.</param>
+    /// <param name="label">The label for this flags section.</param>
     /// <param name="chatLog">The chat log configuration.</param>
+    /// <param name="selectAll">The boolean that controls the select all checkbox for the flag section.</param>
     /// <param name="flagList">The list of flags to draw. If a flag is in the list but not set in the config it is ignored.</param>
-    private void DrawChatTypeFlags(string id, ChatLogConfiguration chatLog, ChatTypeFlagList flagList)
+    private void DrawChatTypeFlags(string id,
+                                   string label,
+                                   ChatLogConfiguration chatLog,
+                                   ref bool selectAll,
+                                   ChatTypeFlagList flagList)
     {
-        ImGui.Spacing();
         var flags = chatLog.ChatTypeFilterFlags;
-        if (ImGui.BeginTable(id, 4))
+        var hasAnyFlags = HasAnyFlags(flags, flagList);
+        if (!hasAnyFlags) return;
+
+        ImGui.Spacing();
+        ImGui.Separator();
+        ImGui.Spacing();
+        if (ImGui.Checkbox($"Select All {label}##{id}_all", ref selectAll))
         {
             foreach (var flag in flagList)
             {
-                if (flags.TryGetValue(flag.Type, out var flagValue)) DrawFlag(flag, chatLog, ref flagValue.Value);
+                if (flags.TryGetValue(flag.Type, out var flagValue)) flagValue.Value = selectAll;
             }
+        }
 
-            ImGui.EndTable();
+        using var table = ImRaii.Table(id, 4);
+        if (!table) return;
+        foreach (var flag in flagList)
+        {
+            if (flags.TryGetValue(flag.Type, out var flagValue)) DrawFlag(flag, chatLog, ref flagValue.Value);
         }
 
         ImGui.Spacing();
+    }
+
+    private static bool HasAnyFlags(Dictionary<XivChatType, ChatLogConfiguration.ChatTypeFlag> flags,
+                                    ChatTypeFlagList flagList)
+    {
+        foreach (var flag in flagList)
+        {
+            if (flags.TryGetValue(flag.Type, out _)) return true;
+        }
+
+        return false;
+    }
+
+    private static bool HasAllFlagsSet(Dictionary<XivChatType, ChatLogConfiguration.ChatTypeFlag> flags,
+                                       ChatTypeFlagList flagList)
+    {
+        foreach (var flag in flagList)
+        {
+            if (flags.TryGetValue(flag.Type, out var flagValue))
+            {
+                if (!flagValue.Value) return false;
+            }
+        }
+
+        return true;
     }
 
     /// <summary>
