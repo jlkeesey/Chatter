@@ -41,6 +41,11 @@ public class Logger(IPluginLog pluginLog) : ILogger
         pluginLog.Debug(pattern, args);
     }
 
+    public void Error(string pattern, params object[] args)
+    {
+        pluginLog.Error(pattern, args);
+    }
+
     public void Error(Exception? exception, string pattern, params object[] args)
     {
         pluginLog.Error(exception, pattern, args);

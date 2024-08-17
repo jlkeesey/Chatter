@@ -21,6 +21,8 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+using Chatter.Localization;
+
 namespace Chatter.Windows;
 
 /// <summary>
@@ -28,16 +30,23 @@ namespace Chatter.Windows;
 /// </summary>
 public partial class ConfigWindow
 {
+    private IPluralMessage MsgFormatPeriodDays => _loc.MessagePlural("Format.Period.Days");
+    private IPluralMessage MsgFormatPeriodHours => _loc.MessagePlural("Format.Period.Hours");
+    private IPluralMessage MsgFormatPeriodMinutes => _loc.MessagePlural("Format.Period.Minutes");
+    private IPluralMessage MsgFormatPeriodSeconds => _loc.MessagePlural("Format.Period.Seconds");
     private string MsgButtonAdd => _loc.Message("Button.Add");
     private string MsgButtonAddEvent => _loc.Message("Button.AddEvent");
     private string MsgButtonAddGroup => _loc.Message("Button.AddGroup");
     private string MsgButtonAddUser => _loc.Message("Button.AddUser");
     private string MsgButtonCancel => _loc.Message("Button.Cancel");
     private string MsgButtonClearFilterHelp => _loc.Message("Button.ClearFilter.Help");
+    private string MsgButtonCopyToClipboardHelp => _loc.Message("Button.CopyToClipboard.Help");
     private string MsgButtonCreate => _loc.Message("Button.Create");
     private string MsgButtonDelete => _loc.Message("Button.Delete");
+    private string MsgButtonDeleteGroupHelp => _loc.Message("Button.DeleteGroup.Help");
     private string MsgButtonFriendSelectorHelp => _loc.Message("Button.FriendSelector.Help");
     private string MsgButtonRemove => _loc.Message("Button.Remove");
+    private string MsgButtonRemoveUserHelp => _loc.Message("Button.RemoveUser.Help");
     private string MsgButtonRestart => _loc.Message("Button.Restart");
     private string MsgButtonRestartHelp => _loc.Message("Button.Restart.Help");
     private string MsgColumnFullName => _loc.Message("ColumnHeader.FullName");
@@ -98,14 +107,15 @@ public partial class ConfigWindow
     private string MsgLabelIsEventHelp => _loc.Message("Label.IsEvent.Checkbox.Help");
     private string MsgLabelSaveDirectory => _loc.Message("Label.SaveDirectory");
     private string MsgLabelSaveDirectoryHelp => _loc.Message("Label.SaveDirectory.Help");
-    private string MsgShowMinimalMain => _loc.Message("Label.ShowMinimalMain");
-    private string MsgShowMinimalMainHelp => _loc.Message("Label.ShowMinimalMain.Help");
+    private string MsgLabelTimeRemaining => _loc.Message("Label.TimeRemaining");
     private string MsgPlayerAlreadyInList => _loc.Message("Message.PlayerAlreadyInList");
     private string MsgPlayerFullName => _loc.Message("Label.PlayerFullName");
     private string MsgPlayerFullNameHelp => _loc.Message("Label.PlayerFullName.Help");
     private string MsgPlayerReplacement => _loc.Message("Label.PlayerReplacement");
     private string MsgPlayerReplacementHelp => _loc.Message("Label.PlayerReplacement.Help");
     private string MsgRemoveUser => _loc.Message("Text.RemoveUser");
+    private string MsgShowMinimalMain => _loc.Message("Label.ShowMinimalMain");
+    private string MsgShowMinimalMainHelp => _loc.Message("Label.ShowMinimalMain.Help");
     private string MsgTabGeneral => _loc.Message("Tab.General");
     private string MsgTabGroups => _loc.Message("Tab.Groups");
     private string MsgTitleDelete => _loc.Message("Title.Delete");

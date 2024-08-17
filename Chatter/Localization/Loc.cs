@@ -23,6 +23,7 @@
 
 using Chatter.System;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Text.Json;
 using static System.String;
@@ -38,7 +39,10 @@ public class Loc
 {
     private static readonly JsonSerializerOptions SerializeOptions = new()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        WriteIndented = true,
+        ReadCommentHandling = JsonCommentHandling.Skip,
+        AllowTrailingCommas = true,
     };
 
     private LocalizedMessageList _messages = new();
@@ -52,7 +56,7 @@ public class Loc
         if (IsNullOrWhiteSpace(language))
             throw new ArgumentException("Argument cannot be null, empty, or whitespace", nameof(language));
         if (IsNullOrWhiteSpace(country))
-            throw new ArgumentException("Argument cannot be null, empty, or whitespace", nameof(language));
+            throw new ArgumentException("Argument cannot be null, empty, or whitespace", nameof(country));
         Language = language;
         Country = country;
     }
@@ -180,5 +184,180 @@ public class Loc
     public string Message(string key)
     {
         return !_messages.TryGetValue(key, out var message) ? $"??[[{key}]]??" : message;
+    }
+
+    /// <summary>
+    ///     Looks up the plural message by key and returns an object that returns the correct string based on the
+    ///     input values.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         The lookup for a message works by looking the most specific set first, then the less specific, then the
+    ///         fallback set. So for a system set to en_US, the search is messages-en-US.json, then messages-en.json, then
+    ///         messages.json. If no message is found then a default message constructed from the key is returned.
+    ///     </para>
+    /// </remarks>
+    /// <param name="key">The key to lookup.</param>
+    /// <returns>The <c>IMessagePlural</c> object.</returns>
+    public IPluralMessage MessagePlural(string key)
+    {
+        if (_messages.TryGetValue(key, out var message)) return new PluralMessage(key, message, this);
+        return new PluralMessageMissing(key);
+    }
+}
+
+/// <summary>
+///     An object that returns the correct message pattern based on a numeric value. The numeric value
+///     is compared to each pattern and if it matches, then that pattern is returned. There is always a
+///     default pattern that matches all values that is returned if no other value is returned.
+/// </summary>
+public interface IPluralMessage
+{
+    /// <summary>
+    ///     Returns the formatted string value based on the input values.
+    /// </summary>
+    /// <param name="arg0">The numeric value used to select the correct pattern.</param>
+    /// <param name="args">Any additional values.</param>
+    /// <returns>A formatted string.</returns>
+    string Format(long arg0, params object[] args);
+}
+
+/// <summary>
+///     Helper to use when there is no plural definition in the message.json file.
+/// </summary>
+internal class PluralMessageMissing : IPluralMessage
+{
+    private readonly string _key;
+
+    internal PluralMessageMissing(string key)
+    {
+        _key = key;
+    }
+
+    public string Format(long arg0, params object[] args)
+    {
+        return $"??[[plural {arg0}: {_key}]]??";
+    }
+}
+
+/// <summary>
+///     Parses the input pattern string and populates values based on the parsed patterns.
+/// </summary>
+internal class PluralMessage : IPluralMessage
+{
+    private readonly SortedList<long, IMessagePattern> _patterns = [];
+
+    internal PluralMessage(string key, string messagePattern, Loc loc)
+    {
+        var patterns = messagePattern.Split(",");
+        foreach (var pattern in patterns)
+        {
+            var parts = pattern.Split("|");
+            if (parts.Length != 2)
+            {
+                Chatter.Logger?.Error($"Invalid plural pattern for {key}: '{pattern}'");
+                _patterns.Add(long.MaxValue, new DefaultMessagePattern(loc.Message(parts[^1])));
+            }
+            else
+            {
+                if (parts[0] == "*")
+                {
+                    _patterns.Add(long.MaxValue, new DefaultMessagePattern(loc.Message(parts[1])));
+                }
+                else
+                {
+                    if (long.TryParse(parts[0], out var result))
+                    {
+                        _patterns.Add(result, new ValueMessagePattern(result, loc.Message(parts[1])));
+                    }
+                    else
+                    {
+                        Chatter.Logger?.Error($"Pattern match value must be a valid integer: '{parts[0]}'");
+                    }
+                }
+            }
+        }
+
+        if (_patterns.GetValueAtIndex(_patterns.Count - 1) is DefaultMessagePattern) return;
+
+        var message = $"Missing default pattern for key {key}";
+        Chatter.Logger?.Error(message);
+        _patterns.Add(long.MaxValue, new DefaultMessagePattern(message));
+    }
+
+    public string Format(long arg0, params object[] args)
+    {
+        foreach (var messagePattern in _patterns)
+        {
+            if (messagePattern.Value.Matches(arg0)) return messagePattern.Value.Format(arg0, args);
+        }
+
+        return "??[[no pattern matched]]??";
+    }
+}
+
+/// <summary>
+///     Interface for a pattern piece.
+/// </summary>
+internal interface IMessagePattern
+{
+    /// <summary>
+    ///     Returns <c>true</c> if the given value matches this pattern.
+    /// </summary>
+    /// <param name="value">The value to test.</param>
+    /// <returns><c>true</c> if the given value matches this pattern.</returns>
+    bool Matches(long value);
+
+    /// <summary>
+    ///     Formats this pattern using the given values. The pattern will be formatted regardless
+    ///     of whether the <c>Match</c> method returns <c>true</c>.
+    /// </summary>
+    /// <param name="arg0">The first parameter (required).</param>
+    /// <param name="args">The optional remaining parameters.</param>
+    /// <returns>The formatted string.</returns>
+    string Format(long arg0, params object[] args);
+}
+
+/// <summary>
+///     Base for handling the formatting of a specific pattern.
+/// </summary>
+/// <param name="pattern">The pattern that will be formatted.</param>
+internal abstract class BaseMessagePattern(string pattern) : IMessagePattern
+{
+    /// <inheritdoc/>
+    public string Format(long arg0, params object[] args)
+    {
+        return string.Format(pattern, [arg0, .. args,]);
+    }
+
+    /// <inheritdoc/>
+    public abstract bool Matches(long value);
+}
+
+/// <summary>
+///     A pattern string that has a single, numeric match value. This will only be used if the
+///     input value is exactly equal to the <c>index</c> value.
+/// </summary>
+/// <param name="index">The specific match value.</param>
+/// <param name="pattern">The pattern string to use.</param>
+internal class ValueMessagePattern(long index, string pattern) : BaseMessagePattern(pattern)
+{
+    /// <inheritdoc/>
+    public override bool Matches(long value)
+    {
+        return value == index;
+    }
+}
+
+/// <summary>
+///     A Default pattern string used when no other value matches.
+/// </summary>
+/// <param name="pattern">The pattern string to use.</param>
+internal class DefaultMessagePattern(string pattern) : BaseMessagePattern(pattern)
+{
+    /// <inheritdoc/>
+    public override bool Matches(long value)
+    {
+        return true;
     }
 }

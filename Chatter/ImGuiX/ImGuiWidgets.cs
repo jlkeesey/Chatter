@@ -24,13 +24,77 @@
 using System;
 using System.Collections.Generic;
 using Dalamud.Interface;
+using Dalamud.Interface.Utility.Raii;
+using Dalamud.Utility;
 using FFXIVClientStructs.FFXIV.Common.Math;
 using ImGuiNET;
+using JetBrains.Annotations;
 
 namespace Chatter.ImGuiX;
 
 public static class ImGuiWidgets
 {
+    private const byte AlphaFull = 0xff;
+    private const byte ByteMask = 0xff;
+
+    /// <summary>
+    ///     Deconstructs a packed RGB value into a packed ABGR value.
+    /// </summary>
+    /// <param name="value">The RGB value to unpack.</param>
+    /// <returns>The packed ABGR value for use in ImGui.</returns>
+    [UsedImplicitly]
+    public static uint Rgb(uint value)
+    {
+        var alpha = (byte) ((value >> 24) & ByteMask);
+        var red = (byte) ((value >> 16) & ByteMask);
+        var green = (byte) ((value >> 8) & ByteMask);
+        var blue = (byte) (value & ByteMask);
+        return Argb(alpha == 0 ? AlphaFull : alpha,red, green, blue);
+    }
+
+    /// <summary>
+    ///     Returns the given ARGB values the packed format that ImGui uses. For some reason, they use ABGR instead. The
+    ///     alpha channel is set to 0xFF.
+    /// </summary>
+    /// <param name="red">The red value (0-255).</param>
+    /// <param name="green">The green value (0-255).</param>
+    /// <param name="blue">The blue value (0-255).</param>
+    /// <returns>The packed ABGR value for use in ImGui.</returns>
+    [UsedImplicitly]
+    public static uint Rgb(byte red, byte green, byte blue)
+    {
+        return Argb(AlphaFull, red, green, blue);
+    }
+
+    /// <summary>
+    ///     Deconstructs a packed ARGB value into a packed ABGR value.
+    /// </summary>
+    /// <param name="value">The ARGB value to unpack.</param>
+    /// <returns>The packed ABGR value for use in ImGui.</returns>
+    [UsedImplicitly]
+    public static uint Argb(uint value)
+    {
+        var alpha = (byte) ((value >> 24) & ByteMask);
+        var red = (byte) ((value >> 16) & ByteMask);
+        var green = (byte) ((value >> 8) & ByteMask);
+        var blue = (byte) (value & ByteMask);
+        return Argb(alpha, red, green, blue);
+    }
+
+    /// <summary>
+    ///     Returns the given ARGB values the packed format that ImGui uses. For some reason, they use ABGR instead.
+    /// </summary>
+    /// <param name="alpha">The alpha value (0-255).</param>
+    /// <param name="red">The red value (0-255).</param>
+    /// <param name="green">The green value (0-255).</param>
+    /// <param name="blue">The blue value (0-255).</param>
+    /// <returns>The packed ABGR value for use in ImGui.</returns>
+    [UsedImplicitly]
+    public static uint Argb(byte alpha, byte red, byte green, byte blue)
+    {
+        return (uint) ((alpha << 24) | (blue << 16) | (green << 8) | red);
+    }
+
     /// <summary>
     ///     Creates a tooltip box with the given content text which will be wrapped as necessary.
     /// </summary>
@@ -39,11 +103,10 @@ public static class ImGuiWidgets
     {
         var text = description?.Trim() ?? string.Empty;
         if (string.IsNullOrWhiteSpace(text)) return;
-        ImGui.BeginTooltip();
+        using (ImRaii.Tooltip())
         using (ImGuiWith.TextWrapPos(ImGui.GetFontSize() * 20.0f))
-        using (ImGuiWith.Color(ImGuiCol.Text, 0xff4ce5e5))
+        using (ImRaii.PushColor(ImGuiCol.Text, Rgb(0xe5e54c)))
             ImGui.TextUnformatted(text);
-        ImGui.EndTooltip();
     }
 
     /// <summary>
@@ -59,8 +122,8 @@ public static class ImGuiWidgets
         var text = description?.Trim() ?? string.Empty;
         if (string.IsNullOrWhiteSpace(text)) return;
         if (sameLine) ImGui.SameLine();
-        using (ImGuiWith.Color(ImGuiCol.Text, 0xff8c4c4c))
-        using (ImGuiWith.Font(UiBuilder.IconFont))
+        using (ImRaii.PushColor(ImGuiCol.Text, Rgb(0x4c4c8c)))
+        using (ImRaii.PushFont(UiBuilder.IconFont))
             ImGui.TextUnformatted($"{(char) FontAwesomeIcon.QuestionCircle}");
         if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled)) DrawTooltip(text);
     }
@@ -143,8 +206,8 @@ public static class ImGuiWidgets
             if (char.IsLetterOrDigit(ch)) return 0;
             return ch switch
             {
-                '-' or ',' or '=' or '~' or '!' or '@' or '#' or '$' or '+' or ':' => 0,
-                _                                                                  => 1,
+                '-' or ',' or '=' or '~' or '!' or '@' or '#' or '+' => 0,
+                _                                                    => 1,
             };
         }
     }
@@ -158,7 +221,7 @@ public static class ImGuiWidgets
     /// <param name="disabled"><c>true</c> if this control should be disabled.</param>
     public static void DrawCheckbox(string label, ref bool itemChecked, string? helpText = null, bool disabled = false)
     {
-        using (ImGuiWith.Disabled(disabled)) ImGui.Checkbox(label, ref itemChecked);
+        using (ImRaii.Disabled(disabled)) ImGui.Checkbox(label, ref itemChecked);
         HelpMarker(helpText);
     }
 
@@ -169,10 +232,10 @@ public static class ImGuiWidgets
     public static bool DrawIconButton(string id, FontAwesomeIcon icon, string tooltip, bool disabled = false)
     {
         bool buttonPressed;
-        using (ImGuiWith.Disabled(disabled))
-        using (ImGuiWith.Font(UiBuilder.IconFont))
+        using (ImRaii.Disabled(disabled))
+        using (ImRaii.PushFont(UiBuilder.IconFont))
             buttonPressed = ImGui.Button($"{(char) icon}##{id}");
-        if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled)) ImGuiWidgets.DrawTooltip(tooltip);
+        if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled)) DrawTooltip(tooltip);
         return buttonPressed;
     }
 
@@ -187,38 +250,35 @@ public static class ImGuiWidgets
 
     public static void DrawTwoColumns(string id, Action left, Action right, float rightWidth = -1)
     {
-        if (ImGui.BeginTable(id, 2))
-        {
+        using var table = ImRaii.Table(id, 2);
+        if (!table) return;
+        ImGui.TableSetupColumn(string.Empty, ImGuiTableColumnFlags.WidthStretch);
+        if (rightWidth < 0)
             ImGui.TableSetupColumn(string.Empty, ImGuiTableColumnFlags.WidthStretch);
-            if (rightWidth < 0)
-            {
-                ImGui.TableSetupColumn(string.Empty, ImGuiTableColumnFlags.WidthStretch);
-            }
-            else
-            {
-                ImGui.TableSetupColumn(string.Empty, ImGuiTableColumnFlags.WidthFixed, rightWidth);
-            }
+        else
+            ImGui.TableSetupColumn(string.Empty, ImGuiTableColumnFlags.WidthFixed, rightWidth);
 
-            ImGui.TableNextRow();
-            ImGui.TableSetColumnIndex(0);
-            left.Invoke();
+        ImGui.TableNextRow();
+        ImGui.TableSetColumnIndex(0);
+        left.Invoke();
 
-            ImGui.TableSetColumnIndex(1);
-            right.Invoke();
-
-            ImGui.EndTable();
-        }
+        ImGui.TableSetColumnIndex(1);
+        right.Invoke();
     }
+
+    private static readonly uint KofiButtonColor = Argb(0xff, 0xff, 0x5b, 0x5e);
+    private static readonly uint KofiActiveColor = Argb(0xdd, 0xff, 0x5b, 0x5e);
+    private static readonly uint KofiHoveredColor = Argb(0xaa, 0xff, 0x5b, 0x5e);
 
     public static void DrawKoFiButton(string? tooltip = null)
     {
         var message = tooltip ?? "Support me on Ko-Fi";
-        using (ImGuiWith.Color(ImGuiCol.Button, 0xFF000000 | 0x005E5BFF))
-        using (ImGuiWith.Color(ImGuiCol.ButtonActive, 0xDD000000 | 0x005E5BFFC))
-        using (ImGuiWith.Color(ImGuiCol.ButtonHovered, 0xAA000000 | 0x005E5BFF))
+        using (ImRaii.PushColor(ImGuiCol.Button, KofiButtonColor)
+                     .Push(ImGuiCol.ButtonActive, KofiActiveColor)
+                     .Push(ImGuiCol.ButtonHovered, KofiHoveredColor))
         {
-            if (ImGuiWidgets.DrawIconButton("kofiButton", FontAwesomeIcon.Coffee, message))
-                Dalamud.Utility.Util.OpenLink("https://ko-fi.com/fioragreyback");
+            if (DrawIconButton("kofiButton", FontAwesomeIcon.Coffee, message))
+                Util.OpenLink("https://ko-fi.com/fioragreyback");
         }
     }
 
@@ -236,29 +296,25 @@ public static class ImGuiWidgets
                                     float width = 200,
                                     Action<int>? onSelect = null)
     {
-        using (ImGuiWith.ItemWidth(width))
+        using var itemWidth = ImGuiWith.ItemWidth(width);
+        using (var combo = ImRaii.Combo(label, options[selected].Label))
         {
-            if (ImGui.BeginCombo(label, options[selected].Label))
+            if (!combo) return;
+            for (var i = 0; i < options.Count; i++)
             {
-                for (var i = 0; i < options.Count; i++)
-                {
-                    var isSelected = i == selected;
-                    if (ImGui.Selectable(options[i].Label, isSelected)) onSelect?.Invoke(i);
+                var isSelected = i == selected;
+                if (ImGui.Selectable(options[i].Label, isSelected)) onSelect?.Invoke(i);
 
-                    if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
-                        ImGuiWidgets.DrawTooltip(options[i].Help);
-                    if (isSelected) ImGui.SetItemDefaultFocus();
-                }
-
-                ImGui.EndCombo();
+                if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled)) DrawTooltip(options[i].Help);
+                if (isSelected) ImGui.SetItemDefaultFocus();
             }
         }
 
-        ImGuiWidgets.HelpMarker(help);
+        HelpMarker(help);
     }
 
     public static void ColoredText(string text, uint color)
     {
-        using (ImGuiWith.Color(ImGuiCol.Text, color)) ImGui.TextUnformatted(text);
+        using (ImRaii.PushColor(ImGuiCol.Text, color)) ImGui.TextUnformatted(text);
     }
 }

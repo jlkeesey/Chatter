@@ -38,8 +38,6 @@ namespace Chatter.Windows;
 /// </summary>
 public sealed partial class MainWindow : Window
 {
-    private const string Title = "Chatter";
-
     private readonly JlkWindowManager _windowManager;
     private readonly Configuration _config;
     private readonly ChatLogManager _chatLogManager;
@@ -54,7 +52,7 @@ public sealed partial class MainWindow : Window
     /// <param name="chatLogManager"></param>
     /// <param name="loc"></param>
     public MainWindow(JlkWindowManager windowManager, Configuration config, ChatLogManager chatLogManager, Loc loc) :
-        base(Title, ImGuiWindowFlags.AlwaysAutoResize)
+        base(loc.Message("Title.MainWindow"), ImGuiWindowFlags.AlwaysAutoResize)
     {
         _windowManager = windowManager;
         _config = config;
@@ -118,7 +116,7 @@ public sealed partial class MainWindow : Window
     private void DrawStartEvent()
     {
         var loc = ImGui.GetCursorScreenPos();
-        if (DrawStartEventButton()) _windowManager.ShowSelectEvent(loc);
+        if (DrawStartEventButton()) _windowManager.ShowStartEvent(loc);
     }
 
     /// <summary>

@@ -43,7 +43,7 @@ public sealed class JlkWindowManager : IDisposable
     private readonly ConfigWindow _configWindow;
     private readonly IDalamudPluginInterface _pluginInterface;
     private readonly WindowSystem _windowSystem;
-    private readonly SelectEventPopup _selectEventPopup;
+    private readonly StartEventPopup _startEventPopup;
     private readonly StopEventPopup _stopEventPopup;
 
     /// <summary>
@@ -73,7 +73,7 @@ public sealed class JlkWindowManager : IDisposable
         _mainWindow = Add(new MainWindow(this, config, chatLogManager, loc));
         _configWindow =
             Add(new ConfigWindow(config, logger, dateHelper, friendManager, chatLogManager, chatterImage, loc));
-        _selectEventPopup = Add(new SelectEventPopup(this, config, loc));
+        _startEventPopup = Add(new StartEventPopup(this, config, loc));
         _stopEventPopup = Add(new StopEventPopup(this, config, loc));
         _pluginInterface.UiBuilder.Draw += _windowSystem.Draw;
         _pluginInterface.UiBuilder.OpenMainUi += ToggleMain;
@@ -116,29 +116,29 @@ public sealed class JlkWindowManager : IDisposable
     }
 
     /// <summary>
-    ///     Shows the select event popup.
+    ///     Shows the start event popup.
     /// </summary>
-    public void ShowSelectEvent(Vector2? position = null)
+    public void ShowStartEvent(Vector2? position = null)
     {
         if (position == null)
         {
-            _selectEventPopup.PositionCondition = ImGuiCond.None;
+            _startEventPopup.PositionCondition = ImGuiCond.None;
         }
         else
         {
-            _selectEventPopup.PositionCondition = ImGuiCond.Appearing;
-            _selectEventPopup.Position = position;
+            _startEventPopup.PositionCondition = ImGuiCond.Appearing;
+            _startEventPopup.Position = position;
         }
 
-        _selectEventPopup.IsOpen = true;
+        _startEventPopup.IsOpen = true;
     }
 
     /// <summary>
-    ///     Shows the select event popup.
+    ///     Hides the start event popup.
     /// </summary>
-    public void HideSelectEvent()
+    public void HideStartEvent()
     {
-        _selectEventPopup.IsOpen = false;
+        _startEventPopup.IsOpen = false;
     }
 
     /// <summary>

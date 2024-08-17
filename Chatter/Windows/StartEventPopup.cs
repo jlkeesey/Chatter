@@ -28,6 +28,7 @@ using ImGuiNET;
 using System.Linq;
 using System.Numerics;
 using Chatter.ImGuiX;
+using Dalamud.Interface.Utility.Raii;
 using NodaTime;
 using NodaTime.Extensions;
 
@@ -38,9 +39,14 @@ namespace Chatter.Windows;
 /// <summary>
 ///     Defines the configuration editing window.
 /// </summary>
-public sealed class SelectEventPopup : Window
+public sealed class StartEventPopup : Window
 {
-    private const string Title = "Select Event";
+    private string MsgButtonStart => _loc.Message("Button.Start");
+    private string MsgButtonCancel => _loc.Message("Button.Cancel");
+    private string MsgNoInactiveEvents => _loc.Message("Combo.NoInactiveEvents");
+    private string MsgNoInactiveEventsHelp => _loc.Message("Combo.NoInactiveEvents.Help");
+    private string MsgEventsInactive => _loc.Message("Label.EventsInactive");
+    private string MsgEventsInactiveHelp => _loc.Message("Label.EventsInactive.Help");
 
     private readonly JlkWindowManager _windowManager;
     private readonly Configuration _configuration;
@@ -58,8 +64,8 @@ public sealed class SelectEventPopup : Window
     /// <param name="windowManager">The window manager.</param>
     /// <param name="config">The plugin configuration.</param>
     /// <param name="loc">The message localization object.</param>
-    public SelectEventPopup(JlkWindowManager windowManager, Configuration config, Loc loc) : base(Title,
-        ImGuiWindowFlags.AlwaysAutoResize)
+    public StartEventPopup(JlkWindowManager windowManager, Configuration config, Loc loc) :
+        base(loc.Message("Title.StartEvent"), ImGuiWindowFlags.AlwaysAutoResize)
     {
         _windowManager = windowManager;
         _configuration = config;
@@ -95,12 +101,7 @@ public sealed class SelectEventPopup : Window
         }
         else
         {
-            _items =
-            [
-                new ImGuiWidgets.ComboOption<string>("(no inactive events)",
-                                                     "-null-",
-                                                     "There are no inactive events to start."),
-            ];
+            _items = [new ImGuiWidgets.ComboOption<string>(MsgNoInactiveEvents, "-null-", MsgNoInactiveEventsHelp),];
         }
     }
 
@@ -109,10 +110,10 @@ public sealed class SelectEventPopup : Window
     /// </summary>
     public override void Draw()
     {
-        ImGuiWidgets.DrawCombo("Events",
+        ImGuiWidgets.DrawCombo(MsgEventsInactive,
                                _items,
                                _eventSelected,
-                               "Events",
+                               MsgEventsInactiveHelp,
                                onSelect: (ind) => { _eventSelected = ind; });
 
         ImGuiWidgets.VerticalSpace();
@@ -121,7 +122,7 @@ public sealed class SelectEventPopup : Window
         ImGui.Separator();
         ImGuiWidgets.VerticalSpace();
 
-        using (ImGuiWith.Disabled(!_hasEvents))
+        using (ImRaii.Disabled(!_hasEvents))
         {
             if (ImGui.Button(MsgButtonStart, new Vector2(120, 0)))
             {
@@ -129,7 +130,7 @@ public sealed class SelectEventPopup : Window
                 var log = _configuration.ChatLogs[name];
                 log.EventStartTime = SystemClock.Instance.InBclSystemDefaultZone().GetCurrentLocalDateTime();
                 log.IsActive = true;
-                _windowManager.HideSelectEvent();
+                _windowManager.HideStartEvent();
             }
         }
 
@@ -137,24 +138,31 @@ public sealed class SelectEventPopup : Window
         ImGui.SameLine();
         if (ImGui.Button(MsgButtonCancel, new Vector2(120, 0)))
         {
-            _windowManager.HideSelectEvent();
+            _windowManager.HideStartEvent();
         }
     }
 
+    /// <summary>
+    /// Returns the current event length from the selected event. If there is no matching event,
+    /// <c>Period.ZERO</c> is returned.
+    /// </summary>
+    /// <returns>The currently selected event's event length.</returns>
     private Period GetEventLength()
     {
         var name = _items[_eventSelected].Value;
-        var log = _configuration.ChatLogs[name];
-        return log.EventLength;
+        return _configuration.ChatLogs.TryGetValue(name, out var log) ? log.EventLength : Period.Zero;
     }
 
+    /// <summary>
+    ///     Sets the currently selected event's event length.
+    /// </summary>
+    /// <param name="period">The new event length for the event.</param>
     private void SetEventLength(Period period)
     {
         var name = _items[_eventSelected].Value;
-        var log = _configuration.ChatLogs[name];
-        log.EventLength = period;
+        if (_configuration.ChatLogs.TryGetValue(name, out var log))
+        {
+            log.EventLength = period;
+        }
     }
-
-    private string MsgButtonStart => _loc.Message("Button.Start");
-    private string MsgButtonCancel => _loc.Message("Button.Cancel");
 }

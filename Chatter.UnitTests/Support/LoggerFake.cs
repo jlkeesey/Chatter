@@ -43,6 +43,11 @@ internal class LoggerFake : ILogger
         _lines.Add("[D]: " + string.Format(pattern, args));
     }
 
+    public void Error(string pattern, params object[] args)
+    {
+        _lines.Add("[E]: " + string.Format(pattern, args));
+    }
+
     public void Error(Exception? exception, string pattern, params object[] args)
     {
         _lines.Add("[E]: " + string.Format(pattern, args));

@@ -2,813 +2,771 @@
   "messages": [
     {
       "key": "ChatType.Say",
-      "message": "Say",
-      "description": "Label for Say chat type include/exclude checkbox"
+      "message": "Say"
+      /* Label for Say chat type include/exclude checkbox */
     },
     {
       "key": "ChatType.Yell",
-      "message": "Yell",
-      "description": "Label for Yell chat type include/exclude checkbox"
+      "message": "Yell"
+      /* Label for Yell chat type include/exclude checkbox */
     },
     {
       "key": "ChatType.Shout",
-      "message": "Shout",
-      "description": "Label for Shout chat type include/exclude checkbox"
+      "message": "Shout"
+      /* Label for Shout chat type include/exclude checkbox */
     },
     {
       "key": "ChatType.Tell",
-      "message": "Tell",
-      "description": "Label for Tell chat type include/exclude checkbox"
+      "message": "Tell"
+      /* Label for Tell chat type include/exclude checkbox */
     },
     {
       "key": "ChatType.Party",
-      "message": "Party",
-      "description": "Label for Party chat type include/exclude checkbox"
+      "message": "Party"
+      /* Label for Party chat type include/exclude checkbox */
     },
     {
       "key": "ChatType.FreeCompany",
-      "message": "FC",
-      "description": "Label for FreeCompany chat type include/exclude checkbox"
+      "message": "FC"
+      /* Label for FreeCompany chat type include/exclude checkbox */
     },
     {
       "key": "ChatType.Alliance",
-      "message": "Alliance",
-      "description": "Label for Alliance chat type include/exclude checkbox"
+      "message": "Alliance"
+      /* Label for Alliance chat type include/exclude checkbox */
     },
     {
       "key": "ChatType.Emote",
-      "message": "Emote",
-      "description": "Label for Emote chat type include/exclude checkbox"
+      "message": "Emote"
+      /* Label for Emote chat type include/exclude checkbox */
     },
     {
       "key": "ChatType.Say.Help",
-      "message": "When checked /say (/s) messages are included.",
-      "description": ""
+      "message": "When checked /say (/s) messages are included."
     },
     {
       "key": "ChatType.Yell.Help",
-      "message": "When checked /yell (/y) messages are included.",
-      "description": ""
+      "message": "When checked /yell (/y) messages are included."
     },
     {
       "key": "ChatType.Shout.Help",
-      "message": "When checked /shout (/sh) messages are included.",
-      "description": ""
+      "message": "When checked /shout (/sh) messages are included."
     },
     {
       "key": "ChatType.Tell.Help",
-      "message": "When checked /tell (/t) messages are included.",
-      "description": ""
+      "message": "When checked /tell (/t) messages are included."
     },
     {
       "key": "ChatType.Party.Help",
-      "message": "When checked /party (/p) messages are included.",
-      "description": ""
+      "message": "When checked /party (/p) messages are included."
     },
     {
       "key": "ChatType.FreeCompany.Help",
-      "message": "When checked /freecompany (/fc) messages are included.",
-      "description": ""
+      "message": "When checked /freecompany (/fc) messages are included."
     },
     {
       "key": "ChatType.Alliance.Help",
-      "message": "When checked /alliance (/a) messages are included.",
-      "description": ""
+      "message": "When checked /alliance (/a) messages are included."
     },
     {
       "key": "ChatType.Emote.Help",
-      "message": "When checked /emote (/em) messages are included.",
-      "description": ""
+      "message": "When checked /emote (/em) messages are included."
     },
     {
       "key": "ChatType.Ls1",
-      "message": "Ls1",
-      "description": ""
+      "message": "Ls1"
     },
     {
       "key": "ChatType.Ls2",
-      "message": "Ls2",
-      "description": ""
+      "message": "Ls2"
     },
     {
       "key": "ChatType.Ls3",
-      "message": "Ls3",
-      "description": ""
+      "message": "Ls3"
     },
     {
       "key": "ChatType.Ls4",
-      "message": "Ls4",
-      "description": ""
+      "message": "Ls4"
     },
     {
       "key": "ChatType.Ls5",
-      "message": "Ls5",
-      "description": ""
+      "message": "Ls5"
     },
     {
       "key": "ChatType.Ls6",
-      "message": "Ls6",
-      "description": ""
+      "message": "Ls6"
     },
     {
       "key": "ChatType.Ls7",
-      "message": "Ls7",
-      "description": ""
+      "message": "Ls7"
     },
     {
       "key": "ChatType.Ls8",
-      "message": "Ls8",
-      "description": ""
+      "message": "Ls8"
     },
     {
       "key": "ChatType.Ls1.Help",
-      "message": "When checked /linkshell1 (/ls1) messages are included.",
-      "description": ""
+      "message": "When checked /linkshell1 (/ls1) messages are included."
     },
     {
       "key": "ChatType.Ls2.Help",
-      "message": "When checked /linkshell2 (/ls2) messages are included.",
-      "description": ""
+      "message": "When checked /linkshell2 (/ls2) messages are included."
     },
     {
       "key": "ChatType.Ls3.Help",
-      "message": "When checked /linkshell3 (/ls3) messages are included.",
-      "description": ""
+      "message": "When checked /linkshell3 (/ls3) messages are included."
     },
     {
       "key": "ChatType.Ls4.Help",
-      "message": "When checked /linkshell4 (/ls4) messages are included.",
-      "description": ""
+      "message": "When checked /linkshell4 (/ls4) messages are included."
     },
     {
       "key": "ChatType.Ls5.Help",
-      "message": "When checked /linkshell5 (/ls5) messages are included.",
-      "description": ""
+      "message": "When checked /linkshell5 (/ls5) messages are included."
     },
     {
       "key": "ChatType.Ls6.Help",
-      "message": "When checked /linkshell6 (/ls6) messages are included.",
-      "description": ""
+      "message": "When checked /linkshell6 (/ls6) messages are included."
     },
     {
       "key": "ChatType.Ls7.Help",
-      "message": "When checked /linkshell7 (/ls7) messages are included.",
-      "description": ""
+      "message": "When checked /linkshell7 (/ls7) messages are included."
     },
     {
       "key": "ChatType.Ls8.Help",
-      "message": "When checked /linkshell8 (/ls8) messages are included.",
-      "description": ""
+      "message": "When checked /linkshell8 (/ls8) messages are included."
     },
     {
       "key": "ChatType.Cwls1",
-      "message": "Cwls1",
-      "description": ""
+      "message": "Cwls1"
     },
     {
       "key": "ChatType.Cwls2",
-      "message": "Cwls2",
-      "description": ""
+      "message": "Cwls2"
     },
     {
       "key": "ChatType.Cwls3",
-      "message": "Cwls3",
-      "description": ""
+      "message": "Cwls3"
     },
     {
       "key": "ChatType.Cwls4",
-      "message": "Cwls4",
-      "description": ""
+      "message": "Cwls4"
     },
     {
       "key": "ChatType.Cwls5",
-      "message": "Cwls5",
-      "description": ""
+      "message": "Cwls5"
     },
     {
       "key": "ChatType.Cwls6",
-      "message": "Cwls6",
-      "description": ""
+      "message": "Cwls6"
     },
     {
       "key": "ChatType.Cwls7",
-      "message": "Cwls7",
-      "description": ""
+      "message": "Cwls7"
     },
     {
       "key": "ChatType.Cwls8",
-      "message": "Cwls8",
-      "description": ""
+      "message": "Cwls8"
     },
     {
       "key": "ChatType.Cwls1.Help",
-      "message": "When checked /cwlinkshell1 (/cwl1) messages are included.",
-      "description": ""
+      "message": "When checked /cwlinkshell1 (/cwl1) messages are included."
     },
     {
       "key": "ChatType.Cwls2.Help",
-      "message": "When checked /cwlinkshell2 (/cwl2) messages are included.",
-      "description": ""
+      "message": "When checked /cwlinkshell2 (/cwl2) messages are included."
     },
     {
       "key": "ChatType.Cwls3.Help",
-      "message": "When checked /cwlinkshell3 (/cwl3) messages are included.",
-      "description": ""
+      "message": "When checked /cwlinkshell3 (/cwl3) messages are included."
     },
     {
       "key": "ChatType.Cwls4.Help",
-      "message": "When checked /cwlinkshell4 (/cwl4) messages are included.",
-      "description": ""
+      "message": "When checked /cwlinkshell4 (/cwl4) messages are included."
     },
     {
       "key": "ChatType.Cwls5.Help",
-      "message": "When checked /cwlinkshell5 (/cwl5) messages are included.",
-      "description": ""
+      "message": "When checked /cwlinkshell5 (/cwl5) messages are included."
     },
     {
       "key": "ChatType.Cwls6.Help",
-      "message": "When checked /cwlinkshell6 (/cwl6) messages are included.",
-      "description": ""
+      "message": "When checked /cwlinkshell6 (/cwl6) messages are included."
     },
     {
       "key": "ChatType.Cwls7.Help",
-      "message": "When checked /cwlinkshell7 (/cwl7) messages are included.",
-      "description": ""
+      "message": "When checked /cwlinkshell7 (/cwl7) messages are included."
     },
     {
       "key": "ChatType.Cwls8.Help",
-      "message": "When checked /cwlinkshell8 (/cwl8) messages are included.",
-      "description": ""
+      "message": "When checked /cwlinkshell8 (/cwl8) messages are included."
     },
     {
       "key": "ChatType.Urgent.Help",
-      "message": "When checked include urgent messages sent by Square Enix.",
-      "description": ""
+      "message": "When checked include urgent messages sent by Square Enix."
     },
     {
       "key": "ChatType.Notice.Help",
-      "message": "When checked include notices sent by Square Enix.",
-      "description": ""
+      "message": "When checked include notices sent by Square Enix."
     },
     {
       "key": "ChatType.NoviceNetwork.Help",
-      "message": "When checked include novice network messages.",
-      "description": ""
+      "message": "When checked include novice network messages."
     },
     {
       "key": "ChatType.PvPTeam.Help",
-      "message": "When checked include PVP team messages.",
-      "description": ""
+      "message": "When checked include PVP team messages."
     },
     {
       "key": "ChatType.Echo.Help",
-      "message": "When checked include /echo messages.",
-      "description": ""
+      "message": "When checked include /echo messages."
     },
     {
       "key": "ChatType.SystemError.Help",
-      "message": "When checked include system error messages sent by Square Enix.",
-      "description": ""
+      "message": "When checked include system error messages sent by Square Enix."
     },
     {
       "key": "ChatType.SystemMessage.Help",
-      "message": "When checked include system messages sent by Square Enix.",
-      "description": ""
+      "message": "When checked include system messages sent by Square Enix."
     },
     {
       "key": "ChatType.Urgent",
-      "message": "Urgent",
-      "description": ""
+      "message": "Urgent"
     },
     {
       "key": "ChatType.Notice",
-      "message": "Notice",
-      "description": ""
+      "message": "Notice"
     },
     {
       "key": "ChatType.NoviceNetwork",
-      "message": "Novice",
-      "description": ""
+      "message": "Novice"
     },
     {
       "key": "ChatType.PvPTeam",
-      "message": "Pvp",
-      "description": ""
+      "message": "Pvp"
     },
     {
       "key": "ChatType.Echo",
-      "message": "Echo",
-      "description": ""
+      "message": "Echo"
     },
     {
       "key": "ChatType.SystemError",
-      "message": "Sys Error",
-      "description": ""
+      "message": "Sys Error"
     },
     {
       "key": "ChatType.SystemMessage",
-      "message": "Sys Message",
-      "description": ""
+      "message": "Sys Message"
     },
     {
       "key": "Tab.General",
-      "message": "General",
-      "description": ""
+      "message": "General"
     },
     {
       "key": "Tab.Groups",
-      "message": "Groups",
-      "description": ""
+      "message": "Groups"
     },
     {
       "key": "Label.FileNamePrefix",
-      "message": "File name prefix",
-      "description": ""
+      "message": "File name prefix"
     },
     {
       "key": "Label.FileNamePrefix.Help",
-      "message": "The prefix for all log files created by Chatter.",
-      "description": ""
+      "message": "The prefix for all log files created by Chatter."
     },
     {
       "key": "Label.SaveDirectory",
-      "message": "Save directory",
-      "description": ""
+      "message": "Save directory"
     },
     {
       "key": "Label.SaveDirectory.Help",
-      "message": "The directory where all logs are written. If the final part of the directory does not exist it will be created.",
-      "description": ""
+      "message": "The directory where all logs are written. If the final part of the directory does not exist it will be created."
     },
     {
       "key": "Button.Save",
-      "message": "Save",
-      "description": ""
+      "message": "Save"
     },
     {
       "key": "Label.IsActive.Checkbox",
-      "message": "Is active",
-      "description": ""
+      "message": "Is active"
     },
     {
       "key": "Label.IsActive.Checkbox.Help",
-      "message": "When checked messages that match this group will be written to its log file. Uncheck to stop writing out this log. The all log cannot be disabled. Cannot be changed for the all group.",
-      "description": ""
+      "message": "When checked messages that match this group will be written to its log file. Uncheck to stop writing out this log. The all log cannot be disabled."
     },
     {
       "key": "Label.IncludeAllUsers.Checkbox",
-      "message": "Include all users",
-      "description": ""
+      "message": "Include all users"
     },
     {
       "key": "Label.IncludeAllUsers.Checkbox.Help",
-      "message": "When checked all users will be included in this log even if they are not in the user list. When unchecked, only users in the user list will be included in the log. Cannot be changed for the all group.",
-      "description": ""
+      "message": "When checked all users will be included in this log even if they are not in the user list. When unchecked, only users in the user list will be included in the log. Cannot be changed for the all group."
     },
     {
       "key": "Label.IncludeServerName.Checkbox",
-      "message": "Include server name",
-      "description": ""
+      "message": "Include server name"
     },
     {
       "key": "Label.IncludeServerName.Checkbox.Help",
-      "message": "When checked the server names will be appended to each player's name. When unchecked server names will be removed from all names. Note: Adding server names to player names in messages may not work reliably for players on the same server as you.",
-      "description": ""
+      "message": "When checked the server names will be appended to each player's name. When unchecked server names will be removed from all names. Note: Adding server names to player names in messages may not work reliably for players on the same server as you."
     },
     {
       "key": "Label.IncludeSelf.Checkbox",
-      "message": "Include me",
-      "description": ""
+      "message": "Include me"
     },
     {
       "key": "Label.IncludeSelf.Checkbox.Help",
-      "message": "When checked you will be included in this log even if you are not in the user list. When unchecked, you will only be included in the log if you are included in the user list.",
-      "description": ""
+      "message": "When checked you will be included in this log even if you are not in the user list. When unchecked, you will only be included in the log if you are included in the user list."
     },
     {
       "key": "Label.IncludeAll.Checkbox",
-      "message": "Include all messages (debug)",
-      "description": ""
+      "message": "Include all messages (debug)"
     },
     {
       "key": "Label.IncludeAll.Checkbox.Help",
-      "message": "When checked all messages are included in this log, even ones that are normally ignored. This is only for debugging.",
-      "description": ""
+      "message": "When checked all messages are included in this log, even ones that are normally ignored. This is only for debugging."
     },
     {
       "key": "Header.IncludedUsers",
-      "message": "Included Users",
-      "description": ""
+      "message": "Included Users"
     },
     {
       "key": "Description.IncludedUsers",
-      "message": "These are the users that will be included in this log. You can also enter what you want each user to be renamed to in the log. This is generally used to shorten names to make the log easier to read.",
-      "description": ""
+      "message": "These are the users that will be included in this log. You can also enter what you want each user to be renamed to in the log. This is generally used to shorten names to make the log easier to read."
     },
     {
       "key": "Button.AddUser",
-      "message": "Add user",
-      "description": ""
+      "message": "Add user"
     },
     {
       "key": "Title.AddUser",
-      "message": "Add user",
-      "description": ""
+      "message": "Add user"
     },
     {
       "key": "ColumnHeader.FullName",
-      "message": "Player full name",
-      "description": ""
+      "message": "Player full name"
     },
     {
       "key": "ColumnHeader.Replacement",
-      "message": "Replace with",
-      "description": ""
+      "message": "Replace with"
     },
     {
       "key": "Header.IncludedChatTypes",
-      "message": "Included Chat Types",
-      "description": ""
+      "message": "Included Chat Types"
     },
     {
       "key": "Message.PlayerAlreadyInList",
-      "message": "That player is already in the list.",
-      "description": ""
+      "message": "That player is already in the list."
     },
     {
       "key": "Label.PlayerFullName",
-      "message": "Player full name",
-      "description": ""
+      "message": "Player full name"
     },
     {
       "key": "Label.PlayerFullName.Help",
-      "message": "The full name of the player including the player's home world separated by an at (@) sign e.g. Lord Farquod@Duloc. If a world is not present it will default to your home world. You can also use the Friend selector button to pick a player from your friend list.",
-      "description": ""
+      "message": "The full name of the player including the player's home world separated by an at (@) sign e.g. Lord Farquod@Duloc. If a world is not present it will default to your home world. You can also use the Friend selector button to pick a player from your friend list."
     },
     {
       "key": "Label.PlayerReplacement",
-      "message": "Player replacement name",
-      "description": ""
+      "message": "Player replacement name"
     },
     {
       "key": "Label.PlayerReplacement.Help",
-      "message": "If present, this is the name that will replace the full play name in the log, typically used to simplify names of players that are well-known to you.",
-      "description": ""
+      "message": "If present, this is the name that will replace the full play name in the log, typically used to simplify names of players that are well-known to you."
     },
     {
       "key": "Button.Add",
-      "message": "Add",
-      "description": ""
+      "message": "Add"
     },
     {
       "key": "Button.Remove",
-      "message": "Remove",
-      "description": ""
+      "message": "Remove"
     },
     {
       "key": "Button.Cancel",
-      "message": "Cancel",
-      "description": ""
+      "message": "Cancel"
     },
     {
       "key": "Button.ClearFilter.Help",
-      "message": "Clears the filter.",
-      "description": ""
+      "message": "Clears the filter."
     },
     {
       "key": "Button.FriendSelector.Help",
-      "message": "Brings up the Friend selector.",
-      "description": ""
+      "message": "Brings up the Friend selector."
     },
     {
       "key": "Text.RemoveUser",
-      "message": "Do you want to remove {0} from this log?",
-      "description": ""
+      "message": "Do you want to remove {0} from this log?"
     },
     {
       "key": "Combo.Order.GroupDate",
-      "message": "Group then date",
-      "description": ""
+      "message": "Group then date"
     },
     {
       "key": "Combo.Order.GroupDate.Help",
-      "message": "The log file names will be in the format: ''prefix-groupname-20230414-123456.log''. The operating system will sort the group file together.",
-      "description": ""
+      "message": "The log file names will be in the format: ''prefix-groupname-20230414-123456.log''. The operating system will sort the group file together."
     },
     {
       "key": "Combo.Order.DateGroup",
-      "message": "Date then group",
-      "description": ""
+      "message": "Date then group"
     },
     {
       "key": "Combo.Order.DateGroup.Help",
-      "message": "The log file names will be in the format: ''prefix-20230414-123456-groupname.log''. The operating system will sort the logs from the same time together.",
-      "description": ""
+      "message": "The log file names will be in the format: ''prefix-20230414-123456-groupname.log''. The operating system will sort the logs from the same time together."
     },
     {
       "key": "Combo.Timestamp.Cultural",
-      "message": "Cultural",
-      "description": ""
+      "message": "Cultural"
     },
     {
       "key": "Combo.Timestamp.Sortable",
-      "message": "Sortable",
-      "description": ""
+      "message": "Sortable"
     },
     {
       "key": "Combo.Timestamp.Cultural.Help",
-      "message": "Formats the timestamp in a way that is reasonable for the region you are in. This uses the default region settings of this computer. For example, this will look like: '5/4/2023 9:37:54 PM' in the US and '4/5/2023 21:37:54' in The Netherlands.'",
-      "description": ""
+      "message": "Formats the timestamp in a way that is reasonable for the region you are in. This uses the default region settings of this computer. For example, this will look like: '5/4/2023 9:37:54 PM' in the US and '4/5/2023 21:37:54' in The Netherlands.'"
     },
     {
       "key": "Combo.Timestamp.Sortable.Help",
-      "message": "Formats the timestamp in a way that allows for easy sorting, and is consistent across regions. It will still use this computer's time zone to format the timestamp. Timestamps will look like: 2023-05-04 16:25:38",
-      "description": ""
+      "message": "Formats the timestamp in a way that allows for easy sorting, and is consistent across regions. It will still use this computer's time zone to format the timestamp. Timestamps will look like: 2023-05-04 16:25:38"
     },
     {
       "key": "Combo.Order.Label",
-      "message": "Log file order",
-      "description": ""
+      "message": "Log file order"
     },
     {
       "key": "Combo.Order.Help",
-      "message": "Specifies the order of the parts of the log file name.",
-      "description": ""
+      "message": "Specifies the order of the parts of the log file name."
     },
     {
       "key": "Combo.Timestamp.Label",
-      "message": "Time format",
-      "description": ""
+      "message": "Time format"
     },
     {
       "key": "Combo.Timestamp.Help",
-      "message": "Which format to use for timestamps.",
-      "description": ""
+      "message": "Which format to use for timestamps."
     },
     {
       "key": "Input.WrapWidth.Label",
-      "message": "Wrap Width (chars)",
-      "description": ""
+      "message": "Wrap Width (chars)"
     },
     {
       "key": "Input.WrapWidth.Help",
-      "message": "The maximum width of each line of the message in characters. Lines longer than this will be broken into multiple lines. Set to 0 to not wrap.",
-      "description": ""
+      "message": "The maximum width of each line of the message in characters. Lines longer than this will be broken into multiple lines. Set to 0 to not wrap."
     },
     {
       "key": "Input.WrapIndent.Label",
-      "message": "Wrap Indent (chars)",
-      "description": ""
+      "message": "Wrap Indent (chars)"
     },
     {
       "key": "Input.WrapIndent.Help",
-      "message": "The indentation for each wrapped message line in characters. Set to 0 to have no indentation. Set to -1 to have the indentation calculated.",
-      "description": ""
+      "message": "The indentation for each wrapped message line in characters. Set to 0 to have no indentation. Set to -1 to have the indentation calculated."
     },
     {
       "key": "Button.AddGroup",
-      "message": "New group",
-      "description": ""
+      "message": "New group"
     },
     {
       "key": "Message.GroupAlreadyInList",
-      "message": "That group is already in the group list.",
-      "description": ""
+      "message": "That group is already in the group list."
     },
     {
       "key": "Label.GroupName",
-      "message": "Group name",
-      "description": ""
+      "message": "Group name"
     },
     {
       "key": "Label.GroupName.Help",
-      "message": "The name of the group. This will be used as part of the log file name, so it should be short, but understandable.",
-      "description": ""
+      "message": "The name of the group. This will be used as part of the log file name, so it should be short, but understandable. Names are restricted to Letters, Numbers, and the characters: -,=~!@#+"
     },
     {
       "key": "Button.Create",
-      "message": "Create",
-      "description": ""
+      "message": "Create"
     },
     {
       "key": "Label.Delete.Group",
-      "message": "Do you want to delete group {0}?",
-      "description": ""
+      "message": "Do you want to delete group {0}?"
     },
     {
       "key": "Title.Delete",
-      "message": "Delete?",
-      "description": ""
+      "message": "Delete?"
     },
     {
       "key": "Title.Remove",
-      "message": "Remove?",
-      "description": ""
+      "message": "Remove?"
     },
     {
       "key": "Combo.Directory.Unified",
-      "message": "Unified",
-      "description": ""
+      "message": "Unified"
     },
     {
       "key": "Combo.Directory.Unified.Help",
-      "message": "All log files will be placed in same directory.",
-      "description": ""
+      "message": "All log files will be placed in same directory."
     },
     {
       "key": "Combo.Directory.Group",
-      "message": "Group",
-      "description": ""
+      "message": "Group"
     },
     {
       "key": "Combo.Directory.Group.Help",
-      "message": "All log files for a group will be placed in same directory named for the group.",
-      "description": ""
+      "message": "All log files for a group will be placed in same directory named for the group."
     },
     {
       "key": "Combo.Directory.YearMonth",
-      "message": "Year/Month",
-      "description": ""
+      "message": "Year/Month"
     },
     {
       "key": "Combo.Directory.YearMonth.Help",
-      "message": "Log files will be placed in subdirectories named for the year, and then the month e.g. 2024/07.",
-      "description": ""
+      "message": "Log files will be placed in subdirectories named for the year, and then the month e.g. 2024/07."
     },
     {
       "key": "Combo.Directory.YearMonthGroup",
-      "message": "Year/Month/Group",
-      "description": ""
+      "message": "Year/Month/Group"
     },
     {
       "key": "Combo.Directory.YearMonthGroup.Help",
-      "message": "Log files will be placed in subdirectories named for the year, the month, and then the group e.g. 2024/07/all.",
-      "description": ""
+      "message": "Log files will be placed in subdirectories named for the year, the month, and then the group e.g. 2024/07/all."
     },
     {
       "key": "Combo.Directory.GroupYearMonth",
-      "message": "Group/Year/Month",
-      "description": ""
+      "message": "Group/Year/Month"
     },
     {
       "key": "Combo.Directory.GroupYearMonth.Help",
-      "message": "Log files will be placed in subdirectories named for the group, the year, and then the month e.g. all/2024/07.",
-      "description": ""
+      "message": "Log files will be placed in subdirectories named for the group, the year, and then the month e.g. all/2024/07."
     },
     {
       "key": "Combo.Directory.Label",
-      "message": "Log directory format",
-      "description": ""
+      "message": "Log directory format"
     },
     {
       "key": "Combo.Directory.Help",
-      "message": "Specifies the format for the log dirctory (nesting).",
-      "description": ""
+      "message": "Specifies the format for the log directory (nesting)."
     },
     {
       "key": "Button.Delete",
-      "message": "Delete",
-      "description": ""
+      "message": "Delete"
     },
     {
       "key": "Button.Restart",
-      "message": "Restart",
-      "description": ""
+      "message": "Restart"
     },
     {
       "key": "Button.Restart.Help",
-      "message": "Closes the current logs and reopens them using the updated configuration settings.",
-      "description": ""
+      "message": "Closes the current logs and reopens them using the updated configuration settings."
     },
     {
       "key": "Label.IsEvent.Checkbox",
-      "message": "Is event",
-      "description": ""
+      "message": "Is event"
     },
     {
       "key": "Label.IsEvent.Checkbox.Help",
-      "message": "Marks this as an event, which must be actively started and will only be active for a set period of time.",
-      "description": ""
+      "message": "Marks this as an event, which must be actively started and will only be active for a set period of time."
     },
     {
       "key": "Message.EventAlreadyInList",
-      "message": "Event and group names must be unique.",
-      "description": ""
+      "message": "Event and group names must be unique."
     },
     {
       "key": "Label.EventName",
-      "message": "Event name",
-      "description": ""
+      "message": "Event name"
     },
     {
       "key": "Label.EventName.Help",
-      "message": "The name of the event. This will be used as part of the log file name, so it should be short, but understandable.",
-      "description": ""
+      "message": "The name of the event. This will be used as part of the log file name, so it should be short, but understandable. Names are restricted to Letters, Numbers, and the characters: -,=~!@#"
     },
     {
       "key": "Button.AddEvent",
-      "message": "New event",
-      "description": ""
+      "message": "New event"
     },
     {
       "key": "Button.StartEvent",
-      "message": "Start event",
-      "description": ""
+      "message": "Start event"
     },
     {
       "key": "Button.StartEvent.Help",
-      "message": "Starts an inactive event.",
-      "description": ""
+      "message": "Starts an inactive event."
     },
     {
       "key": "Button.StopEvent",
-      "message": "Stop event",
-      "description": ""
+      "message": "Stop event"
     },
     {
       "key": "Button.StopEvent.Help",
-      "message": "Stops an active event.",
-      "description": ""
+      "message": "Stops an active event."
     },
     {
       "key": "Button.ShowConfig",
-      "message": "Show config",
-      "description": ""
+      "message": "Show config"
     },
     {
       "key": "Button.ShowConfig.Help",
-      "message": "Shows the config window.",
-      "description": ""
+      "message": "Shows the config window."
     },
     {
       "key": "Button.Start",
-      "message": "Start",
-      "description": ""
+      "message": "Start"
     },
     {
       "key": "Button.Stop",
-      "message": "Stop",
-      "description": ""
+      "message": "Stop"
     },
     {
       "key": "Label.ShowMinimalMain",
-      "message": "Show minimal main window",
-      "description": ""
+      "message": "Show minimal main window"
     },
     {
       "key": "Label.ShowMinimalMain.Help",
-      "message": "Shows the main Chatter window as small as possible to cover as little screen space as possible.",
-      "description": ""
+      "message": "Shows the main Chatter window as small as possible to cover as little screen space as possible."
     },
     {
       "key": "Combo.Period.Days",
-      "message": "Days",
-      "description": ""
+      "message": "Days"
     },
     {
       "key": "Combo.Period.Days.Help",
-      "message": "The number of days to run.",
-      "description": ""
+      "message": "The number of days to run."
     },
     {
       "key": "Combo.Period.Hours",
-      "message": "Hours",
-      "description": ""
+      "message": "Hours"
     },
     {
       "key": "Combo.Period.Hours.Help",
-      "message": "The number of hours to run.",
-      "description": ""
+      "message": "The number of hours to run."
     },
     {
       "key": "Combo.Period.Minutes",
-      "message": "Minutes",
-      "description": ""
+      "message": "Minutes"
     },
     {
       "key": "Combo.Period.Minutes.Help",
-      "message": "The number of minutes to run.",
-      "description": ""
+      "message": "The number of minutes to run."
     },
     {
       "key": "Label.Period",
-      "message": "Period",
-      "description": ""
+      "message": "Period"
     },
     {
       "key": "Label.Period.Help",
-      "message": "The length of the period.",
-      "description": ""
+      "message": "The length of the period."
     },
     {
       "key": "Label.EventLength",
-      "message": "Event length",
-      "description": ""
+      "message": "Event length"
     },
     {
       "key": "Label.EventLength.Help",
-      "message": "The legnth of time this event will be active.",
-      "description": ""
+      "message": "The length of time this event will be active."
+    },
+    {
+      "key": "Title.StartEvent",
+      "message": "Start Event"
+    },
+    {
+      "key": "Title.StopEvent",
+      "message": "Stop Event"
+    },
+    {
+      "key": "Combo.NoInactiveEvents",
+      "message": "(no inactive events)"
+    },
+    {
+      "key": "Combo.NoInactiveEvents.Help",
+      "message": "There are no inactive events to start."
+    },
+    {
+      "key": "Label.EventsInactive",
+      "message": "Events"
+    },
+    {
+      "key": "Label.EventsInactive.Help",
+      "message": "The list of inactive events to choose from."
+    },
+    {
+      "key": "Combo.NoActiveEvents",
+      "message": "(no active events)"
+    },
+    {
+      "key": "Combo.NoActiveEvents.Help",
+      "message": "There are no active events to stop."
+    },
+    {
+      "key": "Label.EventsActive",
+      "message": "Events"
+    },
+    {
+      "key": "Label.EventsActive.Help",
+      "message": "The list of active events to choose from."
+    },
+    {
+      "key": "Title.MainWindow",
+      "message": "Chatter"
+    },
+    {
+      "key": "Title.ConfigurationWindow",
+      "message": "Chatter Configuration"
+    },
+    {
+      "key": "Button.CopyToClipboard.Help",
+      "message": "Copies the directory path to the clipboard and opens the file explorer at the location."
+    },
+    {
+      "key": "Label.TimeRemaining",
+      "message": "Time remaining {0}"
+    },
+    {
+      "key": "Format.Period.Days",
+      "message": "1|Format.Period.Days.1,*|Format.Period.Days.0"
+    },
+    {
+      "key": "Format.Period.Days.0",
+      "message": "{0:D} days, {1:D} hours, {2:D} minutes, and {3:D} seconds"
+    },
+    {
+      "key": "Format.Period.Days.1",
+      "message": "{0:D} day, {1:D} hours, {2:D} minutes, and {3:D} seconds"
+    },
+    {
+      "key": "Format.Period.Hours",
+      "message": "1|Format.Period.Hours.1,*|Format.Period.Hours.0"
+    },
+    {
+      "key": "Format.Period.Hours.0",
+      "message": "{0:D} hours, {1:D} minutes, and {2:D} seconds"
+    },
+    {
+      "key": "Format.Period.Hours.1",
+      "message": "{0:D} hour, {1:D} minutes, and {2:D} seconds"
+    },
+    {
+      "key": "Format.Period.Minutes",
+      "message": "1|Format.Period.Minutes.1,*|Format.Period.Minutes.0"
+    },
+    {
+      "key": "Format.Period.Minutes.0",
+      "message": "{0:D} minutes and {1:D} seconds"
+    },
+    {
+      "key": "Format.Period.Minutes.1",
+      "message": "{0:D} minute and {1:D} seconds"
+    },
+    {
+      "key": "Format.Period.Seconds",
+      "message": "1|Format.Period.Seconds.1,*|Format.Period.Seconds.0"
+    },
+    {
+      "key": "Format.Period.Seconds.0",
+      "message": "{0:D} seconds"
+    },
+    {
+      "key": "Format.Period.Seconds.1",
+      "message": "{0:D} second"
+    },
+    {
+      "key": "Button.RemoveUser.Help",
+      "message": "Removes the user."
+    },
+    {
+      "key": "Button.DeleteGroup.Help",
+      "message": "Deletes the group."
     }
   ]
 }
