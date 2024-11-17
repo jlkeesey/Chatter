@@ -68,7 +68,7 @@ public sealed class ChatString
             switch (payload)
             {
                 case PlayerPayload p:
-                    player = new CsPlayerItem(p.PlayerName, p.World.Name);
+                    player = new CsPlayerItem(p.PlayerName, p.World.Value.Name.ExtractText());
                     _items.Add(player);
                     nameState = NameState.LookingForName;
                     break;
