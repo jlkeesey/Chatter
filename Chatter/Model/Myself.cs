@@ -51,7 +51,7 @@ public class Myself(IClientState clientState, WorldManager worldManager) : IPlay
     {
         get
         {
-            return _homeWorld ??= worldManager.GetWorld(clientState.LocalPlayer?.HomeWorld.GameData?.Name.ToString());
+            return _homeWorld ??= worldManager.GetWorld(clientState.LocalPlayer?.HomeWorld.Value.Name.ExtractText());
         }
     }
 

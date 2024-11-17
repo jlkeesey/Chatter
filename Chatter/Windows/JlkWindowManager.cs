@@ -10,7 +10,7 @@
 //    this list of conditions and the following disclaimer in the documentation
 //    and/or other materials provided with the distribution.
 // 
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ìAS ISî
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ‚ÄúAS IS‚Äù
 // AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 // IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
 // ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
@@ -86,6 +86,7 @@ public sealed class JlkWindowManager : IDisposable
     public void Dispose()
     {
         _pluginInterface.UiBuilder.OpenConfigUi -= ToggleConfig;
+        _pluginInterface.UiBuilder.OpenMainUi -= ToggleMain;
         _pluginInterface.UiBuilder.Draw -= _windowSystem.Draw;
 
         _windowSystem.RemoveAllWindows();
@@ -96,7 +97,7 @@ public sealed class JlkWindowManager : IDisposable
     /// </summary>
     public void ToggleMain()
     {
-        _mainWindow.IsOpen = !_mainWindow.IsOpen;
+        _mainWindow.Toggle();
     }
 
     /// <summary>
@@ -104,7 +105,7 @@ public sealed class JlkWindowManager : IDisposable
     /// </summary>
     public void ToggleConfig()
     {
-        _configWindow.IsOpen = !_configWindow.IsOpen;
+        _configWindow.Toggle();
     }
 
     /// <summary>
