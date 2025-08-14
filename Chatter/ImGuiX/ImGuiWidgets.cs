@@ -27,7 +27,7 @@ using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Utility;
 using FFXIVClientStructs.FFXIV.Common.Math;
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
 using JetBrains.Annotations;
 
 namespace Chatter.ImGuiX;
@@ -159,14 +159,14 @@ public static class ImGuiWidgets
         if (filter != null)
         {
             flags |= ImGuiInputTextFlags.CallbackCharFilter;
-            if (ImGui.InputText(id ?? label, ref value, maxLength, flags, filter.Filter))
+            if (ImGui.InputText(id ?? label, ref value, (int)maxLength, flags, filter.Filter))
             {
                 return true;
             }
         }
         else
         {
-            if (ImGui.InputText(id ?? label, ref value, maxLength, flags))
+            if (ImGui.InputText(id ?? label, ref value, (int)maxLength, flags))
             {
                 return true;
             }

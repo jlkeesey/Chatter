@@ -24,7 +24,7 @@
 using System;
 using Chatter.ImGuiX;
 using Chatter.Localization;
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
 using NodaTime;
 using System.Collections.Generic;
 

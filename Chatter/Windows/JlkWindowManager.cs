@@ -30,7 +30,7 @@ using System;
 using Chatter.Chat;
 using Dalamud.Interface.Textures;
 using FFXIVClientStructs.FFXIV.Common.Math;
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
 
 namespace Chatter.Windows;
 

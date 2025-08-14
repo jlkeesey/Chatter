@@ -28,7 +28,7 @@ using Chatter.System;
 using Dalamud.Game.Text;
 using Dalamud.Interface;
 using Dalamud.Interface.Windowing;
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -279,7 +279,7 @@ public sealed partial class ConfigWindow : Window
 
     private void DrawPluginIcon()
     {
-        ImGui.Image(_chatterImage.GetWrapOrEmpty().ImGuiHandle, new Vector2(64, 64));
+        ImGui.Image(_chatterImage.GetWrapOrEmpty().Handle, new Vector2(64, 64));
     }
 
     /// <summary>
