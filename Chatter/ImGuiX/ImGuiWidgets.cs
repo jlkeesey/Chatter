@@ -191,7 +191,7 @@ public static class ImGuiWidgets
         /// </summary>
         /// <param name="data">The filter callback data.</param>
         /// <returns>0 to allow the character, 1 to ignore it.</returns>
-        public unsafe int Filter(ImGuiInputTextCallbackData* data);
+        public unsafe int Filter(ImGuiInputTextCallbackDataPtr data);
     }
 
     /// <summary>
@@ -200,9 +200,9 @@ public static class ImGuiWidgets
     public class FilenameCharactersFilter : ICharacterFilter
     {
         /// <inheritdoc/>
-        public unsafe int Filter(ImGuiInputTextCallbackData* data)
+        public unsafe int Filter(ImGuiInputTextCallbackDataPtr data)
         {
-            var ch = Convert.ToChar(data->EventChar);
+            var ch = Convert.ToChar(data.EventChar);
             if (char.IsLetterOrDigit(ch)) return 0;
             return ch switch
             {
