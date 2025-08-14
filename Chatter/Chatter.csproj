@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<Project Sdk="Dalamud.NET.Sdk/12.0.0">
+<Project Sdk="Dalamud.NET.Sdk/12.0.2">
 	<PropertyGroup>
 		<Authors>James Keesey</Authors>
 		<Company></Company>
-		<Version>1.3.1</Version>
+		<Version>1.3.2</Version>
 		<Description>Plugin to save and filter chats.</Description>
 		<Copyright>(C) James Keesey. All rights reserved.</Copyright>
 		<PackageProjectUrl>https://github.com/jlkeesey/Chatter</PackageProjectUrl>
