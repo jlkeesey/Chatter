@@ -21,14 +21,16 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-using System;
-using System.Collections.Generic;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Utility;
 using FFXIVClientStructs.FFXIV.Common.Math;
-using ImGuiNET;
 using JetBrains.Annotations;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using static Dalamud.Bindings.ImGui.ImGui;
 
 namespace Chatter.ImGuiX;
 
@@ -141,37 +143,52 @@ public static class ImGuiWidgets
     /// <param name="extra">Function to add extra parts to the end of the widget.</param>
     /// <param name="extraWidth">The width of the extra element(s).</param>
     public static unsafe bool LongInputField(string label,
-                                             ref string value,
-                                             uint maxLength = 100,
-                                             string? id = null,
-                                             string? help = null,
-                                             bool allowEnter = false,
-                                             ICharacterFilter? filter = null,
-                                             Action? extra = null,
-                                             int extraWidth = 0)
+                                      ref string value,
+                                      uint maxLength = 100,
+                                      string? id = null,
+                                      string? help = null,
+                                      bool allowEnter = false,
+                                      ICharacterFilter? filter = null,
+                                      Action? extra = null,
+                                      int extraWidth = 0)
     {
         ImGui.TextUnformatted(label);
         HelpMarker(help);
 
         var flags = allowEnter ? ImGuiInputTextFlags.EnterReturnsTrue : ImGuiInputTextFlags.None;
 
+        Span<byte> buffer = stackalloc byte[(int)maxLength];
+        var encoding = Encoding.UTF8;
+        
+        // Encode current value to UTF-8
+        var byteCount = encoding.GetBytes(value.AsSpan(), buffer);
+        // Ensure null termination
+        if (byteCount < buffer.Length)
+            buffer[byteCount] = 0;
+        
         ImGui.SetNextItemWidth(extraWidth == 0 ? -1 : -extraWidth);
+        bool result;
         if (filter != null)
         {
             flags |= ImGuiInputTextFlags.CallbackCharFilter;
-            if (ImGui.InputText(id ?? label, ref value, maxLength, flags, filter.Filter))
-            {
-                return true;
-            }
+            // Create callback delegate that calls your filter
+            int Callback(ImGuiInputTextCallbackDataPtr data) => filter.Filter(data);
+
+            result = InputText(id ?? label, buffer, flags, (ImGuiInputTextCallbackPtrDelegate)Callback);
         }
         else
         {
-            if (ImGui.InputText(id ?? label, ref value, maxLength, flags))
-            {
-                return true;
-            }
+            result = InputText(id ?? label, buffer, flags);
         }
 
+        if (result)
+        {
+            // Convert back from UTF-8 to string
+            var nullIndex = buffer.IndexOf((byte)0);
+            var validBytes = nullIndex >= 0 ? buffer[..nullIndex] : buffer;
+            value = encoding.GetString(validBytes);
+        }
+        
         if (extra != null)
         {
             ImGui.SameLine();
@@ -191,7 +208,7 @@ public static class ImGuiWidgets
         /// </summary>
         /// <param name="data">The filter callback data.</param>
         /// <returns>0 to allow the character, 1 to ignore it.</returns>
-        public unsafe int Filter(ImGuiInputTextCallbackData* data);
+        public unsafe int Filter(ImGuiInputTextCallbackDataPtr data);
     }
 
     /// <summary>
@@ -200,9 +217,9 @@ public static class ImGuiWidgets
     public class FilenameCharactersFilter : ICharacterFilter
     {
         /// <inheritdoc/>
-        public unsafe int Filter(ImGuiInputTextCallbackData* data)
+        public unsafe int Filter(ImGuiInputTextCallbackDataPtr data)
         {
-            var ch = Convert.ToChar(data->EventChar);
+            var ch = Convert.ToChar(data.EventChar);
             if (char.IsLetterOrDigit(ch)) return 0;
             return ch switch
             {
