@@ -23,7 +23,7 @@
 
 using Chatter.Localization;
 using Dalamud.Interface.Windowing;
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
 using System.Numerics;
 using Chatter.Chat;
 using Chatter.ImGuiX;

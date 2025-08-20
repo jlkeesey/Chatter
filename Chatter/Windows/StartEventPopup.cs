@@ -24,7 +24,7 @@
 using System.Collections.Generic;
 using Chatter.Localization;
 using Dalamud.Interface.Windowing;
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
 using System.Linq;
 using System.Numerics;
 using Chatter.ImGuiX;

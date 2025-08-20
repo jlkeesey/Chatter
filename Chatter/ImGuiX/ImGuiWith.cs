@@ -22,7 +22,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using System;
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
 
 namespace Chatter.ImGuiX;
 
