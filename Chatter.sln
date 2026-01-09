@@ -5,8 +5,6 @@ VisualStudioVersion = 17.5.33516.290
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chatter", "Chatter\Chatter.csproj", "{55C1DDD7-9B38-44B5-81C6-BB9DB2ACA00F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chatter.UnitTests", "Chatter.UnitTests\Chatter.UnitTests.csproj", "{6D25C23B-2FF1-4A71-8E64-B8C973D8A3F3}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
