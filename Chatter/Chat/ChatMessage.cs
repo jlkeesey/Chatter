@@ -35,13 +35,11 @@ namespace Chatter.Chat;
 public sealed class ChatMessage(
     XivChatType xivType,
     string typeLabel,
-    int senderId,
     ChatString sender,
     ChatString body,
     ZonedDateTime when)
 {
     public XivChatType ChatType { get; } = xivType;
-    public int SenderId { get; } = senderId;
     public ChatString Sender { get; } = sender;
     public ChatString Body { get; } = body;
     public ZonedDateTime When { get; } = when;

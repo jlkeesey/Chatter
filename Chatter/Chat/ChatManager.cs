@@ -28,6 +28,7 @@ using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Plugin.Services;
 using System;
 using System.Collections.Generic;
+using Dalamud.Game.Chat;
 
 namespace Chatter.Chat;
 
@@ -56,27 +57,27 @@ public sealed class ChatManager : IDisposable
     /// </summary>
     private static readonly List<XivChatType> IgnoredChatTypes =
     [
-        (XivChatType) 72,    // Of the X parties currently recruiting, all match your search conditions.
-        (XivChatType) 581,   // Company board
-        (XivChatType) 2091,  // You use Teleport.
-        (XivChatType) 2092,  // You use a venture coffer.
-        (XivChatType) 2105,  // You spent X gil.
-        (XivChatType) 2110,  // You obtain XXX [from venture]
-        (XivChatType) 2219,  // You ready Teleport.
-        (XivChatType) 2220,  // You ready a venture coffer.
-        (XivChatType) 2622,  // You obtain 2 pots of general-purpose pastel blue dye.
-        (XivChatType) 3129,  // You pay XXX 2 ventures.
-        (XivChatType) 8235,  // Bob Smith uses sprint.
-        (XivChatType) 8236,  // Bob Smith uses an apricot.
-        (XivChatType) 8250,  // Bob Smith is revived.
-        (XivChatType) 8256,  // Bob Smith attains level YY.
-        (XivChatType) 8746,  // The attack misses.
-        (XivChatType) 8749,  // Bob Smith recovers X MP.
-        (XivChatType) 8750,  // Bob Smith gains the effect of Well Fed.
-        (XivChatType) 8751,  // Bob Smith gains the effects of XXX.
-        (XivChatType) 8752,  // Bob Smith loses effects of XXX.
-        (XivChatType) 8753,  // Bob Smith recovers from the effects of XXX.
-        (XivChatType) 16488, // Retainer XX gain YY experience.
+        (XivChatType)72,    // Of the X parties currently recruiting, all match your search conditions.
+        (XivChatType)581,   // Company board
+        (XivChatType)2091,  // You use Teleport.
+        (XivChatType)2092,  // You use a venture coffer.
+        (XivChatType)2105,  // You spent X gil.
+        (XivChatType)2110,  // You obtain XXX [from venture]
+        (XivChatType)2219,  // You ready Teleport.
+        (XivChatType)2220,  // You ready a venture coffer.
+        (XivChatType)2622,  // You obtain 2 pots of general-purpose pastel blue dye.
+        (XivChatType)3129,  // You pay XXX 2 ventures.
+        (XivChatType)8235,  // Bob Smith uses sprint.
+        (XivChatType)8236,  // Bob Smith uses an apricot.
+        (XivChatType)8250,  // Bob Smith is revived.
+        (XivChatType)8256,  // Bob Smith attains level YY.
+        (XivChatType)8746,  // The attack misses.
+        (XivChatType)8749,  // Bob Smith recovers X MP.
+        (XivChatType)8750,  // Bob Smith gains the effect of Well Fed.
+        (XivChatType)8751,  // Bob Smith gains the effects of XXX.
+        (XivChatType)8752,  // Bob Smith loses effects of XXX.
+        (XivChatType)8753,  // Bob Smith recovers from the effects of XXX.
+        (XivChatType)16488, // Retainer XX gain YY experience.
         XivChatType.NPCDialogueAnnouncements, XivChatType.Debug, XivChatType.RetainerSale,
         XivChatType.GatheringSystemMessage, XivChatType.ErrorMessage,
     ];
@@ -126,41 +127,25 @@ public sealed class ChatManager : IDisposable
     /// <summary>
     ///     Chat message handler. This is called for every chat message that passes through the system.
     /// </summary>
-    /// <param name="xivType">The chat type.</param>
-    /// <param name="senderId">The id of the sender.</param>
-    /// <param name="seSender">
-    ///     The name of the sender. This will include the world name if the world is different from the user,
-    ///     but the world will not be separated from the username.
-    /// </param>
-    /// <param name="seBody">
-    ///     The chat message text. Usernames will include the world name is the world is different from the user,
-    ///     but the world will not be separated from the username.
-    /// </param>
-    /// <param name="isHandled">
-    ///     Can be set to <c>true</c> to indicate that this handle handled the message and it should not be
-    ///     passed on.
-    /// </param>
-    private void HandleChatMessage(XivChatType xivType,
-                                   int senderId,
-                                   ref SeString seSender,
-                                   ref SeString seBody,
-                                   ref bool isHandled)
+    /// <param name="message">All the chat message information.</param>
+    private void HandleChatMessage(IHandleableChatMessage message)
     {
-        if (IgnoredChatTypes.Contains(xivType)) return;
-        if (!AllSupportedChatTypes.Contains(xivType))
+        if (IgnoredChatTypes.Contains(message.LogKind)) return;
+        if (!AllSupportedChatTypes.Contains(message.LogKind))
         {
-            if (!AlertedChatTypes.Contains(xivType))
+            if (!AlertedChatTypes.Contains(message.LogKind))
             {
-                AlertedChatTypes.Add(xivType);
-                if (_configuration.IsDebug) _logger.Debug($"Unsupported XivChatType: {xivType}: '{seBody.TextValue}'");
+                AlertedChatTypes.Add(message.LogKind);
+                if (_configuration.IsDebug)
+                    _logger.Debug($"Unsupported XivChatType: {message.LogKind}: '{message.Message.TextValue}'");
                 return;
             }
         }
 
-        var body = CleanUpBody(seBody);
-        var sender = CleanUpSender(seSender, body);
-        var chatTypeLabel = _chatTypeHelper.TypeToName(xivType, _configuration.IsDebug);
-        var cm = new ChatMessage(xivType, chatTypeLabel, senderId, sender, body, _dateHelper.ZonedNow);
+        var body = CleanUpBody(message.Message);
+        var sender = CleanUpSender(message.Sender, body);
+        var chatTypeLabel = _chatTypeHelper.TypeToName(message.LogKind, _configuration.IsDebug);
+        var cm = new ChatMessage(message.LogKind, chatTypeLabel, sender, body, _dateHelper.ZonedNow);
         _logManager.LogInfo(cm);
     }
 
