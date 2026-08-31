@@ -28,8 +28,16 @@ namespace Chatter.Model;
 /// <summary>
 ///     Information about the player running this plugin.
 /// </summary>
-public class Myself(IClientState clientState, IPlayerState playerState, WorldManager worldManager) : IPlayer
+/// <remarks>
+///     None of the player's details are available while we're not logged in (title screen, lobby, and the moments
+///     around a login or logout) but chat messages still arrive, so every lookup has to cope with the data being
+///     missing. We remember the last known values so messages that arrive around a logout are still attributed
+///     correctly, and we re-read them whenever they are available so switching characters is picked up.
+/// </remarks>
+public class Myself(IPlayerState playerState, WorldManager worldManager) : IPlayer
 {
+    private const string UnknownName = "Who am I?";
+
     private World? _homeWorld;
     private string? _name;
 
@@ -40,7 +48,9 @@ public class Myself(IClientState clientState, IPlayerState playerState, WorldMan
     {
         get
         {
-            return _name ??= (clientState.IsLoggedIn ? playerState.CharacterName : null) ?? "Who am I?";
+            var name = playerState.CharacterName;
+            if (!string.IsNullOrEmpty(name)) _name = name;
+            return _name ?? UnknownName;
         }
     }
 
@@ -51,7 +61,11 @@ public class Myself(IClientState clientState, IPlayerState playerState, WorldMan
     {
         get
         {
-            return _homeWorld ??= worldManager.GetWorld(clientState.IsLoggedIn ? playerState.HomeWorld.Value.Name.ToString() : null);
+            // When we're not logged in this is a default RowRef (row id 0, no sheet) and reading Value throws.
+            var homeWorld = playerState.HomeWorld;
+            if (homeWorld.RowId != 0 && homeWorld.IsValid && _homeWorld?.Id != homeWorld.RowId)
+                _homeWorld = worldManager.GetWorld(homeWorld.RowId);
+            return _homeWorld ?? World.Null;
         }
     }
 
