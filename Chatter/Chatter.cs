@@ -55,7 +55,6 @@ public sealed partial class Chatter : IDalamudPlugin
     public Chatter(IDalamudPluginInterface pluginInterface,
                    IPluginLog pluginLog,
                    IChatGui chatGui,
-                   IClientState clientState,
                    IPlayerState playerState,
                    ICommandManager commandManager,
                    ITextureProvider textureProvider,
@@ -84,7 +83,7 @@ public sealed partial class Chatter : IDalamudPlugin
 
             var dateManager = new DateHelper() as IDateHelper;
             var worldManager = new WorldManager(gameData);
-            var myself = new Myself(clientState, playerState, worldManager);
+            var myself = new Myself(playerState, worldManager);
             var friendManager = new FriendManager(worldManager);
             var errorWriter = new ChatErrorWriter(chatGui);
             var chatLogGenerator = new ChatLogGenerator(errorWriter);
@@ -120,7 +119,7 @@ public sealed partial class Chatter : IDalamudPlugin
     ///     In theory all of these objects are non-null, so they all exist by this point in code, however, there is
     ///     a try/catch block around the initialization code which means that the constructor can fail before
     ///     reaching this point. That means that some of these objects are actually null at this point, so we
-    ///     add a null check to all of them just in case. If this were an application we could ignore them as the
+    ///     add a null check to all of them just in case. If this were an application, we could ignore them as the
     ///     system would clean up regardless, but as we are a DLL that is loaded into an application, the cleanup
     ///     will not occur until that application (Dalamud) exits.
     /// </remarks>
